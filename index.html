@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GoL Buy Smart - Dashboard Financeiro</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#00b4a0">
+  <meta name="background-color" content="#0d1f2d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GoL Buy Smart">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="GoL Buy Smart">
+  <meta name="msapplication-TileColor" content="#00b4a0">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="description" content="Dashboard Financeiro Inteligente - Controle suas finanças pessoais">
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Favicon e Ícones -->
+  <link rel="icon" type="image/png" sizes="192x192" href="logo-192.png">
+  <link rel="apple-touch-icon" href="logo-192.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="logo-192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="logo-512.png">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Space Grotesk', 'sans-serif'] },
+          colors: {
+            'app': { 
+              'bg': '#0d1f2d', 
+              'card': '#132a3c', 
+              'card-hover': '#1a3649',
+              'border': 'rgba(0, 180, 160, 0.15)' 
+            },
+            'brand': { 
+              'DEFAULT': '#00b4a0', 
+              'light': '#00d4b8', 
+              'dark': '#008577',
+              'glow': 'rgba(0, 180, 160, 0.3)' 
+            },
+            'income': '#00c853',
+            'expense': '#ff5252',
+            'warning': '#ffb300',
+            'purple': '#9c7cfa',
+            'orange': '#ff8a50'
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    html, body { 
+      height: 100%; 
+      overflow-x: hidden;
+      overscroll-behavior: none;
+    }
+    
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+      background: linear-gradient(180deg, #0d1f2d 0%, #0a1822 50%, #0d1f2d 100%); 
+      color: #e8f4f8; 
+      position: relative;
+      min-height: 100vh;
+    }
+    
+    .font-display { font-family: 'Space Grotesk', 'sans-serif'; }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      bottom: -50%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150%;
+      height: 100%;
+      background: radial-gradient(ellipse at center bottom, rgba(0, 180, 160, 0.08) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #1a3649; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: #234559; }
+    
+    .card {
+      background: linear-gradient(145deg, #132a3c 0%, #0f232f 100%);
+      border-radius: 16px;
+      border: 1px solid rgba(0, 180, 160, 0.1);
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(0, 180, 160, 0.3) 50%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    
+    .card:hover::before { opacity: 1; }
+    .card:hover { border-color: rgba(0, 180, 160, 0.2); }
+    
+    .summary-mini {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+    }
+    
+    .summary-mini .icon-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .summary-mini .content { flex: 1; min-width: 0; }
+    .summary-mini .label { font-size: 11px; color: #6b8a99; font-weight: 500; letter-spacing: 0.3px; }
+    .summary-mini .value { font-size: 16px; font-weight: 700; color: #fff; margin-top: 2px; }
+    .summary-mini .change { font-size: 10px; font-weight: 600; margin-top: 3px; display: inline-flex; align-items: center; gap: 3px; }
+    .summary-mini .change.up { color: #00c853; }
+    .summary-mini .change.down { color: #ff5252; }
+    .summary-mini .arrow { width: 20px; height: 20px; color: #3d5a6a; flex-shrink: 0; transition: all 0.2s; }
+    .summary-mini:hover .arrow { color: #00b4a0; transform: translateX(2px); }
+    
+    .dropdown {
+      background: #132a3c;
+      border: 1px solid rgba(0, 180, 160, 0.15);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #e8f4f8;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      min-width: 90px;
+    }
+    
+    .dropdown:hover { border-color: rgba(0, 180, 160, 0.3); background: #1a3649; }
+    .dropdown svg { width: 14px; height: 14px; color: #6b8a99; }
+    
+    .search-box {
+      background: #132a3c;
+      border: 1px solid rgba(0, 180, 160, 0.1);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+    
+    .search-box:focus-within { border-color: rgba(0, 180, 160, 0.3); }
+    .search-box input { background: transparent; border: none; outline: none; flex: 1; font-size: 13px; color: #e8f4f8; }
+    .search-box input::placeholder { color: #4a6b7a; }
+    .search-box svg { width: 18px; height: 18px; color: #4a6b7a; flex-shrink: 0; }
+    
+    .cat-item { padding: 12px 0; border-bottom: 1px solid rgba(0, 180, 160, 0.05); }
+    .cat-item:last-child { border-bottom: none; }
+    .cat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .cat-name { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; color: #e8f4f8; }
+    .cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .cat-values { display: flex; align-items: center; gap: 12px; }
+    .cat-amount { font-size: 14px; font-weight: 600; color: #fff; }
+    .cat-percent { font-size: 11px; color: #6b8a99; min-width: 40px; text-align: right; }
+    .cat-bar { height: 6px; background: rgba(19, 42, 60, 0.8); border-radius: 3px; overflow: hidden; }
+    .cat-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+    
+    .tx-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; transition: background 0.2s; cursor: pointer; }
+    .tx-item:hover { background: rgba(0, 180, 160, 0.05); }
+    .tx-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .tx-content { flex: 1; min-width: 0; }
+    .tx-title { font-size: 13px; font-weight: 500; color: #e8f4f8; }
+    .tx-sub { font-size: 11px; color: #6b8a99; margin-top: 2px; }
+    .tx-right { text-align: right; }
+    .tx-amount { font-size: 14px; font-weight: 600; }
+    .tx-date { font-size: 10px; color: #6b8a99; margin-top: 2px; }
+    
+    .sidebar-overlay {
+      position: fixed; inset: 0;
+      background: rgba(5, 15, 22, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 300;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    .sidebar-overlay.active { opacity: 1; visibility: visible; }
+    
+    .sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0; width: 280px;
+      background: linear-gradient(180deg, #132a3c 0%, #0d1f2d 100%);
+      z-index: 301;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      border-right: 1px solid rgba(0, 180, 160, 0.1);
+    }
+    .sidebar.active { transform: translateX(0); }
+    
+    .sidebar-header { padding: 20px; border-bottom: 1px solid rgba(0, 180, 160, 0.1); display: flex; align-items: center; justify-content: space-between; }
+    .sidebar-logo { display: flex; align-items: center; gap: 12px; }
+    .sidebar-logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #00b4a0 0%, #008577 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 18px; }
+    .sidebar-logo-text h1 { font-size: 18px; font-weight: 700; color: #ffb300; }
+    .sidebar-logo-text p { font-size: 10px; color: #6b8a99; }
+    .sidebar-close { width: 32px; height: 32px; border-radius: 8px; background: rgba(0, 180, 160, 0.1); display: flex; align-items: center; justify-content: center; color: #6b8a99; cursor: pointer; transition: all 0.2s; }
+    .sidebar-close:hover { background: rgba(0, 180, 160, 0.2); color: #fff; }
+    .sidebar-section { padding: 16px 12px; border-bottom: 1px solid rgba(0, 180, 160, 0.05); }
+    .sidebar-section-title { font-size: 10px; font-weight: 600; color: #6b8a99; text-transform: uppercase; letter-spacing: 1px; padding: 0 8px; margin-bottom: 8px; }
+    .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; cursor: pointer; transition: all 0.2s; color: #e8f4f8; font-size: 14px; font-weight: 500; }
+    .sidebar-item:hover { background: rgba(0, 180, 160, 0.1); }
+    .sidebar-item.active { background: rgba(0, 180, 160, 0.15); color: #00b4a0; }
+    .sidebar-item.highlight { color: #00c853; }
+    .sidebar-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .sidebar-profile { padding: 16px; margin: 16px 12px; background: rgba(0, 180, 160, 0.05); border-radius: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.2s; }
+    .sidebar-profile:hover { background: rgba(0, 180, 160, 0.1); }
+    .sidebar-avatar { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #00b4a0 0%, #008577 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 16px; overflow: hidden; }
+    .sidebar-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .sidebar-profile-info { flex: 1; min-width: 0; }
+    .sidebar-profile-name { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-profile-type { font-size: 11px; color: #6b8a99; }
+    
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(180deg, transparent 0%, #0d1f2d 20%); padding: 8px 16px 20px; z-index: 100; }
+    .bottom-nav-inner { background: linear-gradient(145deg, #1a3649 0%, #132a3c 100%); border-radius: 20px; border: 1px solid rgba(0, 180, 160, 0.15); display: flex; justify-content: space-around; padding: 8px; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 16px; border-radius: 14px; transition: all 0.2s; cursor: pointer; color: #6b8a99; }
+    .nav-item svg { width: 22px; height: 22px; }
+    .nav-item span { font-size: 10px; font-weight: 500; }
+    .nav-item.active { background: rgba(0, 180, 160, 0.15); color: #00b4a0; }
+    .nav-item:hover:not(.active) { background: rgba(255, 255, 255, 0.03); color: #9ab8c7; }
+    
+    .section-header { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid rgba(0, 180, 160, 0.05); }
+    .section-title { font-size: 14px; font-weight: 600; color: #e8f4f8; }
+    .section-actions { display: flex; align-items: center; gap: 8px; }
+    .section-action { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; cursor: pointer; }
+    
+    .fab { position: fixed; bottom: 90px; right: 20px; width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, #00b4a0 0%, #008577 100%); color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 24px rgba(0, 180, 160, 0.4); transition: all 0.2s; cursor: pointer; z-index: 99; }
+    .fab:hover { transform: scale(1.08); box-shadow: 0 8px 30px rgba(0, 180, 160, 0.5); }
+    .fab svg { width: 26px; height: 26px; }
+    
+    .modal-overlay { position: fixed; inset: 0; background: rgba(5, 15, 22, 0.95); backdrop-filter: blur(10px); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal-content { background: linear-gradient(180deg, #132a3c 0%, #0d1f2d 100%); width: 100%; max-width: 420px; max-height: 90vh; border-radius: 24px 24px 0 0; padding: 24px; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s ease; }
+    .modal-overlay.active .modal-content { transform: translateY(0); }
+    
+    .input-styled { background: #0d1f2d; border: 1px solid rgba(0, 180, 160, 0.15); border-radius: 12px; padding: 14px 16px; font-size: 14px; color: #e8f4f8; width: 100%; transition: all 0.2s; }
+    .input-styled:focus { outline: none; border-color: #00b4a0; }
+    .input-styled::placeholder { color: #4a6b7a; }
+    
+    .type-toggle { display: flex; background: #0d1f2d; border-radius: 12px; padding: 4px; gap: 4px; }
+    .type-btn { flex: 1; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 600; text-align: center; transition: all 0.2s; cursor: pointer; color: #6b8a99; border: none; background: transparent; }
+    .type-btn.expense.active { background: #ff5252; color: #fff; }
+    .type-btn.income.active { background: #00c853; color: #fff; }
+    
+    .payment-methods { display: flex; flex-wrap: wrap; gap: 8px; }
+    .payment-method { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #0d1f2d; border: 1px solid rgba(0, 180, 160, 0.15); border-radius: 10px; cursor: pointer; transition: all 0.2s; font-size: 12px; color: #6b8a99; }
+    .payment-method:hover { border-color: rgba(0, 180, 160, 0.3); }
+    .payment-method.active { border-color: #00b4a0; color: #00b4a0; background: rgba(0, 180, 160, 0.1); }
+    .payment-method svg { width: 16px; height: 16px; }
+    
+    .quick-action-card { display: flex; align-items: center; gap: 14px; padding: 16px; background: linear-gradient(145deg, #132a3c 0%, #0f232f 100%); border-radius: 14px; border: 1px solid rgba(0, 180, 160, 0.1); cursor: pointer; transition: all 0.2s; }
+    .quick-action-card:hover { border-color: rgba(0, 180, 160, 0.2); transform: translateY(-2px); }
+    .quick-action-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .quick-action-content { flex: 1; }
+    .quick-action-title { font-size: 14px; font-weight: 600; color: #fff; }
+    .quick-action-desc { font-size: 11px; color: #6b8a99; margin-top: 2px; }
+    
+    .month-item { padding: 12px; background: rgba(0, 0, 0, 0.2); border-radius: 10px; margin-bottom: 8px; }
+    .month-item:last-child { margin-bottom: 0; }
+    .month-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .month-name { font-size: 14px; font-weight: 600; color: #fff; }
+    .month-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .month-stat { text-align: center; }
+    .month-stat-label { font-size: 10px; color: #6b8a99; }
+    .month-stat-value { font-size: 12px; font-weight: 600; margin-top: 2px; }
+    .month-stat-value.income { color: #00c853; }
+    .month-stat-value.expense { color: #ff5252; }
+    .month-stat-value.savings { color: #ffb300; }
+    
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: fadeInUp 0.3s ease forwards; }
+    
+    .page-header { position: sticky; top: 0; background: linear-gradient(180deg, #0d1f2d 0%, transparent 100%); padding: 16px 0; z-index: 50; }
+    
+    .profile-photo-container { position: relative; width: 100px; height: 100px; margin: 0 auto 16px; }
+    .profile-photo { width: 100%; height: 100%; border-radius: 20px; background: linear-gradient(135deg, #00b4a0 0%, #008577 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 36px; font-weight: 700; overflow: hidden; border: 3px solid rgba(0, 180, 160, 0.3); }
+    .profile-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-photo-edit { position: absolute; bottom: -4px; right: -4px; width: 32px; height: 32px; background: #00b4a0; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0, 180, 160, 0.4); }
+    .profile-photo-edit:hover { background: #00d4b8; transform: scale(1.1); }
+    .profile-photo-edit svg { width: 16px; height: 16px; color: #fff; }
+
+    /* === NOVOS ESTILOS: CONTROLE DE PAGAMENTOS === */
+    .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .status-badge.paid, .status-badge.received { background: rgba(0, 200, 83, 0.15); color: #00c853; }
+    .status-badge.pending { background: rgba(255, 138, 80, 0.15); color: #ff8a50; }
+    
+    .toggle-status-btn { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 4px; }
+    .toggle-status-btn.pending { background: rgba(255, 138, 80, 0.15); color: #ff8a50; }
+    .toggle-status-btn.pending:hover { background: rgba(255, 138, 80, 0.25); }
+    .toggle-status-btn.paid { background: rgba(0, 200, 83, 0.15); color: #00c853; }
+    .toggle-status-btn.paid:hover { background: rgba(0, 200, 83, 0.25); }
+    
+    .status-toggle { display: flex; background: #0d1f2d; border-radius: 12px; padding: 4px; gap: 4px; }
+    .status-toggle-btn { flex: 1; padding: 10px; border-radius: 10px; font-size: 12px; font-weight: 600; text-align: center; transition: all 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; border: 2px solid transparent; }
+    .status-toggle-btn.pending { background: rgba(255, 138, 80, 0.1); color: #ff8a50; border-color: rgba(255, 138, 80, 0.3); }
+    .status-toggle-btn.pending.active { background: rgba(255, 138, 80, 0.2); border-color: #ff8a50; }
+    .status-toggle-btn.paid { background: rgba(0, 200, 83, 0.1); color: #00c853; border-color: rgba(0, 200, 83, 0.3); }
+    .status-toggle-btn.paid.active { background: rgba(0, 200, 83, 0.2); border-color: #00c853; }
+    
+    .control-filter-btn { background: #132a3c; color: #6b8a99; border: 1px solid rgba(0, 180, 160, 0.15); }
+    .control-filter-btn.active { background: rgba(0, 180, 160, 0.15); color: #00b4a0; border-color: rgba(0, 180, 160, 0.3); }
+    
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.7; }
+    input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+    select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b8a99'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 40px !important; }
+    
+    /* === ESTILOS: TRANSAÇÃO RECORRENTE === */
+    .recurring-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: rgba(156, 124, 250, 0.1);
+      border: 1px solid rgba(156, 124, 250, 0.2);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .recurring-toggle:hover { background: rgba(156, 124, 250, 0.15); }
+    .recurring-toggle.active { background: rgba(156, 124, 250, 0.2); border-color: #9c7cfa; }
+    .recurring-toggle-content { display: flex; align-items: center; gap: 10px; }
+    .recurring-toggle-content svg { width: 20px; height: 20px; color: #9c7cfa; }
+    .recurring-toggle-text { font-size: 13px; font-weight: 500; color: #e8f4f8; }
+    .recurring-toggle-hint { font-size: 10px; color: #6b8a99; margin-top: 2px; }
+    .recurring-switch { width: 44px; height: 24px; background: #0d1f2d; border-radius: 12px; position: relative; transition: all 0.2s; }
+    .recurring-switch::after { content: ''; position: absolute; width: 18px; height: 18px; background: #6b8a99; border-radius: 50%; top: 3px; left: 3px; transition: all 0.2s; }
+    .recurring-toggle.active .recurring-switch { background: #9c7cfa; }
+    .recurring-toggle.active .recurring-switch::after { left: 23px; background: #fff; }
+    
+    .recurring-badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; background: rgba(156, 124, 250, 0.15); color: #9c7cfa; border-radius: 4px; font-size: 9px; font-weight: 600; margin-left: 6px; }
+    .recurring-badge svg { width: 10px; height: 10px; }
+    
+    .delete-btn-modal {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 82, 82, 0.1);
+      border: 1px solid rgba(255, 82, 82, 0.2);
+      border-radius: 12px;
+      color: #ff5252;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .delete-btn-modal:hover { background: rgba(255, 82, 82, 0.2); }
+    
+    .delete-modal-options { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+    .delete-option-btn {
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      border: none;
+    }
+    .delete-option-btn.single { background: rgba(255, 138, 80, 0.15); color: #ff8a50; border: 1px solid rgba(255, 138, 80, 0.3); }
+    .delete-option-btn.single:hover { background: rgba(255, 138, 80, 0.25); }
+    .delete-option-btn.all { background: rgba(255, 82, 82, 0.15); color: #ff5252; border: 1px solid rgba(255, 82, 82, 0.3); }
+    .delete-option-btn.all:hover { background: rgba(255, 82, 82, 0.25); }
+    .delete-option-btn.cancel { background: #132a3c; color: #6b8a99; border: 1px solid rgba(0, 180, 160, 0.15); }
+    .delete-option-btn.cancel:hover { color: #e8f4f8; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+  
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">G</div>
+        <div class="sidebar-logo-text">
+          <h1>GoL Buy</h1>
+          <p>Controle Financeiro Inteligente</p>
+        </div>
+      </div>
+      <div class="sidebar-close" onclick="toggleSidebar()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </div>
+    </div>
+    
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Principal</div>
+      <div class="sidebar-item active" onclick="openPage('dashboard'); toggleSidebar();">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+        <span>Dashboard</span>
+      </div>
+      <div class="sidebar-item highlight" onclick="openModal('tx'); toggleSidebar();">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <span>Novo Lançamento</span>
+      </div>
+      <div class="sidebar-item" onclick="openPage('transactions'); toggleSidebar();">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <span>Transações</span>
+      </div>
+    </div>
+    
+    <!-- NOVA SEÇÃO: Controle -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Controle</div>
+      <div class="sidebar-item" onclick="openPage('control'); toggleSidebar();">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Controle de Pagamentos</span>
+      </div>
+    </div>
+    
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Planejamento</div>
+      <div class="sidebar-item" onclick="openPage('calendar'); toggleSidebar();">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <span>Calendário</span>
+      </div>
+      <div class="sidebar-item" onclick="openPage('goals'); toggleSidebar();">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Metas</span>
+      </div>
+      <div class="sidebar-item" onclick="openPage('reports'); toggleSidebar();">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Relatórios</span>
+      </div>
+    </div>
+    
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Ferramentas</div>
+      <div class="sidebar-item" onclick="openPage('settings'); toggleSidebar();">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span>Configurações</span>
+      </div>
+    </div>
+    
+    <div class="sidebar-profile" onclick="openPage('settings'); toggleSidebar();">
+      <div class="sidebar-avatar" id="sidebar-avatar">
+        <span id="sidebar-avatar-initials">DN</span>
+      </div>
+      <div class="sidebar-profile-info">
+        <div class="sidebar-profile-name" id="sidebar-profile-name">Daniel Neves</div>
+        <div class="sidebar-profile-type">Conta pessoal</div>
+      </div>
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px; color: #6b8a99;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </div>
+  </nav>
+
+  <!-- App Container -->
+  <div id="app" class="min-h-screen pb-24 relative z-10">
+
+    <!-- ===== DASHBOARD ===== -->
+    <section id="page-dashboard" class="px-4 pt-4">
+      <div class="page-header">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <button class="w-10 h-10 rounded-xl bg-[#132a3c] flex items-center justify-center text-[#6b8a99] hover:text-brand transition-colors" onclick="toggleSidebar()">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <div>
+              <h1 class="font-display text-xl font-bold text-white">Dashboard Financeiro</h1>
+              <p class="text-xs text-[#6b8a99] mt-1">Visão geral das suas finanças</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="w-10 h-10 rounded-xl bg-[#132a3c] flex items-center justify-center text-[#6b8a99] hover:text-brand transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            </button>
+            <button class="w-10 h-10 rounded-xl bg-[#132a3c] flex items-center justify-center text-[#6b8a99] hover:text-brand transition-colors relative">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+              <span class="absolute top-2 right-2 w-2 h-2 bg-brand rounded-full"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Cards de Resumo -->
+      <div class="grid grid-cols-2 gap-3 mt-4">
+        <div class="card summary-mini" onclick="openPage('transactions')">
+          <div class="icon-box bg-brand/15">
+            <svg class="w-5 h-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="content">
+            <p class="label">SALDO ATUAL</p>
+            <p class="value" id="dash-balance">R$ 0,00</p>
+          </div>
+          <svg class="arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </div>
+        
+        <div class="card summary-mini" onclick="openPage('transactions')">
+          <div class="icon-box bg-income/15">
+            <svg class="w-5 h-5 text-income" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+          </div>
+          <div class="content">
+            <p class="label">RECEITAS</p>
+            <p class="value text-income" id="dash-income">R$ 0,00</p>
+          </div>
+          <svg class="arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </div>
+        
+        <div class="card summary-mini" onclick="openPage('transactions')">
+          <div class="icon-box bg-expense/15">
+            <svg class="w-5 h-5 text-expense" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>
+          </div>
+          <div class="content">
+            <p class="label">DESPESAS</p>
+            <p class="value text-expense" id="dash-expense">R$ 0,00</p>
+          </div>
+          <svg class="arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </div>
+        
+        <div class="card summary-mini" onclick="openPage('goals')">
+          <div class="icon-box bg-warning/15">
+            <svg class="w-5 h-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+          </div>
+          <div class="content">
+            <p class="label">ECONOMIA</p>
+            <p class="value text-warning" id="dash-savings">R$ 0,00</p>
+          </div>
+          <svg class="arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </div>
+      </div>
+      
+      <!-- NOVO: Alertas de Pendências -->
+      <div id="pending-alerts" class="mt-4 hidden">
+        <div class="card p-4" style="border-left: 4px solid #ff8a50;">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(255, 138, 80, 0.15);">
+              <svg class="w-5 h-5 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-white">Pendências</p>
+              <p class="text-xs text-[#6b8a99]">Valores a receber e a pagar</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="p-3 rounded-xl" style="background: rgba(0, 200, 83, 0.1);">
+              <p class="text-xs text-[#6b8a99]">A Receber</p>
+              <p class="text-lg font-bold text-income" id="dash-pending-income">R$ 0,00</p>
+            </div>
+            <div class="p-3 rounded-xl" style="background: rgba(255, 82, 82, 0.1);">
+              <p class="text-xs text-[#6b8a99]">A Pagar</p>
+              <p class="text-lg font-bold text-expense" id="dash-pending-expense">R$ 0,00</p>
+            </div>
+          </div>
+          <button onclick="openPage('control')" class="w-full mt-3 py-2.5 rounded-xl text-sm font-semibold transition-colors" style="background: rgba(255, 138, 80, 0.15); color: #ff8a50;">
+            Ver Controle de Pagamentos
+          </button>
+        </div>
+      </div>
+      
+      <!-- Ações Rápidas -->
+      <div class="mt-4">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-display text-base font-semibold text-white">Ações Rápidas</h2>
+          <div class="relative">
+            <div class="dropdown text-xs" onclick="toggleDropdown('period-select')">
+              <span id="period-select-label">Este mês</span>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div id="dropdown-period-select" class="hidden absolute right-0 mt-2 bg-[#132a3c] border border-brand/15 rounded-xl shadow-xl z-50 min-w-[140px]">
+              <div class="py-1">
+                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('month', 'Este mês')">Este mês</button>
+                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('week', 'Esta semana')">Esta semana</button>
+                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('year', 'Este ano')">Este ano</button>
+                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('all', 'Todo período')">Todo período</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="quick-action-card" onclick="openModal('tx')">
+            <div class="quick-action-icon bg-income/15">
+              <svg class="w-5 h-5 text-income" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            </div>
+            <div class="quick-action-content">
+              <div class="quick-action-title">Novo Lançamento</div>
+              <div class="quick-action-desc">Adicione receitas ou despesas</div>
+            </div>
+          </div>
+          <div class="quick-action-card" onclick="openPage('calendar')">
+            <div class="quick-action-icon bg-warning/15">
+              <svg class="w-5 h-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div class="quick-action-content">
+              <div class="quick-action-title">Calendário</div>
+              <div class="quick-action-desc">Visualize seus compromissos</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-3 mt-3">
+          <div class="quick-action-card" onclick="openPage('control')">
+            <div class="quick-action-icon bg-orange/15">
+              <svg class="w-5 h-5 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div class="quick-action-content">
+              <div class="quick-action-title">Controle de Pagamentos</div>
+              <div class="quick-action-desc">Gerencie recebimentos e pagamentos pendentes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Gastos por Categoria -->
+      <div class="card mt-4">
+        <div class="section-header">
+          <h2 class="section-title">Gastos por Categoria</h2>
+          <div class="section-actions">
+            <button class="section-action bg-brand/15 text-brand hover:bg-brand/25" onclick="openModal('tx')">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="px-4 pb-4">
+          <div id="dash-categories-empty" class="py-8 text-center text-[#6b8a99]">
+            <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+            <p class="text-sm">Sem despesas registradas</p>
+          </div>
+          <div id="dash-categories" class="hidden"></div>
+        </div>
+      </div>
+      
+      <!-- Transações Recentes -->
+      <div class="card mt-4 mb-4">
+        <div class="section-header">
+          <h2 class="section-title">Transações Recentes</h2>
+          <button class="text-xs font-semibold text-brand hover:text-brand-light transition-colors" onclick="openPage('transactions')">Ver todas</button>
+        </div>
+        <div class="px-4 pb-4">
+          <div id="dash-tx-empty" class="py-8 text-center text-[#6b8a99]">
+            <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <p class="text-sm">Sem movimentação</p>
+          </div>
+          <div id="dash-tx-list" class="hidden space-y-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== NOVA ABA: CONTROLE DE PAGAMENTOS ===== -->
+    <section id="page-control" class="hidden px-4 pt-4">
+      <div class="page-header">
+        <div class="flex items-center gap-3">
+          <button class="w-10 h-10 rounded-xl bg-[#132a3c] flex items-center justify-center text-[#6b8a99] hover:text-brand transition-colors" onclick="toggleSidebar()">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h1 class="font-display text-xl font-bold text-white">Controle de Pagamentos</h1>
+            <p class="text-xs text-[#6b8a99] mt-1">Gerencie recebimentos e pagamentos pendentes</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Resumo de Pendências -->
+      <div class="grid grid-cols-2 gap-3 mt-4">
+        <div class="card p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(0, 200, 83, 0.15);">
+              <svg class="w-5 h-5 text-income" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs text-[#6b8a99]">A RECEBER</p>
+              <p class="text-lg font-bold text-income" id="control-pending-income">R$ 0,00</p>
+            </div>
+          </div>
+          <div class="flex justify-between text-xs">
+            <span class="text-[#6b8a99]">Recebido:</span>
+            <span class="text-income font-semibold" id="control-received">R$ 0,00</span>
+          </div>
+          <div class="flex justify-between text-xs mt-1">
+            <span class="text-[#6b8a99]">Pendente:</span>
+            <span class="text-orange font-semibold" id="control-income-pending">R$ 0,00</span>
+          </div>
+        </div>
+        
+        <div class="card p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(255, 82, 82, 0.15);">
+              <svg class="w-5 h-5 text-expense" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs text-[#6b8a99]">A PAGAR</p>
+              <p class="text-lg font-bold text-expense" id="control-pending-expense">R$ 0,00</p>
+            </div>
+          </div>
+          <div class="flex justify-between text-xs">
+            <span class="text-[#6b8a99]">Pago:</span>
+            <span class="text-income font-semibold" id="control-paid">R$ 0,00</span>
+          </div>
+          <div class="flex justify-between text-xs mt-1">
+            <span class="text-[#6b8a99]">Pendente:</span>
+            <span class="text-orange font-semibold" id="control-expense-pending">R$ 0,00</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Saldo Líquido -->
+      <div class="card mt-4 p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs text-[#6b8a99]">SALDO LÍQUIDO PREVISTO</p>
+            <p class="text-xl font-bold text-white" id="control-net-balance">R$ 0,00</p>
+          </div>
+          <div class="text-right">
+            <p class="text-xs text-[#6b8a99]">Após receber/pagar tudo</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Filtros -->
+      <div class="flex gap-2 mt-4">
+        <button class="control-filter-btn active flex-1 py-2.5 rounded-xl text-xs font-semibold transition-all" data-filter="all" onclick="filterControl('all')">Todos</button>
+        <button class="control-filter-btn flex-1 py-2.5 rounded-xl text-xs font-semibold transition-all" data-filter="pending" onclick="filterControl('pending')">Pendentes</button>
+        <button class="control-filter-btn flex-1 py-2.5 rounded-xl text-xs font-semibold transition-all" data-filter="paid" onclick="filterControl('paid')">Concluídos</button>
+      </div>
+      
+      <!-- Lista de A Receber -->
+      <div class="card mt-4">
+        <div class="section-header">
+          <h2 class="section-title flex items-center gap-2">
+            <svg class="w-4 h-4 text-income" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+            Receitas
+          </h2>
+          <span class="text-xs px-2 py-1 rounded-lg bg-income/15 text-income" id="control-income-count">0</span>
+        </div>
+        <div class="p-2">
+          <div id="control-income-empty" class="py-6 text-center text-[#6b8a99]"><p class="text-sm">Nenhuma receita cadastrada</p></div>
+          <div id="control-income-list" class="hidden space-y-1 max-h-60 overflow-y-auto"></div>
+        </div>
+      </div>
+      
+      <!-- Lista de A Pagar -->
+      <div class="card mt-4 mb-4">
+        <div class="section-header">
+          <h2 class="section-title flex items-center gap-2">
+            <svg class="w-4 h-4 text-expense" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+            Despesas
+          </h2>
+          <span class="text-xs px-2 py-1 rounded-lg bg-expense/15 text-expense" id="control-expense-count">0</span>
+        </div>
+        <div class="p-2">
+          <div id="control-expense-empty" class="py-6 text-center text-[#6b8a99]"><p class="text-sm">Nenhuma despesa cadastrada</p></div>
+          <div id="control-expense-list" class="hidden space-y-1 max-h-60 overflow-y-auto"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TRANSAÇÕES ===== -->
+    <section id="page-transactions" class="hidden px-4 pt-4">
+      <div class="page-header">
+        <div class="flex items-center gap-3">
+          <button class="w-10 h-10 rounded-xl bg-[#132a3c] flex items-center justify-center text-[#6b8a99] hover:text-brand transition-colors" onclick="toggleSidebar()">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h1 class="font-display text-xl font-bold text-white">Transações</h1>
+            <p class="text-xs text-[#6b8a99] mt-1">Histórico completo de lançamentos</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-4 space-y-3">
+        <div class="search-box">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" id="tx-search" placeholder="Buscar transações..." oninput="renderTransactions()">
+        </div>
+        <div class="flex gap-2">
+          <div class="dropdown flex-1" onclick="toggleDropdown('filter-type')">
+            <span id="filter-type-label">Todas</span>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div class="dropdown flex-1" onclick="toggleDropdown('filter-period')">
+            <span id="filter-period-label">Este Mês</span>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </div>
+        </div>
+      </div>
+      
+      <div id="dropdown-filter-type" class="hidden absolute mt-2 bg-[#132a3c] border border-brand/15 rounded-xl shadow-xl z-50 min-w-[140px]">
+        <div class="py-1">
+          <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setFilter('type', 'all', 'Todas')">Todas</button>
+          <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setFilter('type', 'income', 'Receitas')">Receitas</button>
+          <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setFilter('type', 'expense', 'Despesas')">Despesas</button>
+        </div>
+      </div>
+      
+      <div id="dropdown-filter-period" class="hidden absolute mt-2 bg-[#132a3c] border border-brand/15 rounded-xl shadow-xl z-50 min-w-[140px]">
+        <div class="py-1">
+          <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setFilter('period', 'all', 'Todo período')">Todo período</button>
+          <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setFilter('period', 'month', 'Este Mês')">Este Mês</button>
+          <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setFilter('period', 'week', 'Esta Semana')">Esta Semana</button>
+        </div>
+      </div>
+      
+      <div class="card mt-4 mb-4">
+        <div class="p-4 flex justify-between items-center border-b border-brand/5">
+          <span class="text-sm text-[#6b8a99]" id="tx-count-label">0 transações</span>
+          <span class="font-display font-bold text-white" id="tx-total-label">R$ 0,00</span>
+        </div>
+        <div class="p-2">
+          <div id="tx-list-empty" class="py-12 text-center text-[#6b8a99]">
+            <svg class="w-16 h-16 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <p class="text-sm">Nenhuma transação encontrada</p>
+          </div>
+          <div id="tx-list" class="hidden max-h-[55vh] overflow-y-auto"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CALENDÁRIO ===== -->
+    <section id="page-calendar" class="hidden px-4 pt-4">
+      <div class="page-header">
+        <div class="flex items-center gap-3">
+          <button class="w-10 h-10 rounded-xl bg-[#132a3c] flex items-center justify-center text-[#6b8a99] hover:text-brand transition-colors" onclick="toggleSidebar()">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h1 class="font-display text-xl font-bold text-white">Calendário Financeiro</h1>
+            <p class="text-xs text-[#6b8a99] mt-1">Gerencie suas transações por data</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card mt-4">
+        <div class="flex items-center justify-between p-4">
+          <button class="w-10 h-10 rounded-xl bg-[#0d1f2d] flex items-center justify-center text-[#6b8a99] hover:text-brand transition-colors" onclick="calPrev()">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <h2 class="font-display text-lg font-semibold text-white" id="cal-month-year">Janeiro 2024</h2>
+          <button class="w-10 h-10 rounded-xl bg-[#0d1f2d] flex items-center justify-center text-[#6b8a99] hover:text-brand transition-colors" onclick="calNext()">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        <div class="grid grid-cols-7 gap-1 px-4 pb-2">
+          <span class="text-center text-xs font-medium text-[#6b8a99] py-2">Dom</span>
+          <span class="text-center text-xs font-medium text-[#6b8a99] py-2">Seg</span>
+          <span class="text-center text-xs font-medium text-[#6b8a99] py-2">Ter</span>
+          <span class="text-center text-xs font-medium text-[#6b8a99] py-2">Qua</span>
+          <span class="text-center text-xs font-medium text-[#6b8a99] py-2">Qui</span>
+          <span class="text-center text-xs font-medium text-[#6b8a99] py-2">Sex</span>
+          <span class="text-center text-xs font-medium text-[#6b8a99] py-2">Sáb</span>
+        </div>
+        <div id="cal-grid" class="grid grid-cols-7 gap-1 px-4 pb-4"></div>
+        <div id="cal-details" class="hidden border-t border-brand/5 p-4">
+          <h3 class="font-semibold text-white mb-3" id="cal-day-title">Dia 01</h3>
+          <div id="cal-day-tx" class="space-y-2 max-h-32 overflow-y-auto"></div>
+        </div>
+      </div>
+      
+      <div class="card mt-4">
+        <div class="section-header"><h2 class="section-title">Resumo do Mês</h2></div>
+        <div class="p-4 grid grid-cols-3 gap-4">
+          <div class="text-center"><div class="text-xs text-[#6b8a99] mb-1">Receitas</div><div class="text-sm font-semibold text-income" id="cal-income">R$ 0,00</div></div>
+          <div class="text-center"><div class="text-xs text-[#6b8a99] mb-1">Despesas</div><div class="text-sm font-semibold text-expense" id="cal-expense">R$ 0,00</div></div>
+          <div class="text-center"><div class="text-xs text-[#6b8a99] mb-1">Saldo</div><div class="text-sm font-semibold text-brand" id="cal-balance">R$ 0,00</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== METAS ===== -->
+    <section id="page-goals" class="hidden px-4 pt-4">
+      <div class="page-header">
+        <div class="flex items-center gap-3">
+          <button class="w-10 h-10 rounded-xl bg-[#132a3c] flex items-center justify-center text-[#6b8a99] hover:text-brand transition-colors" onclick="toggleSidebar()">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h1 class="font-display text-xl font-bold text-white">Metas Financeiras</h1>
+            <p class="text-xs text-[#6b8a99] mt-1">Acompanhe seus objetivos</p>
+          </div>
+        </div>
+      </div>
+      
+      <div id="goals-empty" class="card mt-4 py-12 text-center text-[#6b8a99]">
+        <svg class="w-16 h-16 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <p class="text-sm">Nenhuma meta cadastrada</p>
+        <button class="mt-4 px-6 py-2.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors" onclick="openModal('goal')">Criar Meta</button>
+      </div>
+      <div id="goals-list" class="hidden mt-4 space-y-3 mb-4"></div>
+    </section>
+
+    <!-- ===== RELATÓRIOS ===== -->
+    <section id="page-reports" class="hidden px-4 pt-4">
+      <div class="page-header">
+        <div class="flex items-center gap-3">
+          <button class="w-10 h-10 rounded-xl bg-[#132a3c] flex items-center justify-center text-[#6b8a99] hover:text-brand transition-colors" onclick="toggleSidebar()">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h1 class="font-display text-xl font-bold text-white">Relatórios</h1>
+            <p class="text-xs text-[#6b8a99] mt-1">Análises detalhadas das suas finanças</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card mt-4">
+        <div class="section-header"><h2 class="section-title">Resumo Geral</h2></div>
+        <div class="p-4 grid grid-cols-2 gap-4">
+          <div class="text-center p-4 bg-[#0d1f2d] rounded-xl">
+            <div class="text-xs text-[#6b8a99] mb-1">Total Receitas</div>
+            <div class="text-lg font-bold text-income" id="report-total-income">R$ 0,00</div>
+          </div>
+          <div class="text-center p-4 bg-[#0d1f2d] rounded-xl">
+            <div class="text-xs text-[#6b8a99] mb-1">Total Despesas</div>
+            <div class="text-lg font-bold text-expense" id="report-total-expense">R$ 0,00</div>
+          </div>
+          <div class="text-center p-4 bg-[#0d1f2d] rounded-xl col-span-2">
+            <div class="text-xs text-[#6b8a99] mb-1">Saldo Final</div>
+            <div class="text-2xl font-bold text-brand" id="report-balance">R$ 0,00</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card mt-4 mb-4">
+        <div class="section-header"><h2 class="section-title">Top Gastos</h2></div>
+        <div class="px-4 pb-4">
+          <div id="report-top-expenses" class="space-y-2">
+            <div class="text-center text-[#6b8a99] py-8"><p class="text-sm">Sem dados suficientes</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CONFIGURAÇÕES ===== -->
+    <section id="page-settings" class="hidden px-4 pt-4">
+      <div class="page-header">
+        <div class="flex items-center gap-3">
+          <button class="w-10 h-10 rounded-xl bg-[#132a3c] flex items-center justify-center text-[#6b8a99] hover:text-brand transition-colors" onclick="toggleSidebar()">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h1 class="font-display text-xl font-bold text-white">Configurações</h1>
+            <p class="text-xs text-[#6b8a99] mt-1">Gerencie sua conta e preferências</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card mt-4">
+        <div class="section-header"><h2 class="section-title">Perfil</h2></div>
+        <div class="p-6">
+          <div class="profile-photo-container">
+            <div class="profile-photo" id="profile-photo"><span id="profile-photo-initials">DN</span></div>
+            <label class="profile-photo-edit" for="profile-photo-input">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </label>
+            <input type="file" id="profile-photo-input" accept="image/*" class="hidden" onchange="handleProfilePhoto(event)">
+          </div>
+          <div class="space-y-4 mt-4">
+            <div>
+              <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Nome</label>
+              <input type="text" id="settings-name" class="input-styled" placeholder="Seu nome" oninput="updateProfilePreview()">
+            </div>
+            <div>
+              <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Email</label>
+              <input type="email" id="settings-email" class="input-styled" placeholder="seu@email.com">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card mt-4">
+        <div class="section-header"><h2 class="section-title">Dados</h2></div>
+        <div class="p-4 space-y-2">
+          <button onclick="exportData()" class="w-full flex items-center justify-between p-3 rounded-xl bg-[#0d1f2d] hover:bg-[#1a3649] transition-colors">
+            <div class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              <span class="text-sm text-[#e8f4f8]">Exportar Backup</span>
+            </div>
+            <svg class="w-4 h-4 text-[#6b8a99]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <button onclick="clearAllData()" class="w-full flex items-center justify-between p-3 rounded-xl bg-expense/10 hover:bg-expense/20 transition-colors">
+            <div class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-expense" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              <span class="text-sm text-expense">Apagar Todos os Dados</span>
+            </div>
+            <svg class="w-4 h-4 text-expense" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+      <button onclick="saveProfile()" class="w-full mt-4 mb-4 py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors">Salvar Alterações</button>
+    </section>
+    
+  </div>
+
+  <!-- Barra de Navegação Inferior -->
+  <nav class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <div class="nav-item active" data-page="dashboard" onclick="openPage('dashboard')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+        <span>Dashboard</span>
+      </div>
+      <div class="nav-item" data-page="control" onclick="openPage('control')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Controle</span>
+      </div>
+      <div class="nav-item" data-page="transactions" onclick="openPage('transactions')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+        <span>Transações</span>
+      </div>
+      <div class="nav-item" data-page="calendar" onclick="openPage('calendar')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <span>Calendário</span>
+      </div>
+      <div class="nav-item" data-page="reports" onclick="openPage('reports')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span>Relatórios</span>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- FAB -->
+  <button class="fab" onclick="openModal('tx')">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+  </button>
+
+  <!-- Modal: Transação -->
+  <div id="modal-tx" class="modal-overlay" onclick="if(event.target === this) closeModal('tx')">
+    <div class="modal-content">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="font-display text-lg font-bold text-white" id="modal-tx-title">Nova Transação</h2>
+        <button onclick="closeModal('tx')" class="w-8 h-8 rounded-lg bg-[#0d1f2d] flex items-center justify-center text-[#6b8a99] hover:text-white transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      
+      <form id="form-tx" onsubmit="saveTransaction(event)">
+        <input type="hidden" id="tx-id">
+        
+        <div class="type-toggle mb-5">
+          <button type="button" id="btn-expense" class="type-btn expense active" onclick="setTxType('expense')">Despesa</button>
+          <button type="button" id="btn-income" class="type-btn income" onclick="setTxType('income')">Receita</button>
+        </div>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Valor</label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[#6b8a99] font-medium">R$</span>
+              <input type="text" id="tx-amount" class="input-styled pl-12 text-xl font-display font-bold" placeholder="0,00" required oninput="formatCurrency(this)">
+            </div>
+          </div>
+          
+          <div>
+            <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Descrição *</label>
+            <input type="text" id="tx-desc" class="input-styled" placeholder="Ex: Supermercado Extra" required>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Data</label>
+              <input type="date" id="tx-date" class="input-styled">
+            </div>
+            <div>
+              <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Categoria *</label>
+              <select id="tx-category" class="input-styled" required></select>
+            </div>
+          </div>
+          
+          <!-- NOVO: Status de Pagamento -->
+          <div>
+            <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Status</label>
+            <div class="status-toggle">
+              <button type="button" id="btn-status-pending" class="status-toggle-btn pending active" onclick="setTxStatus('pending')">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span id="status-pending-label">A Pagar</span>
+              </button>
+              <button type="button" id="btn-status-paid" class="status-toggle-btn paid" onclick="setTxStatus('paid')">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <span id="status-paid-label">Pago</span>
+              </button>
+            </div>
+          </div>
+          
+          <div>
+            <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Método de Pagamento</label>
+            <div class="payment-methods">
+              <div class="payment-method active" data-method="credit" onclick="selectPaymentMethod('credit')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                <span>Crédito</span>
+              </div>
+              <div class="payment-method" data-method="debit" onclick="selectPaymentMethod('debit')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                <span>Débito</span>
+              </div>
+              <div class="payment-method" data-method="cash" onclick="selectPaymentMethod('cash')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span>Dinheiro</span>
+              </div>
+              <div class="payment-method" data-method="pix" onclick="selectPaymentMethod('pix')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                <span>PIX</span>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Observações</label>
+            <textarea id="tx-notes" class="input-styled resize-none" rows="2" placeholder="Observações adicionais..."></textarea>
+          </div>
+          
+          <!-- NOVO: Transação Recorrente -->
+          <div class="recurring-toggle" id="recurring-toggle" onclick="toggleRecurring()">
+            <div class="recurring-toggle-content">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <div>
+                <div class="recurring-toggle-text">Transação Recorrente</div>
+                <div class="recurring-toggle-hint">Replica automaticamente todos os meses</div>
+              </div>
+            </div>
+            <div class="recurring-switch"></div>
+          </div>
+          
+          <button type="submit" class="w-full py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors mt-2">Salvar Transação</button>
+          
+          <!-- Botão Excluir (apenas ao editar) -->
+          <button type="button" id="delete-tx-btn" class="delete-btn-modal hidden" onclick="showDeleteOptions()">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Excluir Transação
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Confirmar Exclusão Recorrente -->
+  <div id="modal-delete-recurring" class="modal-overlay" onclick="if(event.target === this) closeDeleteModal()">
+    <div class="modal-content">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center" style="background: rgba(255, 82, 82, 0.15);">
+          <svg class="w-8 h-8 text-expense" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <h2 class="font-display text-lg font-bold text-white mb-2">Transação Recorrente</h2>
+        <p class="text-sm text-[#6b8a99]">Esta é uma transação recorrente. O que deseja fazer?</p>
+      </div>
+      <div class="delete-modal-options">
+        <button class="delete-option-btn single" onclick="deleteTransaction('single')">
+          Excluir apenas deste mês
+        </button>
+        <button class="delete-option-btn all" onclick="deleteTransaction('all')">
+          Excluir de todos os meses
+        </button>
+        <button class="delete-option-btn cancel" onclick="closeDeleteModal()">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Meta -->
+  <div id="modal-goal" class="modal-overlay" onclick="if(event.target === this) closeModal('goal')">
+    <div class="modal-content">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="font-display text-lg font-bold text-white">Nova Meta</h2>
+        <button onclick="closeModal('goal')" class="w-8 h-8 rounded-lg bg-[#0d1f2d] flex items-center justify-center text-[#6b8a99] hover:text-white transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      
+      <form onsubmit="saveGoal(event)">
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Título</label>
+            <input type="text" id="goal-title" class="input-styled" placeholder="Ex: Viagem, Carro..." required>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Valor da Meta</label>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[#6b8a99] font-medium text-sm">R$</span>
+                <input type="text" id="goal-target" class="input-styled pl-12" placeholder="0,00" required oninput="formatCurrency(this)">
+              </div>
+            </div>
+            <div>
+              <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Valor Atual</label>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[#6b8a99] font-medium text-sm">R$</span>
+                <input type="text" id="goal-current" class="input-styled pl-12" placeholder="0,00" oninput="formatCurrency(this)">
+              </div>
+            </div>
+          </div>
+          
+          <button type="submit" class="w-full py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors mt-2">Salvar Meta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ========== ESTADO GLOBAL ==========
+    const State = {
+      transactions: [],
+      goals: [],
+      profile: { name: 'Daniel Neves', email: '', photo: null },
+      selectedPaymentMethod: 'credit',
+      selectedStatus: 'pending',
+      isRecurring: false,
+      controlFilter: 'all',
+      categories: {
+        expense: [
+          { id: 'credit_card', name: 'Cartão de crédito', color: '#ffb300' },
+          { id: 'home', name: 'Apartamento', color: '#00b4a0' },
+          { id: 'food', name: 'Alimentação', color: '#00c853' },
+          { id: 'transport', name: 'Transporte', color: '#9c7cfa' },
+          { id: 'health', name: 'Saúde', color: '#ff5252' },
+          { id: 'education', name: 'Educação', color: '#00bcd4' },
+          { id: 'leisure', name: 'Lazer', color: '#ff8a50' },
+          { id: 'other', name: 'Outros', color: '#6b8a99' }
+        ],
+        income: [
+          { id: 'salary', name: 'Salário', color: '#00c853' },
+          { id: 'freelance', name: 'Freelance', color: '#00b4a0' },
+          { id: 'investment', name: 'Investimentos', color: '#ffb300' },
+          { id: 'other', name: 'Outros', color: '#6b8a99' }
+        ]
+      }
+    };
+    
+    // Filtros e variáveis
+    let currentFilter = { type: 'all', period: 'month' };
+    let currentTxType = 'expense';
+    let currentTxStatus = 'pending';
+    let isRecurringTx = false;
+    let deletingTxId = null;
+    let calDate = new Date();
+    let dashboardPeriod = 'month';
+    let selectedDay = null;
+    let editingTxId = null;
+    
+    // ========== HELPERS ==========
+    const formatMoney = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+    const parseMoney = (s) => { if(!s) return 0; return parseFloat(s.replace(/[^\d,]/g, '').replace(',', '.')) || 0; };
+    const formatDate = (d) => new Date(d + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    const formatCurrency = (el) => { let v = el.value.replace(/\D/g, ''); v = (parseInt(v||0) / 100).toFixed(2).replace('.', ','); el.value = v; };
+    const getCategory = (id) => [...State.categories.expense, ...State.categories.income].find(c => c.id === id) || { name: 'Outros', color: '#6b8a99' };
+    
+    // ========== STORAGE ==========
+    const DB = {
+      load: () => { 
+        const d = localStorage.getItem('golbuy_v4'); 
+        if(d) {
+          const parsed = JSON.parse(d);
+          Object.assign(State, parsed);
+          // Migração: adicionar status e recurring às transações existentes
+          State.transactions = State.transactions.map(t => ({
+            ...t,
+            status: t.status || 'paid',
+            recurring: t.recurring || false,
+            recurringId: t.recurringId || null
+          }));
+        }
+      },
+      save: () => localStorage.setItem('golbuy_v4', JSON.stringify(State))
+    };
+    
+    // ========== SIDEBAR ==========
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('sidebar-overlay').classList.toggle('active');
+    }
+    
+    // ========== NAVEGAÇÃO ==========
+    function openPage(page) {
+      document.querySelectorAll('section[id^="page-"]').forEach(s => s.classList.add('hidden'));
+      document.getElementById('page-' + page)?.classList.remove('hidden');
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
+      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+      document.querySelector(`.sidebar-item[onclick*="'${page}'"]`)?.classList.add('active');
+      
+      if(page === 'calendar') renderCalendar();
+      if(page === 'transactions') renderTransactions();
+      if(page === 'goals') renderGoals();
+      if(page === 'reports') renderReports();
+      if(page === 'settings') loadProfileToSettings();
+      if(page === 'control') renderControlPage();
+    }
+    
+    // ========== MODAIS ==========
+    function openModal(type) {
+      document.getElementById('modal-' + type)?.classList.add('active');
+      if(type === 'tx') {
+        document.getElementById('form-tx').reset();
+        document.getElementById('tx-id').value = '';
+        document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('modal-tx-title').textContent = 'Nova Transação';
+        editingTxId = null;
+        setTxType('expense');
+        setTxStatus('pending');
+        State.selectedPaymentMethod = 'credit';
+        State.isRecurring = false;
+        updatePaymentMethodUI();
+        updateRecurringUI();
+        document.getElementById('delete-tx-btn').classList.add('hidden');
+      }
+    }
+    
+    function closeModal(type) {
+      document.getElementById('modal-' + type)?.classList.remove('active');
+    }
+    
+    // ========== STATUS DE PAGAMENTO (NOVO) ==========
+    function setTxStatus(status) {
+      currentTxStatus = status;
+      State.selectedStatus = status;
+      
+      const btnPending = document.getElementById('btn-status-pending');
+      const btnPaid = document.getElementById('btn-status-paid');
+      const pendingLabel = document.getElementById('status-pending-label');
+      const paidLabel = document.getElementById('status-paid-label');
+      
+      // Atualizar labels baseado no tipo de transação
+      if(currentTxType === 'expense') {
+        pendingLabel.textContent = 'A Pagar';
+        paidLabel.textContent = 'Pago';
+      } else {
+        pendingLabel.textContent = 'A Receber';
+        paidLabel.textContent = 'Recebido';
+      }
+      
+      btnPending.classList.toggle('active', status === 'pending');
+      btnPaid.classList.toggle('active', status === 'paid');
+    }
+    
+    // ========== TRANSAÇÃO RECORRENTE (NOVO) ==========
+    function toggleRecurring() {
+      State.isRecurring = !State.isRecurring;
+      isRecurringTx = State.isRecurring;
+      updateRecurringUI();
+    }
+    
+    function updateRecurringUI() {
+      const toggle = document.getElementById('recurring-toggle');
+      toggle.classList.toggle('active', State.isRecurring);
+    }
+    
+    function showDeleteOptions() {
+      const tx = State.transactions.find(t => t.id === editingTxId);
+      if(tx && tx.recurring) {
+        closeDeleteModal();
+        document.getElementById('modal-delete-recurring').classList.add('active');
+      } else {
+        deleteTransaction('single');
+      }
+    }
+    
+    function closeDeleteModal() {
+      document.getElementById('modal-delete-recurring').classList.remove('active');
+    }
+    
+    function deleteTransaction(mode) {
+      if(!editingTxId) return;
+      
+      const tx = State.transactions.find(t => t.id === editingTxId);
+      if(!tx) return;
+      
+      if(mode === 'all' && tx.recurringId) {
+        // Excluir todas as transações com o mesmo recurringId
+        State.transactions = State.transactions.filter(t => t.recurringId !== tx.recurringId);
+      } else {
+        // Excluir apenas esta transação
+        State.transactions = State.transactions.filter(t => t.id !== editingTxId);
+      }
+      
+      DB.save();
+      closeDeleteModal();
+      closeModal('tx');
+      updateDashboard();
+      renderTransactions();
+      renderControlPage();
+      renderCalendar();
+    }
+    
+    function toggleTransactionStatus(id) {
+      const tx = State.transactions.find(t => t.id === id);
+      if(tx) {
+        tx.status = tx.status === 'paid' ? 'pending' : 'paid';
+        DB.save();
+        renderControlPage();
+        updateDashboard();
+      }
+    }
+    
+    // ========== PAYMENT METHODS ==========
+    function selectPaymentMethod(method) {
+      State.selectedPaymentMethod = method;
+      updatePaymentMethodUI();
+    }
+    
+    function updatePaymentMethodUI() {
+      document.querySelectorAll('.payment-method').forEach(el => {
+        el.classList.toggle('active', el.dataset.method === State.selectedPaymentMethod);
+      });
+    }
+    
+    // ========== TRANSAÇÕES ==========
+    function setTxType(type) {
+      currentTxType = type;
+      document.getElementById('btn-expense').classList.toggle('active', type === 'expense');
+      document.getElementById('btn-income').classList.toggle('active', type === 'income');
+      
+      const select = document.getElementById('tx-category');
+      const cats = State.categories[type];
+      select.innerHTML = '<option value="">Selecione...</option>' + cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      
+      // Atualizar labels de status
+      setTxStatus(currentTxStatus);
+    }
+    
+    function saveTransaction(e) {
+      e.preventDefault();
+      
+      const isEditing = !!editingTxId;
+      const existingTx = isEditing ? State.transactions.find(t => t.id === editingTxId) : null;
+      const recurringId = existingTx?.recurringId || (State.isRecurring ? Date.now().toString() + '_r' : null);
+      
+      const tx = {
+        id: editingTxId || Date.now().toString(),
+        type: currentTxType,
+        amount: parseMoney(document.getElementById('tx-amount').value),
+        description: document.getElementById('tx-desc').value,
+        date: document.getElementById('tx-date').value || new Date().toISOString().split('T')[0],
+        category: document.getElementById('tx-category').value,
+        paymentMethod: State.selectedPaymentMethod,
+        notes: document.getElementById('tx-notes').value,
+        status: currentTxStatus,
+        recurring: State.isRecurring,
+        recurringId: State.isRecurring ? recurringId : null
+      };
+      
+      if(editingTxId) {
+        const idx = State.transactions.findIndex(t => t.id === editingTxId);
+        if(idx > -1) State.transactions[idx] = tx;
+      } else {
+        State.transactions.unshift(tx);
+        
+        // Se for recorrente, criar cópias para os próximos 11 meses
+        if(State.isRecurring) {
+          const baseDate = new Date(tx.date + 'T00:00:00');
+          for(let i = 1; i <= 11; i++) {
+            const futureDate = new Date(baseDate);
+            futureDate.setMonth(futureDate.getMonth() + i);
+            
+            const futureTx = {
+              ...tx,
+              id: (Date.now() + i).toString(),
+              date: futureDate.toISOString().split('T')[0],
+              status: 'pending', // Futuras sempre começam como pendente
+              recurringId: recurringId
+            };
+            State.transactions.push(futureTx);
+          }
+        }
+      }
+      
+      DB.save();
+      closeModal('tx');
+      updateDashboard();
+      renderTransactions();
+      renderControlPage();
+    }
+    
+    function editTransaction(id) {
+      const tx = State.transactions.find(t => t.id === id);
+      if(!tx) return;
+      
+      editingTxId = id;
+      document.getElementById('tx-id').value = id;
+      document.getElementById('tx-amount').value = tx.amount.toFixed(2).replace('.', ',');
+      document.getElementById('tx-desc').value = tx.description;
+      document.getElementById('tx-date').value = tx.date;
+      document.getElementById('tx-notes').value = tx.notes || '';
+      document.getElementById('modal-tx-title').textContent = 'Editar Transação';
+      
+      setTxType(tx.type);
+      document.getElementById('tx-category').value = tx.category;
+      
+      State.selectedPaymentMethod = tx.paymentMethod || 'credit';
+      updatePaymentMethodUI();
+      
+      setTxStatus(tx.status || 'paid');
+      
+      // Carregar estado de recorrência
+      State.isRecurring = tx.recurring || false;
+      isRecurringTx = State.isRecurring;
+      updateRecurringUI();
+      
+      // Mostrar botão de excluir
+      document.getElementById('delete-tx-btn').classList.remove('hidden');
+      
+      openModal('tx');
+    }
+    
+    // ========== CONTROLE DE PAGAMENTOS (NOVO) ==========
+    function renderControlPage() {
+      const incomes = State.transactions.filter(t => t.type === 'income');
+      const expenses = State.transactions.filter(t => t.type === 'expense');
+      
+      const totalIncome = incomes.reduce((s, t) => s + t.amount, 0);
+      const totalExpense = expenses.reduce((s, t) => s + t.amount, 0);
+      const receivedIncome = incomes.filter(t => t.status === 'paid').reduce((s, t) => s + t.amount, 0);
+      const pendingIncome = incomes.filter(t => t.status === 'pending').reduce((s, t) => s + t.amount, 0);
+      const paidExpense = expenses.filter(t => t.status === 'paid').reduce((s, t) => s + t.amount, 0);
+      const pendingExpense = expenses.filter(t => t.status === 'pending').reduce((s, t) => s + t.amount, 0);
+      
+      document.getElementById('control-pending-income').textContent = formatMoney(totalIncome);
+      document.getElementById('control-pending-expense').textContent = formatMoney(totalExpense);
+      document.getElementById('control-received').textContent = formatMoney(receivedIncome);
+      document.getElementById('control-income-pending').textContent = formatMoney(pendingIncome);
+      document.getElementById('control-paid').textContent = formatMoney(paidExpense);
+      document.getElementById('control-expense-pending').textContent = formatMoney(pendingExpense);
+      
+      const netBalance = receivedIncome - paidExpense - pendingExpense + pendingIncome;
+      document.getElementById('control-net-balance').textContent = formatMoney(netBalance);
+      
+      renderControlList('income', incomes);
+      renderControlList('expense', expenses);
+    }
+    
+    function renderControlList(type, transactions) {
+      const emptyEl = document.getElementById(`control-${type}-empty`);
+      const listEl = document.getElementById(`control-${type}-list`);
+      const countEl = document.getElementById(`control-${type}-count`);
+      
+      let filtered = transactions;
+      if(State.controlFilter === 'pending') {
+        filtered = transactions.filter(t => t.status === 'pending');
+      } else if(State.controlFilter === 'paid') {
+        filtered = transactions.filter(t => t.status === 'paid');
+      }
+      
+      countEl.textContent = filtered.length;
+      
+      if(filtered.length === 0) {
+        emptyEl.classList.remove('hidden');
+        listEl.classList.add('hidden');
+      } else {
+        emptyEl.classList.add('hidden');
+        listEl.classList.remove('hidden');
+        
+        listEl.innerHTML = filtered.map(t => {
+          const cat = getCategory(t.category);
+          const isPending = t.status === 'pending';
+          const statusText = type === 'income' 
+            ? (isPending ? 'A Receber' : 'Recebido')
+            : (isPending ? 'A Pagar' : 'Pago');
+          return `
+            <div class="tx-item">
+              <div class="tx-icon ${type === 'income' ? 'bg-income/15' : 'bg-expense/15'}">
+                <svg class="w-5 h-5 ${type === 'income' ? 'text-income' : 'text-expense'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  ${type === 'income' 
+                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"/>'
+                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"/>'}
+                </svg>
+              </div>
+              <div class="tx-content">
+                <p class="tx-title">${t.description}</p>
+                <p class="tx-sub">${cat.name} • ${formatDate(t.date)}</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold ${type === 'income' ? 'text-income' : 'text-expense'}">
+                  ${type === 'income' ? '+' : '-'}${formatMoney(t.amount)}
+                </span>
+                <button onclick="event.stopPropagation(); toggleTransactionStatus('${t.id}')" class="toggle-status-btn ${isPending ? 'pending' : 'paid'}">${statusText}</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+    
+    function filterControl(filter) {
+      State.controlFilter = filter;
+      document.querySelectorAll('.control-filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filter);
+      });
+      renderControlPage();
+    }
+    
+    // ========== RENDER TRANSACTIONS ==========
+    function renderTransactions() {
+      const search = document.getElementById('tx-search').value.toLowerCase();
+      let filtered = State.transactions.filter(t => {
+        if(search && !t.description.toLowerCase().includes(search)) return false;
+        if(currentFilter.type !== 'all' && t.type !== currentFilter.type) return false;
+        if(currentFilter.period !== 'all') {
+          const txDate = new Date(t.date);
+          const now = new Date();
+          if(currentFilter.period === 'month') {
+            if(txDate.getMonth() !== now.getMonth() || txDate.getFullYear() !== now.getFullYear()) return false;
+          } else if(currentFilter.period === 'week') {
+            const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+            if(txDate < weekAgo) return false;
+          }
+        }
+        return true;
+      });
+      
+      const listEl = document.getElementById('tx-list');
+      const emptyEl = document.getElementById('tx-list-empty');
+      
+      if(filtered.length === 0) {
+        listEl.classList.add('hidden');
+        emptyEl.classList.remove('hidden');
+        document.getElementById('tx-count-label').textContent = '0 transações';
+        document.getElementById('tx-total-label').textContent = 'R$ 0,00';
+      } else {
+        listEl.classList.remove('hidden');
+        emptyEl.classList.add('hidden');
+        
+        const total = filtered.reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0);
+        document.getElementById('tx-count-label').textContent = `${filtered.length} transações`;
+        document.getElementById('tx-total-label').textContent = formatMoney(total);
+        
+        const paymentLabels = { credit: 'Crédito', debit: 'Débito', cash: 'Dinheiro', pix: 'PIX', transfer: 'Transferência' };
+        
+        listEl.innerHTML = filtered.map(t => {
+          const cat = getCategory(t.category);
+          const isPending = t.status === 'pending';
+          const isRecurring = t.recurring;
+          return `
+            <div class="tx-item" onclick="editTransaction('${t.id}')">
+              <div class="tx-icon ${t.type === 'income' ? 'bg-income/15' : 'bg-expense/15'}">
+                <svg class="w-5 h-5 ${t.type === 'income' ? 'text-income' : 'text-expense'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  ${t.type === 'income' 
+                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"/>'
+                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"/>'}
+                </svg>
+              </div>
+              <div class="tx-content">
+                <p class="tx-title">${t.description} ${isPending ? '<span class="status-badge status-pending">Pendente</span>' : ''}${isRecurring ? '<span class="recurring-badge"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Recorrente</span>' : ''}</p>
+                <p class="tx-sub">${cat.name} ${t.paymentMethod ? '• ' + (paymentLabels[t.paymentMethod] || '') : ''}</p>
+              </div>
+              <div class="tx-right">
+                <p class="tx-amount ${t.type === 'income' ? 'text-income' : 'text-expense'}">${t.type === 'income' ? '+' : '-'}${formatMoney(t.amount)}</p>
+                <p class="tx-date">${formatDate(t.date)}</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+    
+    // ========== FILTROS ==========
+    function toggleDropdown(id) {
+      const dropdown = document.getElementById('dropdown-' + id);
+      const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
+      allDropdowns.forEach(d => { if(d.id !== 'dropdown-' + id) d.classList.add('hidden'); });
+      dropdown.classList.toggle('hidden');
+    }
+    
+    function setFilter(type, value, label) {
+      currentFilter[type] = value;
+      document.getElementById(`filter-${type}-label`).textContent = label;
+      document.getElementById(`dropdown-filter-${type}`).classList.add('hidden');
+      renderTransactions();
+    }
+    
+    function setPeriod(value, label) {
+      dashboardPeriod = value;
+      document.getElementById('period-select-label').textContent = label;
+      document.getElementById('dropdown-period-select').classList.add('hidden');
+      updateDashboard();
+    }
+    
+    // ========== DASHBOARD ==========
+    function updateDashboard() {
+      const now = new Date();
+      let periodTx = State.transactions.filter(t => {
+        const d = new Date(t.date);
+        if(dashboardPeriod === 'month') {
+          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        } else if(dashboardPeriod === 'week') {
+          const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+          return d >= weekAgo;
+        } else if(dashboardPeriod === 'year') {
+          return d.getFullYear() === now.getFullYear();
+        } else {
+          return true;
+        }
+      });
+      
+      const income = periodTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+      const expense = periodTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+      const balance = income - expense;
+      const savings = Math.max(0, balance);
+      
+      document.getElementById('dash-balance').textContent = formatMoney(balance);
+      document.getElementById('dash-income').textContent = formatMoney(income);
+      document.getElementById('dash-expense').textContent = formatMoney(expense);
+      document.getElementById('dash-savings').textContent = formatMoney(savings);
+      
+      // Calcular pendências (NOVO)
+      const pendingIncome = State.transactions.filter(t => t.type === 'income' && t.status === 'pending').reduce((s, t) => s + t.amount, 0);
+      const pendingExpense = State.transactions.filter(t => t.type === 'expense' && t.status === 'pending').reduce((s, t) => s + t.amount, 0);
+      
+      const pendingAlerts = document.getElementById('pending-alerts');
+      if(pendingIncome > 0 || pendingExpense > 0) {
+        pendingAlerts.classList.remove('hidden');
+        document.getElementById('dash-pending-income').textContent = formatMoney(pendingIncome);
+        document.getElementById('dash-pending-expense').textContent = formatMoney(pendingExpense);
+      } else {
+        pendingAlerts.classList.add('hidden');
+      }
+      
+      renderCategories(periodTx, expense);
+      renderRecentTransactions();
+      updateProfileUI();
+    }
+    
+    function renderCategories(monthTx, totalExpense) {
+      const expenses = monthTx.filter(t => t.type === 'expense');
+      const byCat = {};
+      expenses.forEach(t => { byCat[t.category] = (byCat[t.category] || 0) + t.amount; });
+      
+      const entries = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+      
+      const emptyEl = document.getElementById('dash-categories-empty');
+      const listEl = document.getElementById('dash-categories');
+      
+      if(entries.length === 0) {
+        emptyEl.classList.remove('hidden');
+        listEl.classList.add('hidden');
+      } else {
+        emptyEl.classList.add('hidden');
+        listEl.classList.remove('hidden');
+        
+        listEl.innerHTML = entries.map(([catId, amount]) => {
+          const cat = getCategory(catId);
+          const pct = totalExpense > 0 ? (amount / totalExpense * 100).toFixed(1) : 0;
+          return `
+            <div class="py-3 border-b border-brand/5">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full" style="background: ${cat.color}"></span>
+                  <span class="text-sm text-white">${cat.name}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-sm font-semibold text-white">${formatMoney(amount)}</span>
+                  <span class="text-xs text-[#6b8a99]">${pct}%</span>
+                </div>
+              </div>
+              <div class="h-1.5 rounded-full overflow-hidden" style="background: rgba(19, 42, 60, 0.8)">
+                <div class="h-full rounded-full transition-all" style="width: ${pct}%; background: ${cat.color}"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+    
+    function renderRecentTransactions() {
+      const recent = State.transactions.slice(0, 5);
+      
+      const emptyEl = document.getElementById('dash-tx-empty');
+      const listEl = document.getElementById('dash-tx-list');
+      
+      if(recent.length === 0) {
+        emptyEl.classList.remove('hidden');
+        listEl.classList.add('hidden');
+      } else {
+        emptyEl.classList.add('hidden');
+        listEl.classList.remove('hidden');
+        
+        listEl.innerHTML = recent.map(t => {
+          const cat = getCategory(t.category);
+          const isPending = t.status === 'pending';
+          const isRecurring = t.recurring;
+          return `
+            <div class="tx-item" onclick="editTransaction('${t.id}')">
+              <div class="tx-icon ${t.type === 'income' ? 'bg-income/15' : 'bg-expense/15'}">
+                <svg class="w-5 h-5 ${t.type === 'income' ? 'text-income' : 'text-expense'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  ${t.type === 'income' 
+                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"/>'
+                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"/>'}
+                </svg>
+              </div>
+              <div class="tx-content">
+                <p class="tx-title">${t.description} ${isPending ? '<span class="status-badge status-pending">Pendente</span>' : ''}${isRecurring ? '<span class="recurring-badge"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Recorrente</span>' : ''}</p>
+                <p class="tx-sub">${cat.name}</p>
+              </div>
+              <div class="tx-right">
+                <p class="tx-amount ${t.type === 'income' ? 'text-income' : 'text-expense'}">${t.type === 'income' ? '+' : '-'}${formatMoney(t.amount)}</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+    
+    // ========== CALENDÁRIO ==========
+    function renderCalendar() {
+      const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+      document.getElementById('cal-month-year').textContent = `${monthNames[calDate.getMonth()]} ${calDate.getFullYear()}`;
+      
+      const firstDay = new Date(calDate.getFullYear(), calDate.getMonth(), 1);
+      const lastDay = new Date(calDate.getFullYear(), calDate.getMonth() + 1, 0);
+      const startPadding = firstDay.getDay();
+      
+      const grid = document.getElementById('cal-grid');
+      let html = '';
+      
+      const prevMonth = new Date(calDate.getFullYear(), calDate.getMonth(), 0);
+      for(let i = startPadding - 1; i >= 0; i--) {
+        html += `<div class="text-center py-2 text-[#3d5a6a] text-sm">${prevMonth.getDate() - i}</div>`;
+      }
+      
+      for(let d = 1; d <= lastDay.getDate(); d++) {
+        const dateStr = `${calDate.getFullYear()}-${String(calDate.getMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const dayTx = State.transactions.filter(t => t.date === dateStr);
+        const hasTx = dayTx.length > 0;
+        const dayIncome = dayTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+        const dayExpense = dayTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+        
+        const isToday = new Date().toDateString() === new Date(calDate.getFullYear(), calDate.getMonth(), d).toDateString();
+        const isSelected = selectedDay === d;
+        
+        let dayClass = 'text-center py-2 rounded-lg cursor-pointer transition-all text-sm relative';
+        if(isToday) dayClass += ' bg-brand/20 text-brand font-semibold';
+        if(isSelected) dayClass += ' ring-2 ring-brand';
+        
+        html += `
+          <div class="${dayClass}" onclick="selectDay(${d})">
+            ${d}
+            ${hasTx ? `<div class="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
+              ${dayIncome > 0 ? '<span class="w-1.5 h-1.5 rounded-full bg-income"></span>' : ''}
+              ${dayExpense > 0 ? '<span class="w-1.5 h-1.5 rounded-full bg-expense"></span>' : ''}
+            </div>` : ''}
+          </div>
+        `;
+      }
+      
+      const remaining = 42 - (startPadding + lastDay.getDate());
+      for(let d = 1; d <= remaining; d++) {
+        html += `<div class="text-center py-2 text-[#3d5a6a] text-sm">${d}</div>`;
+      }
+      
+      grid.innerHTML = html;
+      
+      const monthTx = State.transactions.filter(t => {
+        const td = new Date(t.date);
+        return td.getMonth() === calDate.getMonth() && td.getFullYear() === calDate.getFullYear();
+      });
+      
+      const income = monthTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+      const expense = monthTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+      
+      document.getElementById('cal-income').textContent = formatMoney(income);
+      document.getElementById('cal-expense').textContent = formatMoney(expense);
+      document.getElementById('cal-balance').textContent = formatMoney(income - expense);
+    }
+    
+    function selectDay(d) {
+      selectedDay = d;
+      renderCalendar();
+      
+      const dateStr = `${calDate.getFullYear()}-${String(calDate.getMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const dayTx = State.transactions.filter(t => t.date === dateStr);
+      
+      const details = document.getElementById('cal-details');
+      const dayTitle = document.getElementById('cal-day-title');
+      const dayTxList = document.getElementById('cal-day-tx');
+      
+      if(dayTx.length > 0) {
+        details.classList.remove('hidden');
+        dayTitle.textContent = `Dia ${String(d).padStart(2, '0')}`;
+        dayTxList.innerHTML = dayTx.map(t => `
+          <div class="flex justify-between items-center p-2 bg-[#0d1f2d] rounded-lg">
+            <div>
+              <span class="text-sm text-white">${t.description}</span>
+              <span class="text-xs text-[#6b8a99] ml-2">${getCategory(t.category).name}</span>
+            </div>
+            <span class="text-sm font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'}">
+              ${t.type === 'income' ? '+' : '-'}${formatMoney(t.amount)}
+            </span>
+          </div>
+        `).join('');
+      } else {
+        details.classList.add('hidden');
+      }
+    }
+    
+    function calPrev() {
+      calDate.setMonth(calDate.getMonth() - 1);
+      selectedDay = null;
+      renderCalendar();
+    }
+    
+    function calNext() {
+      calDate.setMonth(calDate.getMonth() + 1);
+      selectedDay = null;
+      renderCalendar();
+    }
+    
+    // ========== METAS ==========
+    function renderGoals() {
+      const emptyEl = document.getElementById('goals-empty');
+      const listEl = document.getElementById('goals-list');
+      
+      if(State.goals.length === 0) {
+        emptyEl.classList.remove('hidden');
+        listEl.classList.add('hidden');
+      } else {
+        emptyEl.classList.add('hidden');
+        listEl.classList.remove('hidden');
+        
+        listEl.innerHTML = State.goals.map(g => {
+          const pct = g.target > 0 ? Math.min(100, (g.current / g.target * 100)).toFixed(0) : 0;
+          return `
+            <div class="card p-4">
+              <div class="flex justify-between items-start mb-3">
+                <h3 class="font-semibold text-white">${g.title}</h3>
+                <span class="text-xs text-[#6b8a99]">${pct}%</span>
+              </div>
+              <div class="h-1.5 rounded-full overflow-hidden mb-2" style="background: rgba(19, 42, 60, 0.8)">
+                <div class="h-full rounded-full bg-brand" style="width: ${pct}%"></div>
+              </div>
+              <div class="flex justify-between text-xs">
+                <span class="text-[#6b8a99]">Atual: <span class="text-white">${formatMoney(g.current)}</span></span>
+                <span class="text-[#6b8a99]">Meta: <span class="text-brand">${formatMoney(g.target)}</span></span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+    
+    function saveGoal(e) {
+      e.preventDefault();
+      
+      const goal = {
+        id: Date.now().toString(),
+        title: document.getElementById('goal-title').value,
+        target: parseMoney(document.getElementById('goal-target').value),
+        current: parseMoney(document.getElementById('goal-current').value) || 0
+      };
+      
+      State.goals.push(goal);
+      DB.save();
+      closeModal('goal');
+      renderGoals();
+    }
+    
+    // ========== RELATÓRIOS ==========
+    function renderReports() {
+      const now = new Date();
+      const monthTx = State.transactions.filter(t => {
+        const d = new Date(t.date);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      });
+      
+      const income = monthTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+      const expense = monthTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+      
+      document.getElementById('report-total-income').textContent = formatMoney(income);
+      document.getElementById('report-total-expense').textContent = formatMoney(expense);
+      document.getElementById('report-balance').textContent = formatMoney(income - expense);
+      
+      renderTopExpenses(monthTx);
+    }
+    
+    function renderTopExpenses(monthTx) {
+      const expenses = monthTx.filter(t => t.type === 'expense').sort((a, b) => b.amount - a.amount).slice(0, 5);
+      const container = document.getElementById('report-top-expenses');
+      
+      if(expenses.length === 0) {
+        container.innerHTML = '<div class="text-center text-[#6b8a99] py-8"><p class="text-sm">Sem dados suficientes</p></div>';
+        return;
+      }
+      
+      container.innerHTML = expenses.map((t, i) => `
+        <div class="flex items-center gap-3 p-2 bg-[#0d1f2d] rounded-lg">
+          <span class="w-6 h-6 rounded-full bg-expense/20 text-expense text-xs font-bold flex items-center justify-center">${i + 1}</span>
+          <div class="flex-1">
+            <p class="text-sm text-white">${t.description}</p>
+            <p class="text-xs text-[#6b8a99]">${getCategory(t.category).name}</p>
+          </div>
+          <span class="text-sm font-semibold text-expense">-${formatMoney(t.amount)}</span>
+        </div>
+      `).join('');
+    }
+    
+    // ========== CONFIGURAÇÕES ==========
+    function loadProfileToSettings() {
+      document.getElementById('settings-name').value = State.profile.name || '';
+      document.getElementById('settings-email').value = State.profile.email || '';
+      updateProfilePhoto();
+    }
+    
+    function updateProfilePhoto() {
+      const photoEl = document.getElementById('profile-photo');
+      const sidebarAvatar = document.getElementById('sidebar-avatar');
+      
+      const name = State.profile.name || '';
+      const initials = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || 'DN';
+      
+      if(State.profile.photo) {
+        photoEl.innerHTML = `<img src="${State.profile.photo}" alt="Profile">`;
+        sidebarAvatar.innerHTML = `<img src="${State.profile.photo}" alt="Profile">`;
+      } else {
+        photoEl.innerHTML = `<span id="profile-photo-initials">${initials}</span>`;
+        sidebarAvatar.innerHTML = `<span id="sidebar-avatar-initials">${initials}</span>`;
+      }
+    }
+    
+    function handleProfilePhoto(event) {
+      const file = event.target.files[0];
+      if(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          State.profile.photo = e.target.result;
+          updateProfilePhoto();
+          DB.save();
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+    
+    function updateProfilePreview() {
+      const name = document.getElementById('settings-name').value;
+      State.profile.name = name;
+      updateProfileUI();
+    }
+    
+    function updateProfileUI() {
+      const name = State.profile.name || 'Daniel Neves';
+      document.getElementById('sidebar-profile-name').textContent = name;
+      
+      if(!State.profile.photo) {
+        const initials = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+        document.getElementById('sidebar-avatar').innerHTML = `<span id="sidebar-avatar-initials">${initials}</span>`;
+      }
+    }
+    
+    function saveProfile() {
+      State.profile.name = document.getElementById('settings-name').value;
+      State.profile.email = document.getElementById('settings-email').value;
+      DB.save();
+      updateProfileUI();
+      alert('Perfil salvo com sucesso!');
+    }
+    
+    function exportData() {
+      const data = JSON.stringify(State, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'golbuy_backup_' + new Date().toISOString().split('T')[0] + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    
+    function clearAllData() {
+      if(confirm('Tem certeza que deseja apagar todos os dados? Esta ação não pode ser desfeita.')) {
+        State.transactions = [];
+        State.goals = [];
+        State.profile = { name: 'Daniel Neves', email: '', photo: null };
+        DB.save();
+        updateDashboard();
+        renderTransactions();
+        renderGoals();
+        renderCalendar();
+        renderControlPage();
+        alert('Todos os dados foram apagados.');
+      }
+    }
+    
+    // ========== INIT ==========
+    document.addEventListener('DOMContentLoaded', () => {
+      DB.load();
+      updateDashboard();
+      renderCalendar();
+      renderControlPage();
+      
+      document.addEventListener('click', (e) => {
+        if(!e.target.closest('.dropdown') && !e.target.closest('[id^="dropdown-"]')) {
+          document.querySelectorAll('[id^="dropdown-"]').forEach(d => d.classList.add('hidden'));
+        }
+      });
+      
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+          .then((registration) => {
+            console.log('Service Worker registrado com sucesso:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('Falha ao registrar Service Worker:', error);
+          });
+      }
+    });
+  </script>
+</body>
+</html>
