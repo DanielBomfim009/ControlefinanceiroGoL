@@ -5,7 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>GoL Buy Smart - Dashboard Financeiro</title>
   
+  <!-- PWA / Instalação -->
   <meta name="theme-color" content="#00b4a0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="logo-192.png">
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   
@@ -1101,7 +1107,6 @@
       const now = new Date();
       return transactions.filter(t => {
         // Se for recorrente e o filtro for 'month', consideramos que ela aplica ao mês atual
-        // Isso resolve o problema do usuário de "Pendências" não acompanhar o filtro "Este mês"
         if (t.recurring && period === 'month') {
           return true;
         }
@@ -1119,7 +1124,7 @@
       });
     }
 
-    // NOTIFICAÇÃO TOAST (Substitui alert)
+    // NOTIFICAÇÃO TOAST
     function showToast(message, type = 'success') {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
@@ -1132,7 +1137,6 @@
       toast.innerHTML = `${icon}<span>${message}</span>`;
       container.appendChild(toast);
 
-      // Animação
       requestAnimationFrame(() => toast.classList.add('show'));
 
       setTimeout(() => {
@@ -1148,7 +1152,6 @@
         if(d) {
           const parsed = JSON.parse(d);
           Object.assign(State, parsed);
-          // Migração para garantir compatibilidade
           State.transactions = State.transactions.map(t => ({
             ...t,
             status: t.status || 'paid',
@@ -1333,7 +1336,6 @@
     function saveTransaction(e) {
       e.preventDefault();
       
-      // CORREÇÃO: Salva APENAS uma transação mestre para recorrentes
       const tx = {
         id: editingTxId || Date.now().toString(),
         type: currentTxType,
@@ -1489,8 +1491,6 @@
     // RENDER
     function updateDashboard() {
       const periodTx = filterByPeriod(State.transactions, State.dashboardPeriod);
-      
-      // CORREÇÃO: Filtra apenas transações mestre
       const visibleTx = periodTx.filter(t => !t.isRecurringInstance);
       
       const income = visibleTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
@@ -1502,7 +1502,6 @@
       document.getElementById('dash-expense').textContent = formatMoney(expense);
       document.getElementById('dash-savings').textContent = formatMoney(Math.max(0, balance));
       
-      // Pendencias filtradas por periodo (Logica corrigida pelo filterByPeriod)
       const pendingIncome = visibleTx.filter(t => t.type === 'income' && t.status === 'pending').reduce((s, t) => s + t.amount, 0);
       const pendingExpense = visibleTx.filter(t => t.type === 'expense' && t.status === 'pending').reduce((s, t) => s + t.amount, 0);
       
@@ -1561,7 +1560,6 @@
     }
 
     function renderRecentTransactions() {
-      // Mostrar apenas transacoes mestre
       const visible = State.transactions.filter(t => !t.isRecurringInstance).slice(0, 5);
       
       const emptyEl = document.getElementById('dash-tx-empty');
@@ -1578,7 +1576,6 @@
           const cat = getCategory(t.category);
           const isPending = t.status === 'pending';
           const isRecurring = t.recurring;
-          // CORREÇÃO: Badge de Recorrente
           return `
             <div class="tx-item" onclick="editTransaction('${t.id}')">
               <div class="tx-icon ${t.type === 'income' ? 'bg-income/15' : 'bg-expense/15'}">
@@ -1602,7 +1599,6 @@
     }
 
     function renderControlPage() {
-      // CORREÇÃO: Aplica o filtro de periodo que agora entende recorrentes
       const periodFiltered = filterByPeriod(State.transactions, State.controlPeriod);
       const incomes = periodFiltered.filter(t => t.type === 'income');
       const expenses = periodFiltered.filter(t => t.type === 'expense');
@@ -1676,7 +1672,6 @@
     }
 
     function renderTransactions() {
-      // Mostrar apenas transacoes mestre (nao instancias)
       let visible = State.transactions.filter(t => !t.isRecurringInstance);
       
       let filtered = visible.filter(t => {
@@ -1685,7 +1680,6 @@
           const txDate = new Date(t.date);
           const now = new Date();
           if(currentFilter.period === 'month') {
-            // Para o histórico, obedecemos a data estritamente, exceto recorrentes
             if(t.recurring) return true; 
             if(txDate.getMonth() !== now.getMonth() || txDate.getFullYear() !== now.getFullYear()) return false;
           }
@@ -1889,13 +1883,11 @@
       updateAllAvatars();
     }
 
-    // CORREÇÃO: Atualiza avatares em todas as abas corretamente
     function updateAllAvatars() {
       const name = State.profile.name || 'Daniel Neves';
       const initials = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
       const photoSrc = State.profile.photo ? `<img src="${State.profile.photo}" alt="Profile">` : `<span>${initials}</span>`;
       
-      // Sidebar
       const sidebarAvatar = document.getElementById('sidebar-avatar');
       if(sidebarAvatar) {
         if(State.profile.photo) {
@@ -1907,7 +1899,6 @@
       const sidebarName = document.getElementById('sidebar-profile-name');
       if(sidebarName) sidebarName.textContent = name;
       
-      // Headers (todas as paginas)
       const headers = ['dashboard', 'control', 'transactions', 'calendar', 'goals', 'reports', 'settings'];
       headers.forEach(h => {
         const el = document.getElementById(`header-avatar-${h}`);
@@ -1964,6 +1955,17 @@
       renderCalendar();
       renderControlPage();
       updateAllAvatars();
+      
+      // Registrar Service Worker para PWA
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => {
+            console.log('Service Worker registrado com sucesso:', registration);
+          })
+          .catch(error => {
+            console.log('Registro do Service Worker falhou:', error);
+          });
+      }
       
       // Fechar dropdowns ao clicar fora
       document.addEventListener('click', (e) => {
