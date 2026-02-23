@@ -54,6 +54,7 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #1a3649; border-radius: 2px; }
     
+    /* Componentes UI */
     .card {
       background: linear-gradient(145deg, #132a3c 0%, #0f232f 100%);
       border-radius: 16px;
@@ -105,6 +106,7 @@
     .tx-sub { font-size: 11px; color: #6b8a99; margin-top: 2px; }
     .tx-amount { font-size: 14px; font-weight: 600; }
     
+    /* Sidebar & Nav */
     .sidebar-overlay {
       position: fixed; inset: 0;
       background: rgba(5, 15, 22, 0.8);
@@ -144,7 +146,7 @@
     .sidebar-item svg { width: 20px; height: 20px; }
     
     .sidebar-profile { padding: 16px; margin: 16px 12px; background: rgba(0, 180, 160, 0.05); border-radius: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
-    .sidebar-avatar { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #00b4a0 0%, #008577 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 16px; overflow: hidden; }
+    .sidebar-avatar { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #00b4a0 0%, #008577 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 16px; overflow: hidden; flex-shrink: 0; }
     .sidebar-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .sidebar-profile-name { font-size: 13px; font-weight: 600; color: #fff; }
     .sidebar-profile-type { font-size: 11px; color: #6b8a99; }
@@ -247,9 +249,19 @@
     
     select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b8a99'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 40px !important; }
     input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.7; }
+
+    /* Toast Notification */
+    .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+    .toast { background: rgba(19, 42, 60, 0.95); border: 1px solid #00b4a0; color: #fff; padding: 12px 24px; border-radius: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; opacity: 0; transform: translateY(-20px); transition: all 0.3s ease; pointer-events: auto; backdrop-filter: blur(4px); }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success svg { color: #00c853; }
+    .toast.error svg { color: #ff5252; }
   </style>
 </head>
 <body>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
 
   <!-- Sidebar Overlay -->
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
@@ -1084,9 +1096,16 @@
     const formatCurrency = (el) => { let v = el.value.replace(/\D/g, ''); v = (parseInt(v||0) / 100).toFixed(2).replace('.', ','); el.value = v; };
     const getCategory = (id) => [...State.categories.expense, ...State.categories.income].find(c => c.id === id) || { name: 'Outros', color: '#6b8a99' };
 
+    // CORREÇÃO: Filtro Inteligente para Recorrentes
     function filterByPeriod(transactions, period) {
       const now = new Date();
       return transactions.filter(t => {
+        // Se for recorrente e o filtro for 'month', consideramos que ela aplica ao mês atual
+        // Isso resolve o problema do usuário de "Pendências" não acompanhar o filtro "Este mês"
+        if (t.recurring && period === 'month') {
+          return true;
+        }
+
         const txDate = new Date(t.date);
         if(period === 'month') {
           return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
@@ -1100,6 +1119,28 @@
       });
     }
 
+    // NOTIFICAÇÃO TOAST (Substitui alert)
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      let icon = type === 'success' 
+        ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>'
+        : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+
+      toast.innerHTML = `${icon}<span>${message}</span>`;
+      container.appendChild(toast);
+
+      // Animação
+      requestAnimationFrame(() => toast.classList.add('show'));
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
     // STORAGE
     const DB = {
       load: () => {
@@ -1107,6 +1148,7 @@
         if(d) {
           const parsed = JSON.parse(d);
           Object.assign(State, parsed);
+          // Migração para garantir compatibilidade
           State.transactions = State.transactions.map(t => ({
             ...t,
             status: t.status || 'paid',
@@ -1140,6 +1182,7 @@
       if(page === 'reports') renderReports();
       if(page === 'settings') loadProfileToSettings();
       if(page === 'control') renderControlPage();
+      if(page === 'dashboard') updateDashboard();
       
       updateAllAvatars();
     }
@@ -1290,6 +1333,7 @@
     function saveTransaction(e) {
       e.preventDefault();
       
+      // CORREÇÃO: Salva APENAS uma transação mestre para recorrentes
       const tx = {
         id: editingTxId || Date.now().toString(),
         type: currentTxType,
@@ -1307,8 +1351,10 @@
       if(editingTxId) {
         const idx = State.transactions.findIndex(t => t.id === editingTxId);
         if(idx > -1) State.transactions[idx] = tx;
+        showToast('Transacao atualizada com sucesso!');
       } else {
         State.transactions.unshift(tx);
+        showToast('Transacao salva com sucesso!');
       }
       
       DB.save();
@@ -1364,8 +1410,10 @@
       
       if(mode === 'all' && tx.recurringId) {
         State.transactions = State.transactions.filter(t => t.recurringId !== tx.recurringId);
+        showToast('Serie recorrente excluida', 'error');
       } else {
         State.transactions = State.transactions.filter(t => t.id !== editingTxId);
+        showToast('Transacao excluida', 'error');
       }
       
       DB.save();
@@ -1384,6 +1432,7 @@
         DB.save();
         renderControlPage();
         updateDashboard();
+        showToast('Status atualizado!');
       }
     }
 
@@ -1408,6 +1457,7 @@
       DB.save();
       closeModalGoal();
       renderGoals();
+      showToast('Meta salva com sucesso!');
     }
 
     function addToGoal(e) {
@@ -1424,6 +1474,7 @@
       
       closeModalGoalAdd();
       renderGoals();
+      showToast('Valor adicionado a meta!');
     }
 
     function deleteGoal(id) {
@@ -1431,6 +1482,7 @@
         State.goals = State.goals.filter(g => g.id !== id);
         DB.save();
         renderGoals();
+        showToast('Meta excluida', 'error');
       }
     }
 
@@ -1438,7 +1490,7 @@
     function updateDashboard() {
       const periodTx = filterByPeriod(State.transactions, State.dashboardPeriod);
       
-      // Mostrar apenas transacoes mestre (nao instancias de recorrentes)
+      // CORREÇÃO: Filtra apenas transações mestre
       const visibleTx = periodTx.filter(t => !t.isRecurringInstance);
       
       const income = visibleTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
@@ -1450,7 +1502,7 @@
       document.getElementById('dash-expense').textContent = formatMoney(expense);
       document.getElementById('dash-savings').textContent = formatMoney(Math.max(0, balance));
       
-      // Pendencias filtradas por periodo
+      // Pendencias filtradas por periodo (Logica corrigida pelo filterByPeriod)
       const pendingIncome = visibleTx.filter(t => t.type === 'income' && t.status === 'pending').reduce((s, t) => s + t.amount, 0);
       const pendingExpense = visibleTx.filter(t => t.type === 'expense' && t.status === 'pending').reduce((s, t) => s + t.amount, 0);
       
@@ -1526,6 +1578,7 @@
           const cat = getCategory(t.category);
           const isPending = t.status === 'pending';
           const isRecurring = t.recurring;
+          // CORREÇÃO: Badge de Recorrente
           return `
             <div class="tx-item" onclick="editTransaction('${t.id}')">
               <div class="tx-icon ${t.type === 'income' ? 'bg-income/15' : 'bg-expense/15'}">
@@ -1549,6 +1602,7 @@
     }
 
     function renderControlPage() {
+      // CORREÇÃO: Aplica o filtro de periodo que agora entende recorrentes
       const periodFiltered = filterByPeriod(State.transactions, State.controlPeriod);
       const incomes = periodFiltered.filter(t => t.type === 'income');
       const expenses = periodFiltered.filter(t => t.type === 'expense');
@@ -1631,6 +1685,8 @@
           const txDate = new Date(t.date);
           const now = new Date();
           if(currentFilter.period === 'month') {
+            // Para o histórico, obedecemos a data estritamente, exceto recorrentes
+            if(t.recurring) return true; 
             if(txDate.getMonth() !== now.getMonth() || txDate.getFullYear() !== now.getFullYear()) return false;
           }
         }
@@ -1822,6 +1878,7 @@
           State.profile.photo = e.target.result;
           updateProfilePhoto();
           DB.save();
+          showToast('Foto de perfil atualizada!');
         };
         reader.readAsDataURL(file);
       }
@@ -1832,19 +1889,25 @@
       updateAllAvatars();
     }
 
+    // CORREÇÃO: Atualiza avatares em todas as abas corretamente
     function updateAllAvatars() {
       const name = State.profile.name || 'Daniel Neves';
       const initials = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+      const photoSrc = State.profile.photo ? `<img src="${State.profile.photo}" alt="Profile">` : `<span>${initials}</span>`;
       
       // Sidebar
-      if(State.profile.photo) {
-        document.getElementById('sidebar-avatar').innerHTML = `<img src="${State.profile.photo}" alt="Profile">`;
-      } else {
-        document.getElementById('sidebar-avatar').innerHTML = `<span id="sidebar-avatar-text">${initials}</span>`;
+      const sidebarAvatar = document.getElementById('sidebar-avatar');
+      if(sidebarAvatar) {
+        if(State.profile.photo) {
+          sidebarAvatar.innerHTML = `<img src="${State.profile.photo}" alt="Profile">`;
+        } else {
+          sidebarAvatar.innerHTML = `<span id="sidebar-avatar-text">${initials}</span>`;
+        }
       }
-      document.getElementById('sidebar-profile-name').textContent = name;
+      const sidebarName = document.getElementById('sidebar-profile-name');
+      if(sidebarName) sidebarName.textContent = name;
       
-      // Headers
+      // Headers (todas as paginas)
       const headers = ['dashboard', 'control', 'transactions', 'calendar', 'goals', 'reports', 'settings'];
       headers.forEach(h => {
         const el = document.getElementById(`header-avatar-${h}`);
@@ -1863,7 +1926,7 @@
       State.profile.email = document.getElementById('settings-email').value;
       DB.save();
       updateAllAvatars();
-      alert('Perfil salvo com sucesso!');
+      showToast('Perfil salvo com sucesso!');
     }
 
     function exportData() {
@@ -1875,6 +1938,7 @@
       a.download = 'golbuy_backup_' + new Date().toISOString().split('T')[0] + '.json';
       a.click();
       URL.revokeObjectURL(url);
+      showToast('Backup exportado!');
     }
 
     function clearAllData() {
@@ -1889,7 +1953,7 @@
         renderCalendar();
         renderControlPage();
         updateAllAvatars();
-        alert('Todos os dados foram apagados.');
+        showToast('Todos os dados foram apagados.', 'error');
       }
     }
 
