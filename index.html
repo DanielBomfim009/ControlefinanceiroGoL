@@ -35,6 +35,7 @@
   </script>
   
   <style>
+    /* ESTILOS BASE E OFFLINE FALLBACK */
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body { height: 100%; overflow-x: hidden; }
     body { 
@@ -406,6 +407,16 @@
           </div>
         </div>
       </div>
+
+      <!-- NOVO: Gráfico Semanal CSS Puro -->
+      <div class="card mt-4 p-4">
+        <div class="section-header mb-4">
+          <h2 class="section-title">Últimos 7 Dias (Receitas vs Despesas)</h2>
+        </div>
+        <div id="chart-bars" class="flex items-end justify-between h-32 gap-1 px-1">
+          <!-- Barras geradas via JS -->
+        </div>
+      </div>
       
       <!-- Pendencias -->
       <div id="pending-alerts" class="mt-4 hidden">
@@ -637,7 +648,19 @@
         </div>
       </div>
       
-      <div class="mt-4 space-y-3">
+      <!-- NOVO: Barra de Busca -->
+      <div class="mt-4 relative">
+        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-[#6b8a99]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" id="search-tx" class="input-styled pl-10" placeholder="Buscar por descricao..." oninput="renderTransactions()">
+      </div>
+
+      <!-- Limpar Filtro de Data (Visível condicionalmente) -->
+      <div id="clear-date-filter" class="hidden mt-2 flex justify-between items-center">
+        <span class="text-xs text-brand font-medium">Filtrando por data específica</span>
+        <button onclick="clearDateFilter()" class="text-xs text-[#6b8a99] hover:text-white underline">Limpar</button>
+      </div>
+
+      <div class="mt-3 space-y-3">
         <div class="dropdown w-full text-left" onclick="toggleDropdown('filter-type')">
           <span id="filter-type-label">Todas</span>
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:auto"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -956,6 +979,11 @@
           
           <button type="submit" class="w-full py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors mt-2">Salvar Transacao</button>
           
+          <!-- NOVO: Botão Duplicar -->
+          <button type="button" id="duplicate-tx-btn" class="hidden w-full mt-2 py-2 border border-dashed border-[#6b8a99] text-[#6b8a99] text-xs font-semibold rounded-xl hover:border-brand hover:text-brand transition-colors" onclick="duplicateToNextMonth()">
+            Duplicar para o próximo mês
+          </button>
+
           <button type="button" id="delete-tx-btn" class="delete-btn-modal hidden" onclick="showDeleteOptions()">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             Excluir Transacao
@@ -1094,6 +1122,7 @@
     let editingTxId = null;
     let editingGoalId = null;
     let calDate = new Date();
+    let selectedCalendarDate = null; // NOVO: Filtro de data do calendário
 
     // HELPERS
     const formatMoney = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
@@ -1145,23 +1174,42 @@
       }, 3000);
     }
 
-    // STORAGE
+    // STORAGE MELHORADO
     const DB = {
       load: () => {
-        const d = localStorage.getItem('golbuy_v6');
-        if(d) {
-          const parsed = JSON.parse(d);
-          Object.assign(State, parsed);
-          State.transactions = State.transactions.map(t => ({
-            ...t,
-            status: t.status || 'paid',
-            recurring: t.recurring || false,
-            recurringId: t.recurringId || null,
-            isRecurringInstance: t.isRecurringInstance || false
-          }));
+        try {
+          const d = localStorage.getItem('golbuy_v6');
+          if(d) {
+            const parsed = JSON.parse(d);
+            // Merge seguro para não quebrar se a estrutura mudar
+            Object.assign(State, parsed);
+            
+            // Garante que arrays existam
+            if (!Array.isArray(State.transactions)) State.transactions = [];
+            if (!Array.isArray(State.goals)) State.goals = [];
+            if (!State.profile) State.profile = { name: 'Daniel Neves', email: '', photo: null };
+            
+            // Normaliza dados antigos
+            State.transactions = State.transactions.map(t => ({
+              ...t,
+              status: t.status || 'paid',
+              recurring: t.recurring || false,
+              recurringId: t.recurringId || null,
+              isRecurringInstance: t.isRecurringInstance || false
+            }));
+          }
+        } catch (e) {
+          console.error("Erro ao carregar dados", e);
+          // Se falhar, inicia com estado limpo para não quebrar o app
         }
       },
-      save: () => localStorage.setItem('golbuy_v6', JSON.stringify(State))
+      save: () => {
+        try {
+          localStorage.setItem('golbuy_v6', JSON.stringify(State));
+        } catch (e) {
+          showToast('Erro ao salvar dados! Armazenamento cheio?', 'error');
+        }
+      }
     };
 
     // SIDEBAR
@@ -1241,6 +1289,7 @@
       updatePaymentMethodUI();
       updateRecurringUI();
       document.getElementById('delete-tx-btn').classList.add('hidden');
+      document.getElementById('duplicate-tx-btn').classList.add('hidden');
     }
 
     function closeModalTx() {
@@ -1390,8 +1439,33 @@
       updateRecurringUI();
       
       document.getElementById('delete-tx-btn').classList.remove('hidden');
+      document.getElementById('duplicate-tx-btn').classList.remove('hidden'); // Mostrar botão duplicar
       
       document.getElementById('modal-tx').classList.add('active');
+    }
+
+    // NOVO: Função Duplicar
+    function duplicateToNextMonth() {
+      const currentTx = State.transactions.find(t => t.id === editingTxId);
+      if(!currentTx) return;
+
+      const date = new Date(currentTx.date);
+      date.setMonth(date.getMonth() + 1);
+      
+      const newTx = {
+        ...currentTx,
+        id: Date.now().toString(),
+        date: date.toISOString().split('T')[0],
+        status: 'pending', // Duplicados costumam vir como pendentes
+        recurring: false // A duplicata é única
+      };
+
+      State.transactions.unshift(newTx);
+      DB.save();
+      closeModalTx();
+      showToast('Duplicado para o próximo mês!');
+      updateDashboard();
+      renderTransactions();
     }
 
     function showDeleteOptions() {
@@ -1516,6 +1590,50 @@
       
       renderCategories(visibleTx, expense);
       renderRecentTransactions();
+      renderWeeklyChart(); // NOVO: Renderizar gráfico
+    }
+
+    // NOVO: Renderizar Gráfico Semanal (CSS Puro)
+    function renderWeeklyChart() {
+      const container = document.getElementById('chart-bars');
+      if(!container) return;
+      
+      // Pegar últimos 7 dias
+      const days = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        days.push(d.toISOString().split('T')[0]);
+      }
+
+      // Calcular totais por dia
+      const data = days.map(day => {
+        const txs = State.transactions.filter(t => t.date === day && !t.isRecurringInstance);
+        const income = txs.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
+        const expense = txs.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
+        return { day, income, expense };
+      });
+
+      // Encontrar o valor máximo para calcular a altura das barras (escala)
+      const maxVal = Math.max(...data.map(d => Math.max(d.income, d.expense))) || 1;
+
+      container.innerHTML = data.map(d => {
+        const incomeH = (d.income / maxVal) * 100;
+        const expenseH = (d.expense / maxVal) * 100;
+        const dayName = new Date(d.day + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'narrow' });
+
+        return `
+          <div class="flex flex-col items-center flex-1 h-full justify-end group cursor-pointer" onclick="selectedCalendarDate='${d.day}'; openPage('transactions'); renderTransactions();">
+            <div class="w-full flex items-end justify-center gap-0.5 h-full pb-4 relative">
+              <!-- Barra Receita -->
+              <div class="w-2 bg-income rounded-t-sm transition-all hover:opacity-80" style="height: ${incomeH}%;" title="Receita: ${formatMoney(d.income)}"></div>
+              <!-- Barra Despesa -->
+              <div class="w-2 bg-expense rounded-t-sm transition-all hover:opacity-80" style="height: ${expenseH}%;" title="Despesa: ${formatMoney(d.expense)}"></div>
+            </div>
+            <span class="text-[10px] text-[#6b8a99] font-medium">${dayName}</span>
+          </div>
+        `;
+      }).join('');
     }
 
     function renderCategories(transactions, totalExpense) {
@@ -1674,7 +1792,25 @@
     function renderTransactions() {
       let visible = State.transactions.filter(t => !t.isRecurringInstance);
       
+      // NOVO: Filtro de Busca
+      const searchTerm = (document.getElementById('search-tx')?.value || '').toLowerCase();
+
+      // Controle do filtro de data
+      const clearFilterBtn = document.getElementById('clear-date-filter');
+      if(selectedCalendarDate) {
+        clearFilterBtn.classList.remove('hidden');
+      } else {
+        clearFilterBtn.classList.add('hidden');
+      }
+
       let filtered = visible.filter(t => {
+        // Filtro de Busca
+        if (searchTerm && !t.description.toLowerCase().includes(searchTerm)) return false;
+
+        // Filtro de Calendário
+        if (selectedCalendarDate && t.date !== selectedCalendarDate) return false;
+
+        // Filtros existentes
         if(currentFilter.type !== 'all' && t.type !== currentFilter.type) return false;
         if(currentFilter.period !== 'all') {
           const txDate = new Date(t.date);
@@ -1726,6 +1862,12 @@
           `;
         }).join('');
       }
+    }
+
+    // NOVO: Limpar filtro de data
+    function clearDateFilter() {
+      selectedCalendarDate = null;
+      renderTransactions();
     }
 
     function renderGoals() {
@@ -1812,8 +1954,9 @@
         let dayClass = 'text-center py-2 rounded-lg cursor-pointer transition-all text-sm relative';
         if(isToday) dayClass += ' bg-brand/20 text-brand font-semibold';
         
+        // NOVO: Clique no dia
         html += `
-          <div class="${dayClass}">
+          <div class="${dayClass}" onclick="filterByCalendarDate('${dateStr}')">
             ${d}
             ${hasTx ? `<div class="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
               ${dayIncome > 0 ? '<span class="w-1.5 h-1.5 rounded-full bg-income"></span>' : ''}
@@ -1831,6 +1974,13 @@
       document.getElementById('cal-income').textContent = formatMoney(income);
       document.getElementById('cal-expense').textContent = formatMoney(expense);
       document.getElementById('cal-balance').textContent = formatMoney(income - expense);
+    }
+
+    // NOVO: Filtrar por data do calendário
+    function filterByCalendarDate(dateStr) {
+      selectedCalendarDate = dateStr;
+      showToast(`Filtrando: ${new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR')}`);
+      openPage('transactions');
     }
 
     function calPrev() {
