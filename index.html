@@ -112,6 +112,36 @@
     .tx-sub { font-size: 11px; color: #6b8a99; margin-top: 2px; }
     .tx-amount { font-size: 14px; font-weight: 600; }
     
+    /* Month Selector Customizado */
+    .month-selector {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #132a3c;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 180, 160, 0.1);
+    }
+    .month-btn {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #00b4a0;
+      cursor: pointer;
+      background: rgba(0, 180, 160, 0.05);
+    }
+    .month-btn:active { background: rgba(0, 180, 160, 0.2); }
+    .month-display {
+      font-size: 13px; font-weight: 600; color: #fff;
+      flex: 1; text-align: center;
+    }
+    .month-input-wrapper {
+      position: relative; overflow: hidden; width: 0; height: 0; opacity: 0;
+    }
+    .month-trigger {
+      font-size: 11px; color: #6b8a99; cursor: pointer; margin-left: 8px; text-decoration: underline;
+    }
+
     /* Sidebar & Nav */
     .sidebar-overlay {
       position: fixed; inset: 0;
@@ -255,6 +285,7 @@
     
     select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b8a99'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 40px !important; }
     input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.7; }
+    input[type="month"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.7; }
 
     /* Toast Notification */
     .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
@@ -262,6 +293,12 @@
     .toast.show { opacity: 1; transform: translateY(0); }
     .toast.success svg { color: #00c853; }
     .toast.error svg { color: #ff5252; }
+
+    /* Report Bars */
+    .report-bar-container { margin-bottom: 12px; }
+    .report-bar-header { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 12px; }
+    .report-bar-bg { height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
+    .report-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
   </style>
 </head>
 <body>
@@ -433,7 +470,7 @@
         </div>
       </div>
       
-      <!-- Filtro de Periodo -->
+      <!-- Filtro de Periodo com Seletor de Mês -->
       <div class="mt-4">
         <div class="flex items-center justify-between mb-3">
           <h2 class="font-display text-base font-semibold text-white">Acoes Rapidas</h2>
@@ -448,10 +485,22 @@
                 <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('week', 'Esta semana')">Esta semana</button>
                 <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('year', 'Este ano')">Este ano</button>
                 <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('all', 'Todo periodo')">Todo periodo</button>
+                <div class="border-t border-brand/10 my-1"></div>
+                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors text-brand font-semibold" onclick="openDashboardMonthPicker()">Selecionar Mês Específico</button>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- Seletor de Mês Customizado (Escondido por padrão) -->
+        <div id="dashboard-month-picker" class="hidden mb-4 p-3 bg-[#132a3c] rounded-xl border border-brand/15">
+           <div class="month-selector">
+             <div class="month-btn" onclick="changeDashboardMonth(-1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></div>
+             <input type="month" id="dashboard-date-input" class="bg-transparent text-center text-white text-sm font-semibold w-full outline-none cursor-pointer" onchange="updateDashboardFromInput(this.value)">
+             <div class="month-btn" onclick="changeDashboardMonth(1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
+           </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-3">
           <div class="quick-action-card" onclick="openModalTx()">
             <div class="quick-action-icon bg-income/15">
@@ -630,14 +679,22 @@
             </button>
             <div>
               <h1 class="font-display text-xl font-bold text-white">Transacoes</h1>
-              <p class="text-xs text-[#6b8a99] mt-1">Historico completo</p>
             </div>
           </div>
           <div class="profile-header-avatar" id="header-avatar-transactions"><span>DN</span></div>
         </div>
       </div>
       
-      <div class="mt-4 space-y-3">
+      <!-- Filtro Mês Transações -->
+      <div class="mt-4 mb-2">
+        <div class="month-selector">
+          <div class="month-btn" onclick="changeTxMonth(-1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></div>
+          <input type="month" id="tx-date-input" class="bg-transparent text-center text-white text-sm font-semibold w-full outline-none cursor-pointer" onchange="updateTxFromInput(this.value)">
+          <div class="month-btn" onclick="changeTxMonth(1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
+        </div>
+      </div>
+
+      <div class="space-y-3 mt-3">
         <div class="dropdown w-full text-left" onclick="toggleDropdown('filter-type')">
           <span id="filter-type-label">Todas</span>
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:auto"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -702,12 +759,19 @@
         <div id="cal-grid" class="grid grid-cols-7 gap-1 px-4 pb-4"></div>
       </div>
       
+      <!-- Resumo Dinâmico -->
       <div class="card mt-4 mb-4">
-        <div class="section-header"><h2 class="section-title">Resumo do Mes</h2></div>
-        <div class="p-4 grid grid-cols-3 gap-4">
+        <div class="section-header">
+          <h2 class="section-title" id="cal-detail-title">Resumo do Mes</h2>
+          <button id="cal-clear-filter" class="hidden text-xs text-brand" onclick="clearCalendarFilter()">Ver mês todo</button>
+        </div>
+        <div class="p-4 grid grid-cols-3 gap-4 border-b border-brand/5">
           <div class="text-center"><div class="text-xs text-[#6b8a99] mb-1">Receitas</div><div class="text-sm font-semibold text-income" id="cal-income">R$ 0,00</div></div>
           <div class="text-center"><div class="text-xs text-[#6b8a99] mb-1">Despesas</div><div class="text-sm font-semibold text-expense" id="cal-expense">R$ 0,00</div></div>
           <div class="text-center"><div class="text-xs text-[#6b8a99] mb-1">Saldo</div><div class="text-sm font-semibold text-brand" id="cal-balance">R$ 0,00</div></div>
+        </div>
+        <div id="cal-day-list" class="p-2 max-h-60 overflow-y-auto hidden">
+            <!-- Lista de transações do dia clicado -->
         </div>
       </div>
     </section>
@@ -755,6 +819,15 @@
           <div class="profile-header-avatar" id="header-avatar-reports"><span>DN</span></div>
         </div>
       </div>
+
+      <!-- Filtro Relatórios -->
+      <div class="mt-4 mb-2">
+        <div class="month-selector">
+          <div class="month-btn" onclick="changeReportMonth(-1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></div>
+          <input type="month" id="report-date-input" class="bg-transparent text-center text-white text-sm font-semibold w-full outline-none cursor-pointer" onchange="updateReportFromInput(this.value)">
+          <div class="month-btn" onclick="changeReportMonth(1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
+        </div>
+      </div>
       
       <div class="card mt-4 mb-4">
         <div class="section-header"><h2 class="section-title">Resumo Geral</h2></div>
@@ -771,6 +844,20 @@
             <div class="text-xs text-[#6b8a99] mb-1">Saldo Final</div>
             <div class="text-2xl font-bold text-brand" id="report-balance">R$ 0,00</div>
           </div>
+        </div>
+      </div>
+
+      <div class="card mt-4 mb-4">
+        <div class="section-header"><h2 class="section-title">Despesas por Categoria</h2></div>
+        <div class="p-4" id="report-expenses-breakdown">
+            <!-- Barras geradas via JS -->
+        </div>
+      </div>
+
+      <div class="card mt-4 mb-4">
+        <div class="section-header"><h2 class="section-title">Receitas por Fonte</h2></div>
+        <div class="p-4" id="report-income-breakdown">
+            <!-- Barras geradas via JS -->
         </div>
       </div>
     </section>
@@ -1068,6 +1155,11 @@
       controlFilter: 'all',
       controlPeriod: 'month',
       dashboardPeriod: 'month',
+      // Novos estados para filtros de mês específico
+      dashboardCustomDate: new Date(),
+      txCustomDate: new Date(),
+      reportCustomDate: new Date(),
+      calendarSelectedDate: null, // Para filtro de dia específico no calendário
       categories: {
         expense: [
           { id: 'credit_card', name: 'Cartao', color: '#ffb300' },
@@ -1102,13 +1194,39 @@
     const formatCurrency = (el) => { let v = el.value.replace(/\D/g, ''); v = (parseInt(v||0) / 100).toFixed(2).replace('.', ','); el.value = v; };
     const getCategory = (id) => [...State.categories.expense, ...State.categories.income].find(c => c.id === id) || { name: 'Outros', color: '#6b8a99' };
 
-    // CORREÇÃO: Filtro Inteligente para Recorrentes
-    function filterByPeriod(transactions, period) {
-      const now = new Date();
+    // NOVO: Filtro Avançado por Data Específica
+    function filterByDateRange(transactions, targetDate, mode = 'month') {
+      // mode: 'month' (usa mês/ano de targetDate), 'day' (usa dia/mês/ano)
+      const tYear = targetDate.getFullYear();
+      const tMonth = targetDate.getMonth();
+      const tDay = targetDate.getDate();
+
+      return transactions.filter(t => {
+        const txDate = new Date(t.date);
+        
+        if (mode === 'month') {
+           return txDate.getMonth() === tMonth && txDate.getFullYear() === tYear;
+        } else if (mode === 'day') {
+           return txDate.getDate() === tDay && txDate.getMonth() === tMonth && txDate.getFullYear() === tYear;
+        }
+        return false;
+      });
+    }
+
+    // CORREÇÃO: Filtro Inteligente para Recorrentes (Mantido)
+    function filterByPeriod(transactions, period, customDate = null) {
+      const now = customDate || new Date();
       return transactions.filter(t => {
         // Se for recorrente e o filtro for 'month', consideramos que ela aplica ao mês atual
         if (t.recurring && period === 'month') {
-          return true;
+          // Lógica refinada: Se a data da transação for menor que o mês atual, ela aparece
+          // Mas para simplificar e manter consistência com o pedido do usuário:
+          // Vamos considerar recorrentes se a data original for <= data atual do filtro
+          // A lógica original simplesmente retornava true. Vamos melhorar:
+          const txDate = new Date(t.date);
+          if (txDate.getFullYear() < now.getFullYear() || (txDate.getFullYear() === now.getFullYear() && txDate.getMonth() <= now.getMonth())) {
+             return true;
+          }
         }
 
         const txDate = new Date(t.date);
@@ -1119,6 +1237,9 @@
           return txDate >= weekAgo;
         } else if(period === 'year') {
           return txDate.getFullYear() === now.getFullYear();
+        } else if (period === 'custom') {
+          // Filtro customizado baseado em data específica (Mês)
+           return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
         }
         return true;
       });
@@ -1152,6 +1273,16 @@
         if(d) {
           const parsed = JSON.parse(d);
           Object.assign(State, parsed);
+          // Restaurar datas que foram salvas como string
+          if(State.dashboardCustomDate) State.dashboardCustomDate = new Date(State.dashboardCustomDate);
+          else State.dashboardCustomDate = new Date();
+          
+          if(State.txCustomDate) State.txCustomDate = new Date(State.txCustomDate);
+          else State.txCustomDate = new Date();
+
+          if(State.reportCustomDate) State.reportCustomDate = new Date(State.reportCustomDate);
+          else State.reportCustomDate = new Date();
+
           State.transactions = State.transactions.map(t => ({
             ...t,
             status: t.status || 'paid',
@@ -1180,14 +1311,101 @@
       document.querySelector(`.sidebar-item[onclick*="'${page}'"]`)?.classList.add('active');
       
       if(page === 'calendar') renderCalendar();
-      if(page === 'transactions') renderTransactions();
+      if(page === 'transactions') { renderTransactions(); initTxDatePicker(); }
       if(page === 'goals') renderGoals();
-      if(page === 'reports') renderReports();
+      if(page === 'reports') { renderReports(); initReportDatePicker(); }
       if(page === 'settings') loadProfileToSettings();
       if(page === 'control') renderControlPage();
       if(page === 'dashboard') updateDashboard();
       
       updateAllAvatars();
+    }
+
+    // FUNÇÕES DO SELETOR DE MÊS (DASHBOARD)
+    function openDashboardMonthPicker() {
+      const picker = document.getElementById('dashboard-month-picker');
+      const input = document.getElementById('dashboard-date-input');
+      const isVisible = !picker.classList.contains('hidden');
+      
+      if(isVisible) {
+        picker.classList.add('hidden');
+        State.dashboardPeriod = 'month'; // volta para o padrão se fechar sem usar
+        document.getElementById('period-select-label').textContent = 'Este mes';
+      } else {
+        picker.classList.remove('hidden');
+        // Sincroniza o input com a data atual do filtro
+        const y = State.dashboardCustomDate.getFullYear();
+        const m = String(State.dashboardCustomDate.getMonth() + 1).padStart(2, '0');
+        input.value = `${y}-${m}`;
+        // Atualiza o label do dropdown para indicar modo customizado
+        document.getElementById('period-select-label').textContent = 'Personalizado';
+        State.dashboardPeriod = 'custom';
+      }
+      updateDashboard();
+    }
+
+    function updateDashboardFromInput(val) {
+      if(!val) return;
+      const [y, m] = val.split('-');
+      State.dashboardCustomDate = new Date(y, m - 1, 1);
+      State.dashboardPeriod = 'custom';
+      document.getElementById('period-select-label').textContent = 'Personalizado';
+      updateDashboard();
+    }
+
+    function changeDashboardMonth(delta) {
+      State.dashboardCustomDate.setMonth(State.dashboardCustomDate.getMonth() + delta);
+      const y = State.dashboardCustomDate.getFullYear();
+      const m = String(State.dashboardCustomDate.getMonth() + 1).padStart(2, '0');
+      document.getElementById('dashboard-date-input').value = `${y}-${m}`;
+      State.dashboardPeriod = 'custom';
+      updateDashboard();
+    }
+
+    // FUNÇÕES DO SELETOR DE MÊS (TRANSACTIONS)
+    function initTxDatePicker() {
+      const input = document.getElementById('tx-date-input');
+      const y = State.txCustomDate.getFullYear();
+      const m = String(State.txCustomDate.getMonth() + 1).padStart(2, '0');
+      input.value = `${y}-${m}`;
+    }
+
+    function updateTxFromInput(val) {
+      if(!val) return;
+      const [y, m] = val.split('-');
+      State.txCustomDate = new Date(y, m - 1, 1);
+      renderTransactions();
+    }
+
+    function changeTxMonth(delta) {
+      State.txCustomDate.setMonth(State.txCustomDate.getMonth() + delta);
+      const y = State.txCustomDate.getFullYear();
+      const m = String(State.txCustomDate.getMonth() + 1).padStart(2, '0');
+      document.getElementById('tx-date-input').value = `${y}-${m}`;
+      renderTransactions();
+    }
+
+    // FUNÇÕES DO SELETOR DE MÊS (RELATÓRIOS)
+    function initReportDatePicker() {
+      const input = document.getElementById('report-date-input');
+      const y = State.reportCustomDate.getFullYear();
+      const m = String(State.reportCustomDate.getMonth() + 1).padStart(2, '0');
+      input.value = `${y}-${m}`;
+    }
+
+    function updateReportFromInput(val) {
+      if(!val) return;
+      const [y, m] = val.split('-');
+      State.reportCustomDate = new Date(y, m - 1, 1);
+      renderReports();
+    }
+
+    function changeReportMonth(delta) {
+      State.reportCustomDate.setMonth(State.reportCustomDate.getMonth() + delta);
+      const y = State.reportCustomDate.getFullYear();
+      const m = String(State.reportCustomDate.getMonth() + 1).padStart(2, '0');
+      document.getElementById('report-date-input').value = `${y}-${m}`;
+      renderReports();
     }
 
     // DROPDOWNS
@@ -1198,10 +1416,13 @@
     }
 
     function setPeriod(value, label) {
-      State.dashboardPeriod = value;
-      document.getElementById('period-select-label').textContent = label;
-      document.getElementById('dropdown-period-select').classList.add('hidden');
-      updateDashboard();
+      // Se selecionar um padrão, esconde o picker customizado
+      if(value !== 'custom') {
+         document.getElementById('dashboard-month-picker').classList.add('hidden');
+         State.dashboardPeriod = value;
+         document.getElementById('period-select-label').textContent = label;
+         updateDashboard();
+      }
     }
 
     function setControlPeriod(value, label) {
@@ -1490,9 +1711,17 @@
 
     // RENDER
     function updateDashboard() {
-      const periodTx = filterByPeriod(State.transactions, State.dashboardPeriod);
-      const visibleTx = periodTx.filter(t => !t.isRecurringInstance);
+      let visibleTx = [];
       
+      if (State.dashboardPeriod === 'custom') {
+        visibleTx = filterByDateRange(State.transactions, State.dashboardCustomDate, 'month');
+      } else {
+        visibleTx = filterByPeriod(State.transactions, State.dashboardPeriod);
+      }
+      
+      // Remove instancias ficticias de recorrencia se houver
+      visibleTx = visibleTx.filter(t => !t.isRecurringInstance);
+
       const income = visibleTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
       const expense = visibleTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
       const balance = income - expense;
@@ -1515,7 +1744,7 @@
       }
       
       renderCategories(visibleTx, expense);
-      renderRecentTransactions();
+      renderRecentTransactions(visibleTx);
     }
 
     function renderCategories(transactions, totalExpense) {
@@ -1559,8 +1788,8 @@
       }
     }
 
-    function renderRecentTransactions() {
-      const visible = State.transactions.filter(t => !t.isRecurringInstance).slice(0, 5);
+    function renderRecentTransactions(transactionsOverride) {
+      const visible = transactionsOverride || State.transactions.filter(t => !t.isRecurringInstance).slice(0, 5);
       
       const emptyEl = document.getElementById('dash-tx-empty');
       const listEl = document.getElementById('dash-tx-list');
@@ -1674,32 +1903,30 @@
     function renderTransactions() {
       let visible = State.transactions.filter(t => !t.isRecurringInstance);
       
-      let filtered = visible.filter(t => {
-        if(currentFilter.type !== 'all' && t.type !== currentFilter.type) return false;
-        if(currentFilter.period !== 'all') {
-          const txDate = new Date(t.date);
-          const now = new Date();
-          if(currentFilter.period === 'month') {
-            if(t.recurring) return true; 
-            if(txDate.getMonth() !== now.getMonth() || txDate.getFullYear() !== now.getFullYear()) return false;
-          }
+      // Filtro por mês customizado (não pelo filtro rápido currentFilter.period)
+      visible = filterByDateRange(visible, State.txCustomDate, 'month');
+
+      // Filtro por tipo
+      if(currentFilter.type !== 'all' && currentFilter.type !== 'month') { 
+        // Se currentFilter.type for 'month' aqui significa bug de estado, assumimos 'all' ou tipo
+        if(currentFilter.type !== 'all') {
+             visible = visible.filter(t => t.type === currentFilter.type);
         }
-        return true;
-      });
+      }
       
       const listEl = document.getElementById('tx-list');
       const emptyEl = document.getElementById('tx-list-empty');
       
-      if(filtered.length === 0) {
+      if(visible.length === 0) {
         listEl.classList.add('hidden');
         emptyEl.classList.remove('hidden');
         document.getElementById('tx-count-label').textContent = '0 transacoes';
       } else {
         listEl.classList.remove('hidden');
         emptyEl.classList.add('hidden');
-        document.getElementById('tx-count-label').textContent = `${filtered.length} transacoes`;
+        document.getElementById('tx-count-label').textContent = `${visible.length} transacoes`;
         
-        listEl.innerHTML = filtered.map(t => {
+        listEl.innerHTML = visible.map(t => {
           const cat = getCategory(t.category);
           const isPending = t.status === 'pending';
           const isRecurring = t.recurring;
@@ -1764,12 +1991,9 @@
       }
     }
 
+    // FUNÇÃO RELATÓRIO FUNCIONAL
     function renderReports() {
-      const now = new Date();
-      const monthTx = State.transactions.filter(t => {
-        const d = new Date(t.date);
-        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-      });
+      const monthTx = filterByDateRange(State.transactions, State.reportCustomDate, 'month');
       
       const income = monthTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
       const expense = monthTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
@@ -1777,6 +2001,58 @@
       document.getElementById('report-total-income').textContent = formatMoney(income);
       document.getElementById('report-total-expense').textContent = formatMoney(expense);
       document.getElementById('report-balance').textContent = formatMoney(income - expense);
+
+      // Gráfico Despesas
+      const expContainer = document.getElementById('report-expenses-breakdown');
+      const expByCat = {};
+      monthTx.filter(t => t.type === 'expense').forEach(t => { expByCat[t.category] = (expByCat[t.category] || 0) + t.amount; });
+      const expEntries = Object.entries(expByCat).sort((a,b) => b[1] - a[1]);
+      
+      if(expEntries.length > 0) {
+        expContainer.innerHTML = expEntries.map(([catId, amount]) => {
+          const cat = getCategory(catId);
+          const pct = expense > 0 ? (amount / expense * 100) : 0;
+          return `
+            <div class="report-bar-container">
+              <div class="report-bar-header">
+                <span class="text-white font-medium">${cat.name}</span>
+                <span class="text-[#6b8a99]">${formatMoney(amount)} (${pct.toFixed(1)}%)</span>
+              </div>
+              <div class="report-bar-bg">
+                <div class="report-bar-fill" style="width: ${pct}%; background-color: ${cat.color}"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        expContainer.innerHTML = '<p class="text-center text-sm text-[#6b8a99]">Sem dados de despesas</p>';
+      }
+
+      // Gráfico Receitas
+      const incContainer = document.getElementById('report-income-breakdown');
+      const incByCat = {};
+      monthTx.filter(t => t.type === 'income').forEach(t => { incByCat[t.category] = (incByCat[t.category] || 0) + t.amount; });
+      const incEntries = Object.entries(incByCat).sort((a,b) => b[1] - a[1]);
+
+      if(incEntries.length > 0) {
+        incContainer.innerHTML = incEntries.map(([catId, amount]) => {
+          const cat = getCategory(catId);
+          const pct = income > 0 ? (amount / income * 100) : 0;
+          return `
+            <div class="report-bar-container">
+              <div class="report-bar-header">
+                <span class="text-white font-medium">${cat.name}</span>
+                <span class="text-[#6b8a99]">${formatMoney(amount)} (${pct.toFixed(1)}%)</span>
+              </div>
+              <div class="report-bar-bg">
+                <div class="report-bar-fill" style="width: ${pct}%; background-color: ${cat.color}"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        incContainer.innerHTML = '<p class="text-center text-sm text-[#6b8a99]">Sem dados de receitas</p>';
+      }
     }
 
     function renderCalendar() {
@@ -1795,10 +2071,8 @@
         html += `<div class="text-center py-2 text-[#3d5a6a] text-sm">${prevMonth.getDate() - i}</div>`;
       }
       
-      const monthTx = State.transactions.filter(t => {
-        const td = new Date(t.date);
-        return td.getMonth() === calDate.getMonth() && td.getFullYear() === calDate.getFullYear();
-      });
+      // Usa filterByDateRange para pegar transações do mês visualizado
+      const monthTx = filterByDateRange(State.transactions, calDate, 'month');
       
       for(let d = 1; d <= lastDay.getDate(); d++) {
         const dateStr = `${calDate.getFullYear()}-${String(calDate.getMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -1808,12 +2082,15 @@
         const dayExpense = dayTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
         
         const isToday = new Date().toDateString() === new Date(calDate.getFullYear(), calDate.getMonth(), d).toDateString();
+        const isSelected = State.calendarSelectedDate && new Date(State.calendarSelectedDate).toDateString() === new Date(calDate.getFullYear(), calDate.getMonth(), d).toDateString();
         
         let dayClass = 'text-center py-2 rounded-lg cursor-pointer transition-all text-sm relative';
-        if(isToday) dayClass += ' bg-brand/20 text-brand font-semibold';
+        if(isSelected) dayClass += ' bg-brand text-white font-bold shadow-lg shadow-brand/20';
+        else if(isToday) dayClass += ' bg-brand/20 text-brand font-semibold';
+        else dayClass += ' text-[#e8f4f8] hover:bg-[#132a3c]';
         
         html += `
-          <div class="${dayClass}">
+          <div class="${dayClass}" onclick="selectCalendarDay('${dateStr}')">
             ${d}
             ${hasTx ? `<div class="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
               ${dayIncome > 0 ? '<span class="w-1.5 h-1.5 rounded-full bg-income"></span>' : ''}
@@ -1825,21 +2102,81 @@
       
       grid.innerHTML = html;
       
-      const income = monthTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-      const expense = monthTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+      updateCalendarSummary(monthTx);
+    }
+
+    function selectCalendarDay(dateStr) {
+      if(State.calendarSelectedDate === dateStr) {
+        State.calendarSelectedDate = null; // Deselecionar
+      } else {
+        State.calendarSelectedDate = dateStr;
+      }
+      renderCalendar(); // Re-renderiza para mostrar o estado selecionado
+    }
+
+    function clearCalendarFilter() {
+      State.calendarSelectedDate = null;
+      renderCalendar();
+    }
+
+    function updateCalendarSummary(monthTx) {
+      const listEl = document.getElementById('cal-day-list');
+      const titleEl = document.getElementById('cal-detail-title');
+      const clearBtn = document.getElementById('cal-clear-filter');
+      
+      let displayTx = monthTx;
+      
+      if(State.calendarSelectedDate) {
+        // Filtra pelo dia específico
+        displayTx = monthTx.filter(t => t.date === State.calendarSelectedDate);
+        const dateObj = new Date(State.calendarSelectedDate + 'T00:00:00');
+        titleEl.textContent = `Dia ${dateObj.getDate()} de ${dateObj.toLocaleDateString('pt-BR', { month: 'long' })}`;
+        clearBtn.classList.remove('hidden');
+        listEl.classList.remove('hidden');
+      } else {
+        // Resumo do mês
+        titleEl.textContent = "Resumo do Mes";
+        clearBtn.classList.add('hidden');
+        listEl.classList.add('hidden');
+      }
+
+      const income = displayTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+      const expense = displayTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
       
       document.getElementById('cal-income').textContent = formatMoney(income);
       document.getElementById('cal-expense').textContent = formatMoney(expense);
       document.getElementById('cal-balance').textContent = formatMoney(income - expense);
+
+      if(State.calendarSelectedDate && displayTx.length > 0) {
+        listEl.innerHTML = displayTx.map(t => {
+          const cat = getCategory(t.category);
+          return `
+            <div class="tx-item">
+               <div class="tx-icon ${t.type === 'income' ? 'bg-income/15' : 'bg-expense/15'}">
+                <svg class="w-4 h-4 ${t.type === 'income' ? 'text-income' : 'text-expense'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <div class="tx-content">
+                <p class="tx-title text-xs">${t.description}</p>
+                <p class="tx-sub text-[10px]">${cat.name}</p>
+              </div>
+              <span class="text-xs font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'}">${formatMoney(t.amount)}</span>
+            </div>
+          `;
+        }).join('');
+      } else if (State.calendarSelectedDate && displayTx.length === 0) {
+        listEl.innerHTML = '<p class="text-center text-xs text-[#6b8a99] py-4">Sem transações neste dia.</p>';
+      }
     }
 
     function calPrev() {
       calDate.setMonth(calDate.getMonth() - 1);
+      State.calendarSelectedDate = null; // Reset selection ao mudar de mês
       renderCalendar();
     }
 
     function calNext() {
       calDate.setMonth(calDate.getMonth() + 1);
+      State.calendarSelectedDate = null; // Reset selection ao mudar de mês
       renderCalendar();
     }
 
@@ -1951,6 +2288,11 @@
     // INIT
     document.addEventListener('DOMContentLoaded', () => {
       DB.load();
+      
+      // Sincroniza inputs de data com estado
+      initTxDatePicker();
+      initReportDatePicker();
+      
       updateDashboard();
       renderCalendar();
       renderControlPage();
