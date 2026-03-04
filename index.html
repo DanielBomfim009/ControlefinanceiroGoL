@@ -433,23 +433,24 @@
         </div>
       </div>
       
-      <!-- Maiores Gastos do Mês -->
-      <div class="card mt-4">
-        <div class="section-header">
-          <h2 class="section-title">Maiores Gastos do Mês</h2>
-        </div>
-        <div class="p-4">
-          <div id="top-expenses-list" class="space-y-3">
-            <!-- Lista gerada via JS -->
-            <p class="text-xs text-[#6b8a99] text-center py-2">Nenhum gasto este mês</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Acoes Rapidas -->
+      <!-- Filtro de Periodo -->
       <div class="mt-4">
         <div class="flex items-center justify-between mb-3">
           <h2 class="font-display text-base font-semibold text-white">Acoes Rapidas</h2>
+          <div class="relative">
+            <div class="dropdown text-xs" onclick="toggleDropdown('period-select')">
+              <span id="period-select-label">Este mes</span>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div id="dropdown-period-select" class="hidden absolute right-0 mt-2 bg-[#132a3c] border border-brand/15 rounded-xl shadow-xl z-50 min-w-[140px]">
+              <div class="py-1">
+                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('month', 'Este mes')">Este mes</button>
+                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('week', 'Esta semana')">Esta semana</button>
+                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('year', 'Este ano')">Este ano</button>
+                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('all', 'Todo periodo')">Todo periodo</button>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div class="quick-action-card" onclick="openModalTx()">
@@ -461,12 +462,23 @@
               <div class="quick-action-desc">Adicione receitas ou despesas</div>
             </div>
           </div>
+          <div class="quick-action-card" onclick="openPage('calendar')">
+            <div class="quick-action-icon bg-warning/15">
+              <svg class="w-5 h-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div class="quick-action-content">
+              <div class="quick-action-title">Calendario</div>
+              <div class="quick-action-desc">Visualize compromissos</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-3 mt-3">
           <div class="quick-action-card" onclick="openPage('control')">
             <div class="quick-action-icon bg-orange/15">
               <svg class="w-5 h-5 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div class="quick-action-content">
-              <div class="quick-action-title">Controle</div>
+              <div class="quick-action-title">Controle de Pagamentos</div>
               <div class="quick-action-desc">Gerencie pendencias</div>
             </div>
           </div>
@@ -625,19 +637,7 @@
         </div>
       </div>
       
-      <!-- Barra de Busca -->
-      <div class="mt-4 relative">
-        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-[#6b8a99]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input type="text" id="search-tx" class="input-styled pl-10" placeholder="Buscar por descricao..." oninput="renderTransactions()">
-      </div>
-
-      <!-- Limpar Filtro de Data -->
-      <div id="clear-date-filter" class="hidden mt-2 flex justify-between items-center">
-        <span class="text-xs text-brand font-medium">Filtrando por data específica</span>
-        <button onclick="clearDateFilter()" class="text-xs text-[#6b8a99] hover:text-white underline">Limpar</button>
-      </div>
-
-      <div class="mt-3 space-y-3">
+      <div class="mt-4 space-y-3">
         <div class="dropdown w-full text-left" onclick="toggleDropdown('filter-type')">
           <span id="filter-type-label">Todas</span>
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:auto"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -701,17 +701,6 @@
         </div>
         <div id="cal-grid" class="grid grid-cols-7 gap-1 px-4 pb-4"></div>
       </div>
-
-      <!-- Detalhes do dia selecionado -->
-      <div id="cal-day-details" class="hidden mt-4 card">
-        <div class="section-header">
-          <h2 class="section-title" id="cal-detail-title">Detalhes do Dia</h2>
-          <button onclick="document.getElementById('cal-day-details').classList.add('hidden')" class="text-xs text-[#6b8a99]">Fechar</button>
-        </div>
-        <div class="p-2">
-          <div id="cal-detail-list" class="space-y-1"></div>
-        </div>
-      </div>
       
       <div class="card mt-4 mb-4">
         <div class="section-header"><h2 class="section-title">Resumo do Mes</h2></div>
@@ -760,7 +749,7 @@
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
             <div>
-              <h1 class="font-display text-xl font-bold text-white">Relatorios Gerais</h1>
+              <h1 class="font-display text-xl font-bold text-white">Relatorios</h1>
             </div>
           </div>
           <div class="profile-header-avatar" id="header-avatar-reports"><span>DN</span></div>
@@ -768,30 +757,20 @@
       </div>
       
       <div class="card mt-4 mb-4">
-        <div class="section-header"><h2 class="section-title">Balanço Total Acumulado</h2></div>
+        <div class="section-header"><h2 class="section-title">Resumo Geral</h2></div>
         <div class="p-4 grid grid-cols-2 gap-4">
           <div class="text-center p-4 bg-[#0d1f2d] rounded-xl">
-            <div class="text-xs text-[#6b8a99] mb-1">Total Recebido</div>
+            <div class="text-xs text-[#6b8a99] mb-1">Total Receitas</div>
             <div class="text-lg font-bold text-income" id="report-total-income">R$ 0,00</div>
           </div>
           <div class="text-center p-4 bg-[#0d1f2d] rounded-xl">
-            <div class="text-xs text-[#6b8a99] mb-1">Total Gasto</div>
+            <div class="text-xs text-[#6b8a99] mb-1">Total Despesas</div>
             <div class="text-lg font-bold text-expense" id="report-total-expense">R$ 0,00</div>
           </div>
           <div class="text-center p-4 bg-[#0d1f2d] rounded-xl col-span-2">
-            <div class="text-xs text-[#6b8a99] mb-1">Patrimonio Liquido (Saldo Total)</div>
+            <div class="text-xs text-[#6b8a99] mb-1">Saldo Final</div>
             <div class="text-2xl font-bold text-brand" id="report-balance">R$ 0,00</div>
           </div>
-        </div>
-      </div>
-
-      <div class="card mt-4 mb-4">
-        <div class="section-header"><h2 class="section-title">Top Categorias (Geral)</h2></div>
-        <div class="px-4 pb-4">
-          <div id="report-categories-empty" class="py-8 text-center text-[#6b8a99]">
-            <p class="text-sm">Sem dados suficientes</p>
-          </div>
-          <div id="report-categories" class="hidden"></div>
         </div>
       </div>
     </section>
@@ -977,11 +956,6 @@
           
           <button type="submit" class="w-full py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors mt-2">Salvar Transacao</button>
           
-          <!-- Botão Duplicar -->
-          <button type="button" id="duplicate-tx-btn" class="hidden w-full mt-2 py-2 border border-dashed border-[#6b8a99] text-[#6b8a99] text-xs font-semibold rounded-xl hover:border-brand hover:text-brand transition-colors" onclick="duplicateToNextMonth()">
-            Duplicar para o próximo mês
-          </button>
-
           <button type="button" id="delete-tx-btn" class="delete-btn-modal hidden" onclick="showDeleteOptions()">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             Excluir Transacao
@@ -1120,7 +1094,6 @@
     let editingTxId = null;
     let editingGoalId = null;
     let calDate = new Date();
-    let selectedCalendarDate = null; // Filtro de data
 
     // HELPERS
     const formatMoney = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
@@ -1129,97 +1102,26 @@
     const formatCurrency = (el) => { let v = el.value.replace(/\D/g, ''); v = (parseInt(v||0) / 100).toFixed(2).replace('.', ','); el.value = v; };
     const getCategory = (id) => [...State.categories.expense, ...State.categories.income].find(c => c.id === id) || { name: 'Outros', color: '#6b8a99' };
 
-    // FUNÇÃO CRÍTICA: Gerar instâncias mensais de recorrentes
-    function getRecurringInstancesForPeriod(period, allTransactions) {
-      const now = new Date();
-      let start, end;
-      
-      // Definir range de datas
-      if (period === 'month') {
-        start = new Date(now.getFullYear(), now.getMonth(), 1);
-        end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      } else if (period === 'week') {
-        const day = now.getDay() || 7; 
-        start = new Date(now); start.setDate(now.getDate() - day + 1); start.setHours(0,0,0,0);
-        end = new Date(start); end.setDate(start.getDate() + 6); end.setHours(23,59,59,999);
-      } else if (period === 'year') {
-        start = new Date(now.getFullYear(), 0, 1);
-        end = new Date(now.getFullYear(), 11, 31);
-      } else {
-        return []; // Todo periodo não gera instancias virtuais
-      }
-
-      const recurringMasters = allTransactions.filter(t => t.recurring && !t.recurringId); // Apenas os "pais" das recorrentes
-      let instances = [];
-
-      recurringMasters.forEach(master => {
-        const masterDate = new Date(master.date);
-        // Calcula a data alvo no periodo atual
-        let targetDate = new Date(start.getFullYear(), start.getMonth(), masterDate.getDate());
-        
-        // Ajuste se a data cair fora do periodo (ex: dia 31 em fevereiro vai para março)
-        // Para simplificar: se a data calculada for maior que o fim do mês, voltamos para o ultimo dia.
-        if (targetDate > end) targetDate = new Date(end.getFullYear(), end.getMonth(), end.getDate());
-        if (targetDate < start) targetDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-
-        // Verifica se já existe uma instancia salva para essa data especifica
-        const existingInstance = allTransactions.find(t => 
-          t.recurringId === master.id && 
-          t.date === targetDate.toISOString().split('T')[0]
-        );
-
-        if (existingInstance) {
-          instances.push(existingInstance);
-        } else {
-          // Se não existe, cria uma "Virtual" (Pendente) para visualização
-          // Usamos um ID temporario para identificar que não está salvo ainda
-          instances.push({
-            ...master,
-            id: `virt_${Date.now()}_${Math.random()}`,
-            date: targetDate.toISOString().split('T')[0],
-            status: 'pending', // Novo mês começa pendente
-            isVirtual: true // Flag para saber que é temporário
-          });
-        }
-      });
-      
-      return instances;
-    }
-
-    // CORREÇÃO TOTAL DO FILTRO
+    // CORREÇÃO: Filtro Inteligente para Recorrentes
     function filterByPeriod(transactions, period) {
       const now = new Date();
-      // 1. Filtra transações normais (não recorrentes ou instancias já salvas)
-      let filtered = transactions.filter(t => {
-        // Ignora "Mestres" recorrentes no filtro direto, eles entram via instância
-        if (t.recurring && !t.recurringId) return false; 
-        // Ignora instancias que foram geradas de meses passados e não pertencem a este periodo
-        if (period !== 'all' && t.recurringId) {
-           const txDate = new Date(t.date);
-           if(period === 'month') {
-             return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
-           } else if(period === 'week') {
-             const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
-             return txDate >= weekAgo;
-           } else if(period === 'year') {
-             return txDate.getFullYear() === now.getFullYear();
-           }
+      return transactions.filter(t => {
+        // Se for recorrente e o filtro for 'month', consideramos que ela aplica ao mês atual
+        if (t.recurring && period === 'month') {
+          return true;
+        }
+
+        const txDate = new Date(t.date);
+        if(period === 'month') {
+          return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
+        } else if(period === 'week') {
+          const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+          return txDate >= weekAgo;
+        } else if(period === 'year') {
+          return txDate.getFullYear() === now.getFullYear();
         }
         return true;
       });
-
-      // 2. Se for filtro de periodo (mês/semana), injeta as instâncias recorrentes faltantes
-      if (period !== 'all') {
-        const recurringInstances = getRecurringInstancesForPeriod(period, transactions);
-        // Mescla as listas, evitando duplicatas (caso a lógica acima já tenha pego alguma instância salva)
-        recurringInstances.forEach(inst => {
-          if (!filtered.find(f => f.id === inst.id)) {
-            filtered.push(inst);
-          }
-        });
-      }
-
-      return filtered;
     }
 
     // NOTIFICAÇÃO TOAST
@@ -1227,12 +1129,16 @@
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
       toast.className = `toast ${type}`;
+      
       let icon = type === 'success' 
         ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>'
         : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+
       toast.innerHTML = `${icon}<span>${message}</span>`;
       container.appendChild(toast);
+
       requestAnimationFrame(() => toast.classList.add('show'));
+
       setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
@@ -1242,28 +1148,20 @@
     // STORAGE
     const DB = {
       load: () => {
-        try {
-          const d = localStorage.getItem('golbuy_v6');
-          if(d) {
-            const parsed = JSON.parse(d);
-            Object.assign(State, parsed);
-            if (!Array.isArray(State.transactions)) State.transactions = [];
-            if (!Array.isArray(State.goals)) State.goals = [];
-            if (!State.profile) State.profile = { name: 'Daniel Neves', email: '', photo: null };
-            State.transactions = State.transactions.map(t => ({
-              ...t,
-              status: t.status || 'paid',
-              recurring: t.recurring || false,
-              recurringId: t.recurringId || null,
-              isRecurringInstance: t.isRecurringInstance || false
-            }));
-          }
-        } catch (e) { console.error("Erro ao carregar dados", e); }
+        const d = localStorage.getItem('golbuy_v6');
+        if(d) {
+          const parsed = JSON.parse(d);
+          Object.assign(State, parsed);
+          State.transactions = State.transactions.map(t => ({
+            ...t,
+            status: t.status || 'paid',
+            recurring: t.recurring || false,
+            recurringId: t.recurringId || null,
+            isRecurringInstance: t.isRecurringInstance || false
+          }));
+        }
       },
-      save: () => {
-        try { localStorage.setItem('golbuy_v6', JSON.stringify(State)); } 
-        catch (e) { showToast('Erro ao salvar dados! Armazenamento cheio?', 'error'); }
-      }
+      save: () => localStorage.setItem('golbuy_v6', JSON.stringify(State))
     };
 
     // SIDEBAR
@@ -1298,27 +1196,33 @@
       document.querySelectorAll('[id^="dropdown-"]').forEach(d => { if(d.id !== 'dropdown-' + id) d.classList.add('hidden'); });
       dropdown?.classList.toggle('hidden');
     }
+
     function setPeriod(value, label) {
       State.dashboardPeriod = value;
       document.getElementById('period-select-label').textContent = label;
-      document.getElementById('dropdown-period-select')?.classList.add('hidden');
+      document.getElementById('dropdown-period-select').classList.add('hidden');
       updateDashboard();
     }
+
     function setControlPeriod(value, label) {
       State.controlPeriod = value;
       document.getElementById('control-period-label').textContent = label;
-      document.getElementById('dropdown-control-period')?.classList.add('hidden');
+      document.getElementById('dropdown-control-period').classList.add('hidden');
       renderControlPage();
     }
+
     function setFilter(type, value, label) {
       currentFilter[type] = value;
       document.getElementById('filter-' + type + '-label').textContent = label;
       document.getElementById('dropdown-filter-' + type)?.classList.add('hidden');
       renderTransactions();
     }
+
     function filterControl(filter) {
       State.controlFilter = filter;
-      document.querySelectorAll('.control-filter-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.filter === filter); });
+      document.querySelectorAll('.control-filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filter);
+      });
       renderControlPage();
     }
 
@@ -1337,9 +1241,12 @@
       updatePaymentMethodUI();
       updateRecurringUI();
       document.getElementById('delete-tx-btn').classList.add('hidden');
-      document.getElementById('duplicate-tx-btn').classList.add('hidden');
     }
-    function closeModalTx() { document.getElementById('modal-tx').classList.remove('active'); }
+
+    function closeModalTx() {
+      document.getElementById('modal-tx').classList.remove('active');
+    }
+
     function openModalGoal() {
       document.getElementById('modal-goal').classList.add('active');
       document.getElementById('goal-id').value = '';
@@ -1348,10 +1255,15 @@
       document.getElementById('goal-current').value = '';
       editingGoalId = null;
     }
-    function closeModalGoal() { document.getElementById('modal-goal').classList.remove('active'); }
+
+    function closeModalGoal() {
+      document.getElementById('modal-goal').classList.remove('active');
+    }
+
     function openModalGoalAdd(id) {
       const goal = State.goals.find(g => g.id === id);
       if(!goal) return;
+      
       editingGoalId = id;
       document.getElementById('goal-add-id').value = id;
       document.getElementById('goal-add-name').textContent = goal.title;
@@ -1360,42 +1272,66 @@
       document.getElementById('goal-add-amount').value = '';
       document.getElementById('modal-goal-add').classList.add('active');
     }
-    function closeModalGoalAdd() { document.getElementById('modal-goal-add').classList.remove('active'); }
-    function closeDeleteModal() { document.getElementById('modal-delete-recurring').classList.remove('active'); }
+
+    function closeModalGoalAdd() {
+      document.getElementById('modal-goal-add').classList.remove('active');
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('modal-delete-recurring').classList.remove('active');
+    }
 
     // TRANSACAO
     function setTxType(type) {
       currentTxType = type;
       document.getElementById('btn-expense').classList.toggle('active', type === 'expense');
       document.getElementById('btn-income').classList.toggle('active', type === 'income');
+      
       const select = document.getElementById('tx-category');
       const cats = State.categories[type];
       select.innerHTML = '<option value="">Selecione...</option>' + cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      
       setTxStatus(currentTxStatus);
     }
+
     function setTxStatus(status) {
       currentTxStatus = status;
       const btnPending = document.getElementById('btn-status-pending');
       const btnPaid = document.getElementById('btn-status-paid');
       const pendingLabel = document.getElementById('status-pending-label');
       const paidLabel = document.getElementById('status-paid-label');
-      if(currentTxType === 'expense') { pendingLabel.textContent = 'A Pagar'; paidLabel.textContent = 'Pago'; }
-      else { pendingLabel.textContent = 'A Receber'; paidLabel.textContent = 'Recebido'; }
+      
+      if(currentTxType === 'expense') {
+        pendingLabel.textContent = 'A Pagar';
+        paidLabel.textContent = 'Pago';
+      } else {
+        pendingLabel.textContent = 'A Receber';
+        paidLabel.textContent = 'Recebido';
+      }
+      
       btnPending.classList.toggle('active', status === 'pending');
       btnPaid.classList.toggle('active', status === 'paid');
     }
+
     function selectPaymentMethod(method) {
       State.selectedPaymentMethod = method;
       updatePaymentMethodUI();
     }
+
     function updatePaymentMethodUI() {
-      document.querySelectorAll('.payment-method').forEach(el => { el.classList.toggle('active', el.dataset.method === State.selectedPaymentMethod); });
+      document.querySelectorAll('.payment-method').forEach(el => {
+        el.classList.toggle('active', el.dataset.method === State.selectedPaymentMethod);
+      });
     }
+
     function toggleRecurring() {
       State.isRecurring = !State.isRecurring;
       updateRecurringUI();
     }
-    function updateRecurringUI() { document.getElementById('recurring-toggle').classList.toggle('active', State.isRecurring); }
+
+    function updateRecurringUI() {
+      document.getElementById('recurring-toggle').classList.toggle('active', State.isRecurring);
+    }
 
     function saveTransaction(e) {
       e.preventDefault();
@@ -1414,41 +1350,9 @@
         isRecurringInstance: false
       };
       
-      // LÓGICA CRÍTICA PARA RECORRENTE
-      // Se for recorrente, verificamos se já existe um lançamento para essa DATA e ID RECURRENTE
-      if (tx.recurring) {
-        // Se for uma edição de uma transação que já existe (ou virtual)
-        // Busca se existe uma transação salva com a mesma data e mesmo recurringId (excluindo a si mesma se for edição)
-        const existingMonthlyInstance = State.transactions.find(t => 
-          t.recurringId === tx.recurringId && 
-          t.date === tx.date && 
-          t.id !== tx.id
-        );
-
-        if (existingMonthlyInstance) {
-          // Se achou um lançamento salvo para esse mês, atualizamos ele, não criamos um novo
-          tx.id = existingMonthlyInstance.id; // Força a atualização do registro correto
-        } else {
-          // Se não achou, é um lançamento novo (uma nova ocorrência mensal)
-          // Se estivermos editando um ID que começa com "virt_", significa que é o primeiro save de uma virtual
-          if (editingTxId && editingTxId.startsWith('virt_')) {
-            tx.id = Date.now().toString(); // Gera ID real
-          }
-        }
-      }
-
       if(editingTxId) {
-        // Se o ID começa com virt, estamos salvando uma nova instancia (removendo a virtual)
-        const realTransactions = State.transactions.filter(t => !t.id.startsWith('virt_'));
-        
-        // Encontra o indice correto no array principal (ou adiciona se for novo)
-        const idx = State.transactions.findIndex(t => t.id === tx.id);
-        if(idx > -1) {
-           State.transactions[idx] = tx;
-        } else {
-           State.transactions.unshift(tx);
-        }
-        
+        const idx = State.transactions.findIndex(t => t.id === editingTxId);
+        if(idx > -1) State.transactions[idx] = tx;
         showToast('Transacao atualizada com sucesso!');
       } else {
         State.transactions.unshift(tx);
@@ -1466,42 +1370,28 @@
     function editTransaction(id) {
       const tx = State.transactions.find(t => t.id === id);
       if(!tx) return;
+      
       editingTxId = id;
       document.getElementById('tx-id').value = id;
       document.getElementById('tx-amount').value = tx.amount.toFixed(2).replace('.', ',');
       document.getElementById('tx-desc').value = tx.description;
       document.getElementById('tx-date').value = tx.date;
       document.getElementById('modal-tx-title').textContent = 'Editar Transacao';
+      
       setTxType(tx.type);
       document.getElementById('tx-category').value = tx.category;
+      
       State.selectedPaymentMethod = tx.paymentMethod || 'credit';
       updatePaymentMethodUI();
+      
       setTxStatus(tx.status || 'paid');
+      
       State.isRecurring = tx.recurring || false;
       updateRecurringUI();
+      
       document.getElementById('delete-tx-btn').classList.remove('hidden');
-      document.getElementById('duplicate-tx-btn').classList.remove('hidden');
+      
       document.getElementById('modal-tx').classList.add('active');
-    }
-
-    function duplicateToNextMonth() {
-      const currentTx = State.transactions.find(t => t.id === editingTxId);
-      if(!currentTx) return;
-      const date = new Date(currentTx.date);
-      date.setMonth(date.getMonth() + 1);
-      const newTx = {
-        ...currentTx,
-        id: Date.now().toString(),
-        date: date.toISOString().split('T')[0],
-        status: 'pending',
-        recurring: false
-      };
-      State.transactions.unshift(newTx);
-      DB.save();
-      closeModalTx();
-      showToast('Duplicado para o próximo mês!');
-      updateDashboard();
-      renderTransactions();
     }
 
     function showDeleteOptions() {
@@ -1516,8 +1406,10 @@
 
     function deleteTransaction(mode) {
       if(!editingTxId) return;
+      
       const tx = State.transactions.find(t => t.id === editingTxId);
       if(!tx) return;
+      
       if(mode === 'all' && tx.recurringId) {
         State.transactions = State.transactions.filter(t => t.recurringId !== tx.recurringId);
         showToast('Serie recorrente excluida', 'error');
@@ -1525,6 +1417,7 @@
         State.transactions = State.transactions.filter(t => t.id !== editingTxId);
         showToast('Transacao excluida', 'error');
       }
+      
       DB.save();
       closeDeleteModal();
       closeModalTx();
@@ -1548,18 +1441,21 @@
     // METAS
     function saveGoal(e) {
       e.preventDefault();
+      
       const goal = {
         id: editingGoalId || Date.now().toString(),
         title: document.getElementById('goal-title').value,
         target: parseMoney(document.getElementById('goal-target').value),
         current: parseMoney(document.getElementById('goal-current').value) || 0
       };
+      
       if(editingGoalId) {
         const idx = State.goals.findIndex(g => g.id === editingGoalId);
         if(idx > -1) State.goals[idx] = goal;
       } else {
         State.goals.push(goal);
       }
+      
       DB.save();
       closeModalGoal();
       renderGoals();
@@ -1568,13 +1464,16 @@
 
     function addToGoal(e) {
       e.preventDefault();
+      
       const id = document.getElementById('goal-add-id').value;
       const amount = parseMoney(document.getElementById('goal-add-amount').value);
+      
       const goal = State.goals.find(g => g.id === id);
       if(goal) {
         goal.current = Math.min(goal.current + amount, goal.target);
         DB.save();
       }
+      
       closeModalGoalAdd();
       renderGoals();
       showToast('Valor adicionado a meta!');
@@ -1592,8 +1491,7 @@
     // RENDER
     function updateDashboard() {
       const periodTx = filterByPeriod(State.transactions, State.dashboardPeriod);
-      // Filtra novamente para ignorar as transações "virtuais" (temporárias) na soma total
-      const visibleTx = periodTx.filter(t => !t.id.startsWith('virt_'));
+      const visibleTx = periodTx.filter(t => !t.isRecurringInstance);
       
       const income = visibleTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
       const expense = visibleTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
@@ -1618,35 +1516,6 @@
       
       renderCategories(visibleTx, expense);
       renderRecentTransactions();
-      renderTopExpenses(visibleTx);
-    }
-
-    function renderTopExpenses(transactions) {
-      const listEl = document.getElementById('top-expenses-list');
-      const expenses = transactions.filter(t => t.type === 'expense');
-      if(expenses.length === 0) {
-        listEl.innerHTML = '<p class="text-xs text-[#6b8a99] text-center py-2">Nenhum gasto no período</p>';
-        return;
-      }
-      expenses.sort((a, b) => b.amount - a.amount);
-      const top5 = expenses.slice(0, 5);
-      listEl.innerHTML = top5.map(t => {
-        const cat = getCategory(t.category);
-        return `
-          <div class="flex items-center justify-between py-2 border-b border-brand/5 last:border-0">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold" style="background: ${cat.color}20; color: ${cat.color}">
-                ${cat.name.charAt(0)}
-              </div>
-              <div>
-                <p class="text-sm font-medium text-white">${t.description}</p>
-                <p class="text-[10px] text-[#6b8a99]">${cat.name}</p>
-              </div>
-            </div>
-            <span class="text-sm font-bold text-expense">- ${formatMoney(t.amount)}</span>
-          </div>
-        `;
-      }).join('');
     }
 
     function renderCategories(transactions, totalExpense) {
@@ -1691,8 +1560,7 @@
     }
 
     function renderRecentTransactions() {
-      // Filtra virtuais para não aparecer como "Recentes" se não forem salvas
-      const visible = State.transactions.filter(t => !t.isRecurringInstance && !t.id.startsWith('virt_')).slice(0, 5);
+      const visible = State.transactions.filter(t => !t.isRecurringInstance).slice(0, 5);
       
       const emptyEl = document.getElementById('dash-tx-empty');
       const listEl = document.getElementById('dash-tx-list');
@@ -1805,20 +1673,17 @@
 
     function renderTransactions() {
       let visible = State.transactions.filter(t => !t.isRecurringInstance);
-      const searchTerm = (document.getElementById('search-tx')?.value || '').toLowerCase();
-      const clearFilterBtn = document.getElementById('clear-date-filter');
       
-      if(selectedCalendarDate) { clearFilterBtn.classList.remove('hidden'); }
-      else { clearFilterBtn.classList.add('hidden'); }
-
-      // FILTRO DE PERIODO APLICADO
-      // Aplica o filtro inteligente (que gera as instancias recorrentes)
-      let periodFiltered = filterByPeriod(State.transactions, currentFilter.period);
-
-      let filtered = periodFiltered.filter(t => {
-        if (searchTerm && !t.description.toLowerCase().includes(searchTerm)) return false;
-        if (selectedCalendarDate && t.date !== selectedCalendarDate) return false;
+      let filtered = visible.filter(t => {
         if(currentFilter.type !== 'all' && t.type !== currentFilter.type) return false;
+        if(currentFilter.period !== 'all') {
+          const txDate = new Date(t.date);
+          const now = new Date();
+          if(currentFilter.period === 'month') {
+            if(t.recurring) return true; 
+            if(txDate.getMonth() !== now.getMonth() || txDate.getFullYear() !== now.getFullYear()) return false;
+          }
+        }
         return true;
       });
       
@@ -1838,10 +1703,8 @@
           const cat = getCategory(t.category);
           const isPending = t.status === 'pending';
           const isRecurring = t.recurring;
-          const isVirtual = t.id.startsWith('virt_');
-          
           return `
-            <div class="tx-item" style="${isVirtual ? 'opacity: 0.7' : ''}">
+            <div class="tx-item">
               <div class="tx-icon ${t.type === 'income' ? 'bg-income/15' : 'bg-expense/15'}">
                 <svg class="w-5 h-5 ${t.type === 'income' ? 'text-income' : 'text-expense'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   ${t.type === 'income' 
@@ -1850,7 +1713,7 @@
                 </svg>
               </div>
               <div class="tx-content">
-                <p class="tx-title">${t.description} ${isRecurring ? '<span class="recurring-badge"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Recorrente</span>' : ''} ${isVirtual ? '(Novo)' : ''}</p>
+                <p class="tx-title">${t.description} ${isRecurring ? '<span class="recurring-badge"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Recorrente</span>' : ''}</p>
                 <p class="tx-sub">${cat.name} - ${formatDate(t.date)}</p>
               </div>
               <div class="flex items-center gap-2">
@@ -1865,20 +1728,17 @@
       }
     }
 
-    function clearDateFilter() {
-      selectedCalendarDate = null;
-      renderTransactions();
-    }
-
     function renderGoals() {
       const emptyEl = document.getElementById('goals-empty');
       const listEl = document.getElementById('goals-list');
+      
       if(State.goals.length === 0) {
         emptyEl.classList.remove('hidden');
         listEl.classList.add('hidden');
       } else {
         emptyEl.classList.add('hidden');
         listEl.classList.remove('hidden');
+        
         listEl.innerHTML = State.goals.map(g => {
           const pct = g.target > 0 ? Math.min(100, (g.current / g.target * 100)).toFixed(0) : 0;
           return `
@@ -1905,49 +1765,18 @@
     }
 
     function renderReports() {
-      const allIncome = State.transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-      const allExpense = State.transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-      document.getElementById('report-total-income').textContent = formatMoney(allIncome);
-      document.getElementById('report-total-expense').textContent = formatMoney(allExpense);
-      document.getElementById('report-balance').textContent = formatMoney(allIncome - allExpense);
-
-      const expenses = State.transactions.filter(t => t.type === 'expense');
-      const byCat = {};
-      expenses.forEach(t => { byCat[t.category] = (byCat[t.category] || 0) + t.amount; });
-      const entries = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+      const now = new Date();
+      const monthTx = State.transactions.filter(t => {
+        const d = new Date(t.date);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      });
       
-      const emptyEl = document.getElementById('report-categories-empty');
-      const listEl = document.getElementById('report-categories');
+      const income = monthTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+      const expense = monthTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
       
-      if(entries.length === 0) {
-        emptyEl.classList.remove('hidden');
-        listEl.classList.add('hidden');
-      } else {
-        emptyEl.classList.add('hidden');
-        listEl.classList.remove('hidden');
-        const total = allExpense || 1;
-        listEl.innerHTML = entries.map(([catId, amount]) => {
-          const cat = getCategory(catId);
-          const pct = (amount / total * 100).toFixed(1);
-          return `
-            <div class="py-3 border-b border-brand/5">
-              <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full" style="background: ${cat.color}"></span>
-                  <span class="text-sm text-white">${cat.name}</span>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-sm font-semibold text-white">${formatMoney(amount)}</span>
-                  <span class="text-xs text-[#6b8a99]">${pct}%</span>
-                </div>
-              </div>
-              <div class="h-1.5 rounded-full overflow-hidden" style="background: rgba(19, 42, 60, 0.8)">
-                <div class="h-full rounded-full transition-all" style="width: ${pct}%; background: ${cat.color}"></div>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
+      document.getElementById('report-total-income').textContent = formatMoney(income);
+      document.getElementById('report-total-expense').textContent = formatMoney(expense);
+      document.getElementById('report-balance').textContent = formatMoney(income - expense);
     }
 
     function renderCalendar() {
@@ -1984,7 +1813,7 @@
         if(isToday) dayClass += ' bg-brand/20 text-brand font-semibold';
         
         html += `
-          <div class="${dayClass}" onclick="showCalendarDayDetails('${dateStr}')">
+          <div class="${dayClass}">
             ${d}
             ${hasTx ? `<div class="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
               ${dayIncome > 0 ? '<span class="w-1.5 h-1.5 rounded-full bg-income"></span>' : ''}
@@ -2004,53 +1833,14 @@
       document.getElementById('cal-balance').textContent = formatMoney(income - expense);
     }
 
-    function showCalendarDayDetails(dateStr) {
-      const dayTx = State.transactions.filter(t => t.date === dateStr);
-      const container = document.getElementById('cal-day-details');
-      const listEl = document.getElementById('cal-detail-list');
-      const titleEl = document.getElementById('cal-detail-title');
-      
-      const formattedDate = new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
-      titleEl.textContent = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
-      
-      if(dayTx.length === 0) {
-        listEl.innerHTML = '<p class="text-xs text-[#6b8a99] text-center py-4">Nenhuma movimentação neste dia.</p>';
-      } else {
-        listEl.innerHTML = dayTx.map(t => {
-          const cat = getCategory(t.category);
-          return `
-            <div class="tx-item" onclick="editTransaction('${t.id}')">
-              <div class="tx-icon ${t.type === 'income' ? 'bg-income/15' : 'bg-expense/15'}">
-                <svg class="w-5 h-5 ${t.type === 'income' ? 'text-income' : 'text-expense'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  ${t.type === 'income' 
-                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"/>'
-                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"/>'}
-                </svg>
-              </div>
-              <div class="tx-content">
-                <p class="tx-title">${t.description}</p>
-                <p class="tx-sub">${cat.name}</p>
-              </div>
-              <div class="tx-amount ${t.type === 'income' ? 'text-income' : 'text-expense'}">${formatMoney(t.amount)}</div>
-            </div>
-          `;
-        }).join('');
-      }
-      
-      container.classList.remove('hidden');
-      container.scrollIntoView({ behavior: 'smooth' });
-    }
-
     function calPrev() {
       calDate.setMonth(calDate.getMonth() - 1);
       renderCalendar();
-      document.getElementById('cal-day-details').classList.add('hidden');
     }
 
     function calNext() {
       calDate.setMonth(calDate.getMonth() + 1);
       renderCalendar();
-      document.getElementById('cal-day-details').classList.add('hidden');
     }
 
     // PERFIL
@@ -2059,37 +1849,69 @@
       document.getElementById('settings-email').value = State.profile.email || '';
       updateProfilePhoto();
     }
+
     function updateProfilePhoto() {
       const photoEl = document.getElementById('profile-photo');
       const name = State.profile.name || '';
       const initials = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() || 'DN';
-      if(State.profile.photo) { photoEl.innerHTML = `<img src="${State.profile.photo}" alt="Profile">`; }
-      else { photoEl.innerHTML = `<span id="profile-photo-initials">${initials}</span>`; }
+      
+      if(State.profile.photo) {
+        photoEl.innerHTML = `<img src="${State.profile.photo}" alt="Profile">`;
+      } else {
+        photoEl.innerHTML = `<span id="profile-photo-initials">${initials}</span>`;
+      }
+      
       updateAllAvatars();
     }
+
     function handleProfilePhoto(event) {
       const file = event.target.files[0];
       if(file) {
         const reader = new FileReader();
-        reader.onload = (e) => { State.profile.photo = e.target.result; updateProfilePhoto(); DB.save(); showToast('Foto de perfil atualizada!'); };
+        reader.onload = (e) => {
+          State.profile.photo = e.target.result;
+          updateProfilePhoto();
+          DB.save();
+          showToast('Foto de perfil atualizada!');
+        };
         reader.readAsDataURL(file);
       }
     }
-    function updateProfilePreview() { State.profile.name = document.getElementById('settings-name').value; updateAllAvatars(); }
+
+    function updateProfilePreview() {
+      State.profile.name = document.getElementById('settings-name').value;
+      updateAllAvatars();
+    }
+
     function updateAllAvatars() {
       const name = State.profile.name || 'Daniel Neves';
       const initials = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
       const photoSrc = State.profile.photo ? `<img src="${State.profile.photo}" alt="Profile">` : `<span>${initials}</span>`;
+      
       const sidebarAvatar = document.getElementById('sidebar-avatar');
-      if(sidebarAvatar) { sidebarAvatar.innerHTML = State.profile.photo ? `<img src="${State.profile.photo}" alt="Profile">` : `<span id="sidebar-avatar-text">${initials}</span>`; }
+      if(sidebarAvatar) {
+        if(State.profile.photo) {
+          sidebarAvatar.innerHTML = `<img src="${State.profile.photo}" alt="Profile">`;
+        } else {
+          sidebarAvatar.innerHTML = `<span id="sidebar-avatar-text">${initials}</span>`;
+        }
+      }
       const sidebarName = document.getElementById('sidebar-profile-name');
       if(sidebarName) sidebarName.textContent = name;
+      
       const headers = ['dashboard', 'control', 'transactions', 'calendar', 'goals', 'reports', 'settings'];
       headers.forEach(h => {
         const el = document.getElementById(`header-avatar-${h}`);
-        if(el) { el.innerHTML = State.profile.photo ? `<img src="${State.profile.photo}" alt="Profile">` : `<span>${initials}</span>`; }
+        if(el) {
+          if(State.profile.photo) {
+            el.innerHTML = `<img src="${State.profile.photo}" alt="Profile">`;
+          } else {
+            el.innerHTML = `<span>${initials}</span>`;
+          }
+        }
       });
     }
+
     function saveProfile() {
       State.profile.name = document.getElementById('settings-name').value;
       State.profile.email = document.getElementById('settings-email').value;
@@ -2097,6 +1919,7 @@
       updateAllAvatars();
       showToast('Perfil salvo com sucesso!');
     }
+
     function exportData() {
       const data = JSON.stringify(State, null, 2);
       const blob = new Blob([data], { type: 'application/json' });
@@ -2108,6 +1931,7 @@
       URL.revokeObjectURL(url);
       showToast('Backup exportado!');
     }
+
     function clearAllData() {
       if(confirm('Tem certeza que deseja apagar todos os dados?')) {
         State.transactions = [];
@@ -2132,12 +1956,22 @@
       renderControlPage();
       updateAllAvatars();
       
+      // Registrar Service Worker para PWA
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').then(registration => { console.log('SW registrado:', registration); }).catch(error => { console.log('SW falhou:', error); });
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => {
+            console.log('Service Worker registrado com sucesso:', registration);
+          })
+          .catch(error => {
+            console.log('Registro do Service Worker falhou:', error);
+          });
       }
       
+      // Fechar dropdowns ao clicar fora
       document.addEventListener('click', (e) => {
-        if(!e.target.closest('.dropdown') && !e.target.closest('[id^="dropdown-"]')) { document.querySelectorAll('[id^="dropdown-"]').forEach(d => d.classList.add('hidden')); }
+        if(!e.target.closest('.dropdown') && !e.target.closest('[id^="dropdown-"]')) {
+          document.querySelectorAll('[id^="dropdown-"]').forEach(d => d.classList.add('hidden'));
+        }
       });
     });
   </script>
