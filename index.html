@@ -433,7 +433,7 @@
         </div>
       </div>
       
-      <!-- NOVO: Maiores Gastos do Mês -->
+      <!-- Maiores Gastos do Mês -->
       <div class="card mt-4">
         <div class="section-header">
           <h2 class="section-title">Maiores Gastos do Mês</h2>
@@ -702,7 +702,7 @@
         <div id="cal-grid" class="grid grid-cols-7 gap-1 px-4 pb-4"></div>
       </div>
 
-      <!-- NOVO: Detalhes do dia selecionado -->
+      <!-- Detalhes do dia selecionado -->
       <div id="cal-day-details" class="hidden mt-4 card">
         <div class="section-header">
           <h2 class="section-title" id="cal-detail-title">Detalhes do Dia</h2>
@@ -1129,24 +1129,97 @@
     const formatCurrency = (el) => { let v = el.value.replace(/\D/g, ''); v = (parseInt(v||0) / 100).toFixed(2).replace('.', ','); el.value = v; };
     const getCategory = (id) => [...State.categories.expense, ...State.categories.income].find(c => c.id === id) || { name: 'Outros', color: '#6b8a99' };
 
-    // CORREÇÃO: Filtro Inteligente para Recorrentes
+    // FUNÇÃO CRÍTICA: Gerar instâncias mensais de recorrentes
+    function getRecurringInstancesForPeriod(period, allTransactions) {
+      const now = new Date();
+      let start, end;
+      
+      // Definir range de datas
+      if (period === 'month') {
+        start = new Date(now.getFullYear(), now.getMonth(), 1);
+        end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      } else if (period === 'week') {
+        const day = now.getDay() || 7; 
+        start = new Date(now); start.setDate(now.getDate() - day + 1); start.setHours(0,0,0,0);
+        end = new Date(start); end.setDate(start.getDate() + 6); end.setHours(23,59,59,999);
+      } else if (period === 'year') {
+        start = new Date(now.getFullYear(), 0, 1);
+        end = new Date(now.getFullYear(), 11, 31);
+      } else {
+        return []; // Todo periodo não gera instancias virtuais
+      }
+
+      const recurringMasters = allTransactions.filter(t => t.recurring && !t.recurringId); // Apenas os "pais" das recorrentes
+      let instances = [];
+
+      recurringMasters.forEach(master => {
+        const masterDate = new Date(master.date);
+        // Calcula a data alvo no periodo atual
+        let targetDate = new Date(start.getFullYear(), start.getMonth(), masterDate.getDate());
+        
+        // Ajuste se a data cair fora do periodo (ex: dia 31 em fevereiro vai para março)
+        // Para simplificar: se a data calculada for maior que o fim do mês, voltamos para o ultimo dia.
+        if (targetDate > end) targetDate = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+        if (targetDate < start) targetDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+
+        // Verifica se já existe uma instancia salva para essa data especifica
+        const existingInstance = allTransactions.find(t => 
+          t.recurringId === master.id && 
+          t.date === targetDate.toISOString().split('T')[0]
+        );
+
+        if (existingInstance) {
+          instances.push(existingInstance);
+        } else {
+          // Se não existe, cria uma "Virtual" (Pendente) para visualização
+          // Usamos um ID temporario para identificar que não está salvo ainda
+          instances.push({
+            ...master,
+            id: `virt_${Date.now()}_${Math.random()}`,
+            date: targetDate.toISOString().split('T')[0],
+            status: 'pending', // Novo mês começa pendente
+            isVirtual: true // Flag para saber que é temporário
+          });
+        }
+      });
+      
+      return instances;
+    }
+
+    // CORREÇÃO TOTAL DO FILTRO
     function filterByPeriod(transactions, period) {
       const now = new Date();
-      return transactions.filter(t => {
-        if (t.recurring && period === 'month') {
-          return true;
-        }
-        const txDate = new Date(t.date);
-        if(period === 'month') {
-          return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
-        } else if(period === 'week') {
-          const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
-          return txDate >= weekAgo;
-        } else if(period === 'year') {
-          return txDate.getFullYear() === now.getFullYear();
+      // 1. Filtra transações normais (não recorrentes ou instancias já salvas)
+      let filtered = transactions.filter(t => {
+        // Ignora "Mestres" recorrentes no filtro direto, eles entram via instância
+        if (t.recurring && !t.recurringId) return false; 
+        // Ignora instancias que foram geradas de meses passados e não pertencem a este periodo
+        if (period !== 'all' && t.recurringId) {
+           const txDate = new Date(t.date);
+           if(period === 'month') {
+             return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
+           } else if(period === 'week') {
+             const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+             return txDate >= weekAgo;
+           } else if(period === 'year') {
+             return txDate.getFullYear() === now.getFullYear();
+           }
         }
         return true;
       });
+
+      // 2. Se for filtro de periodo (mês/semana), injeta as instâncias recorrentes faltantes
+      if (period !== 'all') {
+        const recurringInstances = getRecurringInstancesForPeriod(period, transactions);
+        // Mescla as listas, evitando duplicatas (caso a lógica acima já tenha pego alguma instância salva)
+        recurringInstances.forEach(inst => {
+          if (!filtered.find(f => f.id === inst.id)) {
+            filtered.push(inst);
+          }
+        });
+      }
+
+      return filtered;
     }
 
     // NOTIFICAÇÃO TOAST
@@ -1326,6 +1399,7 @@
 
     function saveTransaction(e) {
       e.preventDefault();
+      
       const tx = {
         id: editingTxId || Date.now().toString(),
         type: currentTxType,
@@ -1339,14 +1413,48 @@
         recurringId: State.isRecurring ? (editingTxId ? null : Date.now().toString() + '_r') : null,
         isRecurringInstance: false
       };
+      
+      // LÓGICA CRÍTICA PARA RECORRENTE
+      // Se for recorrente, verificamos se já existe um lançamento para essa DATA e ID RECURRENTE
+      if (tx.recurring) {
+        // Se for uma edição de uma transação que já existe (ou virtual)
+        // Busca se existe uma transação salva com a mesma data e mesmo recurringId (excluindo a si mesma se for edição)
+        const existingMonthlyInstance = State.transactions.find(t => 
+          t.recurringId === tx.recurringId && 
+          t.date === tx.date && 
+          t.id !== tx.id
+        );
+
+        if (existingMonthlyInstance) {
+          // Se achou um lançamento salvo para esse mês, atualizamos ele, não criamos um novo
+          tx.id = existingMonthlyInstance.id; // Força a atualização do registro correto
+        } else {
+          // Se não achou, é um lançamento novo (uma nova ocorrência mensal)
+          // Se estivermos editando um ID que começa com "virt_", significa que é o primeiro save de uma virtual
+          if (editingTxId && editingTxId.startsWith('virt_')) {
+            tx.id = Date.now().toString(); // Gera ID real
+          }
+        }
+      }
+
       if(editingTxId) {
-        const idx = State.transactions.findIndex(t => t.id === editingTxId);
-        if(idx > -1) State.transactions[idx] = tx;
+        // Se o ID começa com virt, estamos salvando uma nova instancia (removendo a virtual)
+        const realTransactions = State.transactions.filter(t => !t.id.startsWith('virt_'));
+        
+        // Encontra o indice correto no array principal (ou adiciona se for novo)
+        const idx = State.transactions.findIndex(t => t.id === tx.id);
+        if(idx > -1) {
+           State.transactions[idx] = tx;
+        } else {
+           State.transactions.unshift(tx);
+        }
+        
         showToast('Transacao atualizada com sucesso!');
       } else {
         State.transactions.unshift(tx);
         showToast('Transacao salva com sucesso!');
       }
+      
       DB.save();
       closeModalTx();
       updateDashboard();
@@ -1484,7 +1592,8 @@
     // RENDER
     function updateDashboard() {
       const periodTx = filterByPeriod(State.transactions, State.dashboardPeriod);
-      const visibleTx = periodTx.filter(t => !t.isRecurringInstance);
+      // Filtra novamente para ignorar as transações "virtuais" (temporárias) na soma total
+      const visibleTx = periodTx.filter(t => !t.id.startsWith('virt_'));
       
       const income = visibleTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
       const expense = visibleTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
@@ -1509,23 +1618,18 @@
       
       renderCategories(visibleTx, expense);
       renderRecentTransactions();
-      renderTopExpenses(visibleTx); // NOVO: Renderizar maiores gastos
+      renderTopExpenses(visibleTx);
     }
 
-    // NOVO: Renderizar Maiores Gastos
     function renderTopExpenses(transactions) {
       const listEl = document.getElementById('top-expenses-list');
       const expenses = transactions.filter(t => t.type === 'expense');
-      
       if(expenses.length === 0) {
         listEl.innerHTML = '<p class="text-xs text-[#6b8a99] text-center py-2">Nenhum gasto no período</p>';
         return;
       }
-      
-      // Ordenar por valor (maior para menor)
       expenses.sort((a, b) => b.amount - a.amount);
       const top5 = expenses.slice(0, 5);
-      
       listEl.innerHTML = top5.map(t => {
         const cat = getCategory(t.category);
         return `
@@ -1587,7 +1691,8 @@
     }
 
     function renderRecentTransactions() {
-      const visible = State.transactions.filter(t => !t.isRecurringInstance).slice(0, 5);
+      // Filtra virtuais para não aparecer como "Recentes" se não forem salvas
+      const visible = State.transactions.filter(t => !t.isRecurringInstance && !t.id.startsWith('virt_')).slice(0, 5);
       
       const emptyEl = document.getElementById('dash-tx-empty');
       const listEl = document.getElementById('dash-tx-list');
@@ -1700,25 +1805,20 @@
 
     function renderTransactions() {
       let visible = State.transactions.filter(t => !t.isRecurringInstance);
-      
       const searchTerm = (document.getElementById('search-tx')?.value || '').toLowerCase();
-
       const clearFilterBtn = document.getElementById('clear-date-filter');
+      
       if(selectedCalendarDate) { clearFilterBtn.classList.remove('hidden'); }
       else { clearFilterBtn.classList.add('hidden'); }
 
-      let filtered = visible.filter(t => {
+      // FILTRO DE PERIODO APLICADO
+      // Aplica o filtro inteligente (que gera as instancias recorrentes)
+      let periodFiltered = filterByPeriod(State.transactions, currentFilter.period);
+
+      let filtered = periodFiltered.filter(t => {
         if (searchTerm && !t.description.toLowerCase().includes(searchTerm)) return false;
         if (selectedCalendarDate && t.date !== selectedCalendarDate) return false;
         if(currentFilter.type !== 'all' && t.type !== currentFilter.type) return false;
-        if(currentFilter.period !== 'all') {
-          const txDate = new Date(t.date);
-          const now = new Date();
-          if(currentFilter.period === 'month') {
-            if(t.recurring) return true; 
-            if(txDate.getMonth() !== now.getMonth() || txDate.getFullYear() !== now.getFullYear()) return false;
-          }
-        }
         return true;
       });
       
@@ -1738,8 +1838,10 @@
           const cat = getCategory(t.category);
           const isPending = t.status === 'pending';
           const isRecurring = t.recurring;
+          const isVirtual = t.id.startsWith('virt_');
+          
           return `
-            <div class="tx-item">
+            <div class="tx-item" style="${isVirtual ? 'opacity: 0.7' : ''}">
               <div class="tx-icon ${t.type === 'income' ? 'bg-income/15' : 'bg-expense/15'}">
                 <svg class="w-5 h-5 ${t.type === 'income' ? 'text-income' : 'text-expense'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   ${t.type === 'income' 
@@ -1748,7 +1850,7 @@
                 </svg>
               </div>
               <div class="tx-content">
-                <p class="tx-title">${t.description} ${isRecurring ? '<span class="recurring-badge"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Recorrente</span>' : ''}</p>
+                <p class="tx-title">${t.description} ${isRecurring ? '<span class="recurring-badge"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Recorrente</span>' : ''} ${isVirtual ? '(Novo)' : ''}</p>
                 <p class="tx-sub">${cat.name} - ${formatDate(t.date)}</p>
               </div>
               <div class="flex items-center gap-2">
@@ -1803,15 +1905,12 @@
     }
 
     function renderReports() {
-      // Calcula TUDO (Todos os tempos)
       const allIncome = State.transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
       const allExpense = State.transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-      
       document.getElementById('report-total-income').textContent = formatMoney(allIncome);
       document.getElementById('report-total-expense').textContent = formatMoney(allExpense);
       document.getElementById('report-balance').textContent = formatMoney(allIncome - allExpense);
 
-      // Categorias Gerais
       const expenses = State.transactions.filter(t => t.type === 'expense');
       const byCat = {};
       expenses.forEach(t => { byCat[t.category] = (byCat[t.category] || 0) + t.amount; });
@@ -1827,7 +1926,6 @@
         emptyEl.classList.add('hidden');
         listEl.classList.remove('hidden');
         const total = allExpense || 1;
-        
         listEl.innerHTML = entries.map(([catId, amount]) => {
           const cat = getCategory(catId);
           const pct = (amount / total * 100).toFixed(1);
@@ -1885,7 +1983,6 @@
         let dayClass = 'text-center py-2 rounded-lg cursor-pointer transition-all text-sm relative';
         if(isToday) dayClass += ' bg-brand/20 text-brand font-semibold';
         
-        // NOVO: Clique no dia
         html += `
           <div class="${dayClass}" onclick="showCalendarDayDetails('${dateStr}')">
             ${d}
@@ -1907,7 +2004,6 @@
       document.getElementById('cal-balance').textContent = formatMoney(income - expense);
     }
 
-    // NOVO: Mostrar detalhes do dia no calendário
     function showCalendarDayDetails(dateStr) {
       const dayTx = State.transactions.filter(t => t.date === dateStr);
       const container = document.getElementById('cal-day-details');
