@@ -386,6 +386,9 @@
     .modal-overlay.active { display: flex; }
     .modal-content { background: linear-gradient(180deg, #132a3c 0%, #0d1f2d 100%); width: min(100%, 420px); max-width: 420px; max-height: min(90vh, 90dvh); border-radius: 24px 24px 0 0; padding: 24px 20px calc(24px + var(--safe-bottom)); overflow-x: hidden; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s ease; box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.35); }
     .modal-overlay.active .modal-content { transform: translateY(0); }
+    .password-modal { z-index: 1250; align-items: center; padding: 20px; }
+    .password-modal .modal-content { border-radius: 24px; padding: 24px 20px; transform: scale(0.96); max-height: min(90vh, 90dvh); }
+    .password-modal.active .modal-content { transform: scale(1); }
     
     .input-styled { background: #0d1f2d; border: 1px solid rgba(0, 180, 160, 0.15); border-radius: 12px; padding: 14px 16px; font-size: 14px; color: #e8f4f8; width: 100%; min-width: 0; max-width: 100%; transition: all 0.2s; }
     .input-styled:focus { outline: none; border-color: #00b4a0; }
@@ -1395,6 +1398,7 @@
             <span id="settings-sync-dot" class="sync-status-dot warn"></span>
             <span id="settings-sync-text">Sincronizacao nao iniciada</span>
           </div>
+          <div class="text-xs text-[#6b8a99] leading-5">Sincronizacao automatica a cada 1 minuto. O botao manual continua disponivel.</div>
           <div id="settings-access-note" class="text-xs text-[#86a8b7] leading-5"></div>
           <div class="space-y-2">
             <button onclick="syncCloudNow()" class="settings-action-btn">Sincronizar Agora</button>
@@ -1599,6 +1603,32 @@
   <button class="fab" onclick="openModalTx()">
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
   </button>
+
+  <!-- Modal Troca de Senha Temporaria -->
+  <div id="modal-password-change" class="modal-overlay password-modal">
+    <div class="modal-content">
+      <div class="text-center mb-6">
+        <div class="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center" style="background: rgba(0, 180, 160, 0.15);">
+          <svg class="w-7 h-7 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c1.105 0 2-.895 2-2V7a2 2 0 10-4 0v2c0 1.105.895 2 2 2zm-6 2h12v8H6v-8z"/></svg>
+        </div>
+        <h2 class="font-display text-lg font-bold text-white">Atualize sua senha</h2>
+        <p class="text-sm text-[#86a8b7] mt-2 leading-6">Voce entrou com uma senha temporaria. Crie uma nova senha para continuar usando sua conta.</p>
+      </div>
+
+      <form onsubmit="changeCurrentPassword(event, 'forced')" class="space-y-4">
+        <div>
+          <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Nova senha</label>
+          <input type="password" id="force-new-password" class="input-styled" placeholder="Minimo 6 caracteres" minlength="6" required>
+        </div>
+        <div>
+          <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Confirmar nova senha</label>
+          <input type="password" id="force-confirm-password" class="input-styled" placeholder="Digite novamente" minlength="6" required>
+        </div>
+        <div id="force-password-status" class="auth-status"></div>
+        <button type="submit" id="force-password-submit" class="w-full py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors">Atualizar Senha</button>
+      </form>
+    </div>
+  </div>
 
   <!-- Modal Transacao -->
   <div id="modal-tx" class="modal-overlay" onclick="if(event.target === this) closeModalTx()">
@@ -1805,10 +1835,12 @@
     let authMode = 'login';
     let currentSessionUser = null;
     let cloudSyncTimer = null;
+    let cloudAutoSyncInterval = null;
     let isApplyingRemoteState = false;
     let currentAccessProfile = null;
     let currentAllowedAccess = null;
     let adminAccessRows = [];
+    let passwordChangeRequired = false;
 
     // ESTADO
     const State = {
@@ -2011,6 +2043,24 @@
       if (!enabled && !document.getElementById('page-admin')?.classList.contains('hidden')) {
         openPage('dashboard');
       }
+    }
+
+    function openPasswordChangeModal() {
+      const modal = document.getElementById('modal-password-change');
+      if (!modal) return;
+      document.getElementById('force-new-password').value = '';
+      document.getElementById('force-confirm-password').value = '';
+      safeSetText('force-password-status', 'Crie uma senha definitiva para liberar o acesso.');
+      modal.classList.add('active');
+      syncBodyLock();
+      setTimeout(() => document.getElementById('force-new-password')?.focus(), 120);
+    }
+
+    function closePasswordChangeModal() {
+      const modal = document.getElementById('modal-password-change');
+      if (!modal) return;
+      modal.classList.remove('active');
+      syncBodyLock();
     }
 
     function showAuthShell(visible) {
@@ -2335,15 +2385,13 @@
         profile = profile || await upsertManagedProfile(user, access);
         currentAccessProfile = profile;
         currentAllowedAccess = access;
+        passwordChangeRequired = Boolean(access.must_change_password);
         State.profile.email = user.email;
         if (profile?.full_name && (!State.profile.name || State.profile.name === 'Daniel Neves')) {
           State.profile.name = profile.full_name;
         }
         toggleAdminUi(isAdminRole(profile.role));
         setAccessNote(`Acesso liberado ate ${access.valid_until ? new Date(`${access.valid_until}T12:00:00`).toLocaleDateString('pt-BR') : 'sem data limite'}.`);
-        if (access.must_change_password) {
-          showToast('Altere a senha temporaria em Configuracoes assim que entrar.');
-        }
         return true;
       } catch (error) {
         console.error('Falha ao validar acesso:', error);
@@ -2392,11 +2440,14 @@
     async function logoutCloud() {
       const client = await ensureSupabase();
       if (!client) return;
+      stopAutoSync();
+      closePasswordChangeModal();
       await client.auth.signOut();
       currentSessionUser = null;
       currentAccessProfile = null;
       currentAllowedAccess = null;
       adminAccessRows = [];
+      passwordChangeRequired = false;
       toggleAdminUi(false);
       setAccessNote('');
       setSyncStatus('Sessao encerrada.', 'warn');
@@ -2409,6 +2460,22 @@
       cloudSyncTimer = setTimeout(() => {
         syncCloudNow(true);
       }, 900);
+    }
+
+    function startAutoSync() {
+      stopAutoSync();
+      if (!currentSessionUser) return;
+      cloudAutoSyncInterval = setInterval(() => {
+        syncCloudNow(true);
+      }, 60000);
+    }
+
+    function stopAutoSync() {
+      if (cloudAutoSyncInterval) {
+        clearInterval(cloudAutoSyncInterval);
+        cloudAutoSyncInterval = null;
+      }
+      clearTimeout(cloudSyncTimer);
     }
 
     async function syncCloudNow(silent = false) {
@@ -2465,6 +2532,10 @@
           await syncCloudNow(true);
           setSyncStatus('Conta pronta. Dados iniciais enviados.', 'ok');
         }
+        startAutoSync();
+        if (passwordChangeRequired) {
+          openPasswordChangeModal();
+        }
       } catch (error) {
         console.error('Falha ao carregar nuvem:', error);
         const message = error?.message || 'erro desconhecido';
@@ -2495,9 +2566,12 @@
           showAuthShell(false);
           await loadCloudStateForUser(session.user);
         } else if (event === 'SIGNED_OUT') {
+          stopAutoSync();
+          closePasswordChangeModal();
           currentSessionUser = null;
           currentAccessProfile = null;
           currentAllowedAccess = null;
+          passwordChangeRequired = false;
           toggleAdminUi(false);
           showAuthShell(true);
         }
@@ -3762,36 +3836,55 @@
       loadAdminData(true);
     }
 
-    async function changeCurrentPassword() {
-      const newPassword = document.getElementById('settings-new-password')?.value || '';
-      const confirmPassword = document.getElementById('settings-confirm-password')?.value || '';
+    async function changeCurrentPassword(event = null, source = 'settings') {
+      event?.preventDefault?.();
+      const isForced = source === 'forced';
+      const newPassword = document.getElementById(isForced ? 'force-new-password' : 'settings-new-password')?.value || '';
+      const confirmPassword = document.getElementById(isForced ? 'force-confirm-password' : 'settings-confirm-password')?.value || '';
+      const statusId = isForced ? 'force-password-status' : null;
       if (newPassword.length < 6) {
+        if (statusId) safeSetText(statusId, 'Use pelo menos 6 caracteres.');
         showToast('Use pelo menos 6 caracteres na nova senha.', 'error');
         return;
       }
       if (newPassword !== confirmPassword) {
+        if (statusId) safeSetText(statusId, 'A confirmacao da senha nao confere.');
         showToast('A confirmacao da senha nao confere.', 'error');
         return;
       }
       try {
+        if (statusId) safeSetText(statusId, 'Atualizando senha...');
         const client = await ensureSupabase();
         const { error } = await client.auth.updateUser({ password: newPassword });
         if (error) throw error;
         if (currentSessionUser?.email) {
-          await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
-            must_change_password: false,
-            temp_password: null,
-            updated_at: new Date().toISOString()
-          }).eq('email', normalizeEmail(currentSessionUser.email));
+          const { error: markerError } = await client.rpc('mark_password_changed');
+          if (markerError) {
+            const isAdmin = isAdminRole(currentAccessProfile?.role);
+            if (!isAdmin) throw markerError;
+            await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+              must_change_password: false,
+              temp_password: null,
+              updated_at: new Date().toISOString()
+            }).eq('email', normalizeEmail(currentSessionUser.email));
+          }
           currentAllowedAccess = currentAllowedAccess ? { ...currentAllowedAccess, must_change_password: false, temp_password: null } : currentAllowedAccess;
         }
+        passwordChangeRequired = false;
         document.getElementById('settings-new-password').value = '';
         document.getElementById('settings-confirm-password').value = '';
+        document.getElementById('force-new-password').value = '';
+        document.getElementById('force-confirm-password').value = '';
         setAccessNote(currentAllowedAccess?.valid_until
           ? `Acesso liberado ate ${new Date(`${currentAllowedAccess.valid_until}T12:00:00`).toLocaleDateString('pt-BR')}.`
           : 'Acesso liberado.');
-        showToast('Senha atualizada com sucesso!');
+        if (statusId) safeSetText(statusId, 'Senha atualizada. Voce sera desconectado para entrar novamente.');
+        showToast('Senha atualizada com sucesso. Entre novamente com a nova senha.');
+        setTimeout(() => {
+          logoutCloud();
+        }, 1400);
       } catch (error) {
+        if (statusId) safeSetText(statusId, `Falha: ${error.message}`);
         showToast(`Nao foi possivel atualizar a senha: ${error.message}`, 'error');
       }
     }
