@@ -2347,8 +2347,9 @@
         return true;
       } catch (error) {
         console.error('Falha ao validar acesso:', error);
-        setSyncStatus('Conta conectada, mas a camada admin ainda nao foi configurada.', 'off');
-        safeSetText('auth-status', 'Falta configurar as tabelas administrativas no Supabase.');
+        const message = error?.message || 'erro desconhecido';
+        setSyncStatus(`Falha na camada admin: ${message}`, 'off');
+        safeSetText('auth-status', `Falha na camada admin: ${message}`);
         return false;
       }
     }
@@ -2426,8 +2427,9 @@
         if (!silent) showToast('Dados sincronizados com sucesso!');
       } catch (error) {
         console.error('Falha ao sincronizar:', error);
-        setSyncStatus('Falha ao sincronizar. Verifique a tabela user_states.', 'off');
-        if (!silent) showToast('Nao foi possivel sincronizar com a nuvem.', 'error');
+        const message = error?.message || 'erro desconhecido';
+        setSyncStatus(`Falha ao sincronizar: ${message}`, 'off');
+        if (!silent) showToast(`Nao foi possivel sincronizar: ${message}`, 'error');
       }
     }
 
@@ -2465,7 +2467,8 @@
         }
       } catch (error) {
         console.error('Falha ao carregar nuvem:', error);
-        setSyncStatus('Conta conectada, mas falta criar a tabela user_states.', 'off');
+        const message = error?.message || 'erro desconhecido';
+        setSyncStatus(`Falha ao carregar nuvem: ${message}`, 'off');
       }
     }
 
