@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>GoL Buy Smart - Dashboard Financeiro</title>
+  <title>Controle Financeiro - Dashboard</title>
   
   <!-- PWA / Instalação -->
   <meta name="theme-color" content="#00b4a0">
@@ -521,21 +521,23 @@
     .auth-shell::before { content: ''; position: absolute; inset: 0; background-image:
       linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 32px 32px; mask-image: linear-gradient(180deg, rgba(0,0,0,0.75), rgba(0,0,0,0.25)); pointer-events: none; }
-    .auth-card { position: relative; width: min(100%, 460px); padding: 28px; border-radius: 24px; background: linear-gradient(145deg, rgba(19, 42, 60, 0.96) 0%, rgba(10, 24, 34, 0.98) 100%); border: 1px solid rgba(0, 180, 160, 0.16); box-shadow: 0 28px 70px rgba(0, 0, 0, 0.42); backdrop-filter: blur(10px); }
+    .auth-card { position: relative; width: min(100%, 480px); padding: 28px; border-radius: 24px; background: linear-gradient(145deg, rgba(19, 42, 60, 0.96) 0%, rgba(10, 24, 34, 0.98) 100%); border: 1px solid rgba(0, 180, 160, 0.16); box-shadow: 0 28px 70px rgba(0, 0, 0, 0.42); backdrop-filter: blur(10px); }
     .auth-card::before { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: linear-gradient(135deg, rgba(0, 212, 184, 0.45), rgba(255, 179, 0, 0.15), transparent 65%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
     .auth-brand { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
-    .auth-logo { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #00b4a0 0%, #008577 100%); color: #fff; font-weight: 800; font-size: 20px; box-shadow: 0 10px 28px rgba(0, 180, 160, 0.28); }
+    .auth-logo-wrap { width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(0, 180, 160, 0.18) 0%, rgba(0, 133, 119, 0.3) 100%); box-shadow: 0 14px 30px rgba(0, 180, 160, 0.18); border: 1px solid rgba(0, 180, 160, 0.18); flex-shrink: 0; }
+    .auth-logo { width: 42px; height: 42px; object-fit: contain; display: block; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.28)); }
     .auth-kicker { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; background: rgba(0, 180, 160, 0.1); color: #7fe6d7; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; }
-    .auth-heading { font-size: 28px; font-weight: 700; line-height: 1.05; color: #fff; margin: 0; }
-    .auth-subtitle { font-size: 13px; color: #86a8b7; line-height: 1.5; margin-top: 8px; }
+    .auth-heading { font-size: 30px; font-weight: 700; line-height: 1.02; color: #fff; margin: 0; }
+    .auth-subtitle { font-size: 13px; color: #86a8b7; line-height: 1.6; margin-top: 10px; max-width: 34ch; }
     .auth-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 4px; border-radius: 14px; background: #0d1f2d; margin-bottom: 20px; }
     .auth-tab { border: none; border-radius: 10px; background: transparent; color: #6b8a99; padding: 10px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
     .auth-tab.active { background: rgba(0, 180, 160, 0.15); color: #00b4a0; }
     .auth-panel { padding: 18px; border-radius: 18px; background: rgba(13, 31, 45, 0.72); border: 1px solid rgba(0, 180, 160, 0.08); }
-    .auth-note { margin-top: 18px; padding: 14px 16px; border-radius: 16px; background: rgba(255, 179, 0, 0.08); border: 1px solid rgba(255, 179, 0, 0.16); }
-    .auth-note-title { font-size: 12px; font-weight: 700; color: #ffcf5e; text-transform: uppercase; letter-spacing: .05em; }
-    .auth-note-text { margin-top: 6px; font-size: 12px; line-height: 1.5; color: #c6d9df; }
     .auth-status { margin-top: 14px; font-size: 12px; color: #6b8a99; min-height: 18px; line-height: 1.45; }
+    .auth-feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+    .auth-feature { padding: 12px 10px; border-radius: 16px; background: rgba(13, 31, 45, 0.58); border: 1px solid rgba(0, 180, 160, 0.08); text-align: center; }
+    .auth-feature-value { font-size: 12px; font-weight: 700; color: #fff; }
+    .auth-feature-label { margin-top: 4px; font-size: 11px; color: #7f9cab; line-height: 1.35; }
     .sync-status-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: rgba(0, 180, 160, 0.08); color: #d7eef2; font-size: 12px; font-weight: 600; }
     .sync-status-dot { width: 8px; height: 8px; border-radius: 999px; background: #00c853; }
     .sync-status-dot.warn { background: #ffb300; }
@@ -646,6 +648,15 @@
       .button-row {
         flex-direction: column;
       }
+      .auth-brand {
+        align-items: center;
+      }
+      .auth-heading {
+        font-size: 26px;
+      }
+      .auth-feature-grid {
+        grid-template-columns: 1fr;
+      }
       .modal-content {
         padding-inline: 16px;
       }
@@ -676,10 +687,12 @@
     <div class="auth-card">
       <div class="auth-kicker">Controle Financeiro Online</div>
       <div class="auth-brand">
-        <div class="auth-logo">G</div>
+        <div class="auth-logo-wrap">
+          <img class="auth-logo" src="logo-192.png" alt="Logomarca do app">
+        </div>
         <div>
-          <h2 class="font-display auth-heading">GoL Buy Smart</h2>
-          <p class="auth-subtitle">Seu financeiro salvo na nuvem, com acesso em qualquer lugar e base pronta para evoluir para uso em casal.</p>
+          <h2 class="font-display auth-heading">Sua base financeira, em qualquer lugar</h2>
+          <p class="auth-subtitle">Acesse lancamentos, metas e contas com uma entrada simples, segura e pronta para continuar do celular ou do computador.</p>
         </div>
       </div>
 
@@ -704,9 +717,19 @@
         <div id="auth-status" class="auth-status"></div>
       </div>
 
-      <div class="auth-note">
-        <div class="auth-note-title">Importante no Supabase</div>
-        <div class="auth-note-text">Se o e-mail de confirmacao nao chegar, desative a confirmacao obrigatoria em `Authentication > Providers > Email` para permitir cadastro imediato com senha.</div>
+      <div class="auth-feature-grid">
+        <div class="auth-feature">
+          <div class="auth-feature-value">Historico seguro</div>
+          <div class="auth-feature-label">Seus registros ficam organizados e prontos para consulta a qualquer momento.</div>
+        </div>
+        <div class="auth-feature">
+          <div class="auth-feature-value">Acesso continuo</div>
+          <div class="auth-feature-label">Entre da sua casa, do trabalho ou do celular sem perder o andamento do mes.</div>
+        </div>
+        <div class="auth-feature">
+          <div class="auth-feature-value">Controle mensal</div>
+          <div class="auth-feature-label">Receitas, despesas, contas e metas reunidas em uma experiencia mais profissional.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -1827,8 +1850,8 @@
       document.getElementById('auth-tab-signup')?.classList.toggle('active', mode === 'signup');
       safeSetText('auth-submit-btn', mode === 'login' ? 'Entrar' : 'Criar Conta');
       safeSetText('auth-status', mode === 'login'
-        ? 'Use seu e-mail e senha para carregar seus dados.'
-        : 'Crie sua conta para comecar a salvar tudo na nuvem.');
+        ? 'Entre com seu e-mail e senha para acessar sua base financeira.'
+        : 'Crie sua conta para comecar a salvar seus dados na nuvem.');
     }
 
     function sanitizeStateForCloud() {
@@ -1996,7 +2019,7 @@
         if (authMode === 'signup' && !data.session) {
           switchAuthMode('login');
           document.getElementById('auth-email').value = email;
-          safeSetText('auth-status', 'Conta criada. O Supabase esta pedindo confirmacao por e-mail. Se a mensagem nao chegar, desative a confirmacao obrigatoria em Authentication > Providers > Email.');
+          safeSetText('auth-status', 'Conta criada. Antes do primeiro acesso, confirme o cadastro pelo e-mail enviado e verifique tambem a pasta de spam.');
           return;
         }
         safeSetText('auth-status', 'Conta conectada com sucesso.');
