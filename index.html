@@ -13,6 +13,7 @@
   <link rel="apple-touch-icon" href="logo-192.png">
   
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <script>
@@ -513,6 +514,18 @@
     .account-summary-title { font-size: 13px; font-weight: 600; color: #fff; }
     .account-summary-type { margin-top: 3px; font-size: 11px; color: #6b8a99; }
     .account-summary-balance { text-align: right; font-size: 13px; font-weight: 700; color: #fff; }
+    .auth-shell { position: fixed; inset: 0; z-index: 1200; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(180deg, rgba(13, 31, 45, 0.98) 0%, rgba(10, 24, 34, 0.98) 100%); }
+    .auth-card { width: min(100%, 420px); padding: 24px; border-radius: 20px; background: linear-gradient(145deg, #132a3c 0%, #0f232f 100%); border: 1px solid rgba(0, 180, 160, 0.12); box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35); }
+    .auth-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .auth-logo { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #00b4a0 0%, #008577 100%); color: #fff; font-weight: 700; }
+    .auth-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 4px; border-radius: 14px; background: #0d1f2d; margin-bottom: 20px; }
+    .auth-tab { border: none; border-radius: 10px; background: transparent; color: #6b8a99; padding: 10px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .auth-tab.active { background: rgba(0, 180, 160, 0.15); color: #00b4a0; }
+    .auth-status { margin-top: 12px; font-size: 12px; color: #6b8a99; min-height: 18px; }
+    .sync-status-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: rgba(0, 180, 160, 0.08); color: #d7eef2; font-size: 12px; font-weight: 600; }
+    .sync-status-dot { width: 8px; height: 8px; border-radius: 999px; background: #00c853; }
+    .sync-status-dot.warn { background: #ffb300; }
+    .sync-status-dot.off { background: #ff5252; }
 
     #app,
     section,
@@ -644,6 +657,37 @@
   </style>
 </head>
 <body>
+
+  <div id="auth-shell" class="auth-shell hidden">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="auth-logo">G</div>
+        <div>
+          <h2 class="font-display text-lg font-bold text-white">GoL Buy Smart</h2>
+          <p class="text-xs text-[#6b8a99]">Entre para acessar seus dados em qualquer lugar</p>
+        </div>
+      </div>
+
+      <div class="auth-tabs">
+        <button id="auth-tab-login" class="auth-tab active" onclick="switchAuthMode('login')">Entrar</button>
+        <button id="auth-tab-signup" class="auth-tab" onclick="switchAuthMode('signup')">Criar conta</button>
+      </div>
+
+      <form id="auth-form" class="space-y-4" onsubmit="submitAuth(event)">
+        <div>
+          <label class="text-xs text-[#6b8a99] font-medium mb-2 block">E-mail</label>
+          <input type="email" id="auth-email" class="input-styled" placeholder="seu@email.com" required>
+        </div>
+        <div>
+          <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Senha</label>
+          <input type="password" id="auth-password" class="input-styled" placeholder="Minimo 6 caracteres" required minlength="6">
+        </div>
+        <button type="submit" id="auth-submit-btn" class="w-full py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors">Entrar</button>
+      </form>
+
+      <div id="auth-status" class="auth-status"></div>
+    </div>
+  </div>
 
   <!-- Toast Container -->
   <div class="toast-container" id="toast-container"></div>
@@ -1285,6 +1329,20 @@
       </div>
       
       <div class="card mt-4">
+        <div class="section-header"><h2 class="section-title">Conta Online</h2></div>
+        <div class="p-4 space-y-3">
+          <div class="sync-status-chip">
+            <span id="settings-sync-dot" class="sync-status-dot warn"></span>
+            <span id="settings-sync-text">Sincronizacao nao iniciada</span>
+          </div>
+          <div class="space-y-2">
+            <button onclick="syncCloudNow()" class="settings-action-btn">Sincronizar Agora</button>
+            <button onclick="logoutCloud()" class="w-full p-3 rounded-xl bg-expense/10 hover:bg-expense/20 transition-colors text-expense font-semibold">Sair da Conta</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-4">
         <div class="section-header"><h2 class="section-title">Contas e Carteiras</h2></div>
         <div class="p-4 space-y-3">
           <div id="settings-accounts-list" class="account-summary-list"></div>
@@ -1550,6 +1608,15 @@
   </div>
 
   <script>
+    const SUPABASE_URL = 'https://wdvrdxoawxlgkkdvayyy.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_UaOGwGWamF4g9I4ezIoXRA_9QUoFI8J';
+    const SUPABASE_STATE_TABLE = 'user_states';
+    let supabaseClient = null;
+    let authMode = 'login';
+    let currentSessionUser = null;
+    let cloudSyncTimer = null;
+    let isApplyingRemoteState = false;
+
     // ESTADO
     const State = {
       transactions: [],
@@ -1702,6 +1769,65 @@
       document.body.style.overflow = hasActiveLayer ? 'hidden' : '';
     }
 
+    function safeSetText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
+
+    function setSyncStatus(text, mode = 'warn') {
+      safeSetText('settings-sync-text', text);
+      const dot = document.getElementById('settings-sync-dot');
+      if (!dot) return;
+      dot.classList.remove('warn', 'off');
+      if (mode === 'warn') dot.classList.add('warn');
+      if (mode === 'off') dot.classList.add('off');
+    }
+
+    function showAuthShell(visible) {
+      const shell = document.getElementById('auth-shell');
+      if (!shell) return;
+      shell.classList.toggle('hidden', !visible);
+      document.getElementById('app')?.classList.toggle('hidden', visible);
+      document.querySelector('.bottom-nav')?.classList.toggle('hidden', visible);
+      document.querySelector('.fab')?.classList.toggle('hidden', visible);
+      if (visible) {
+        toggleSidebar(false);
+        closeModalTx();
+        closeModalGoal();
+        closeModalGoalAdd();
+        closeDeleteModal();
+      }
+    }
+
+    function switchAuthMode(mode) {
+      authMode = mode;
+      document.getElementById('auth-tab-login')?.classList.toggle('active', mode === 'login');
+      document.getElementById('auth-tab-signup')?.classList.toggle('active', mode === 'signup');
+      safeSetText('auth-submit-btn', mode === 'login' ? 'Entrar' : 'Criar Conta');
+      safeSetText('auth-status', mode === 'login'
+        ? 'Use seu e-mail e senha para carregar seus dados.'
+        : 'Crie sua conta para salvar tudo na nuvem.');
+    }
+
+    function sanitizeStateForCloud() {
+      return JSON.parse(JSON.stringify(State));
+    }
+
+    function applyHydratedState(parsed) {
+      Object.assign(State, parsed);
+      State.dashboardCustomDate = State.dashboardCustomDate ? new Date(State.dashboardCustomDate) : new Date();
+      State.txCustomDate = State.txCustomDate ? new Date(State.txCustomDate) : new Date();
+      State.reportCustomDate = State.reportCustomDate ? new Date(State.reportCustomDate) : new Date();
+      State.transactions = (State.transactions || []).map(t => ({
+        ...t,
+        accountId: t.accountId || State.accounts?.[0]?.id || 'checking',
+        status: t.status || 'paid',
+        recurring: t.recurring || false,
+        recurringId: t.recurringId || null,
+        isRecurringInstance: t.isRecurringInstance || false
+      }));
+    }
+
     // NOVO: Filtro Avançado por Data Específica
     function filterByDateRange(transactions, targetDate, mode = 'month') {
       // mode: 'month' (usa mês/ano de targetDate), 'day' (usa dia/mês/ano)
@@ -1781,15 +1907,7 @@
           const d = localStorage.getItem('golbuy_v6');
           if(d) {
             const parsed = JSON.parse(d);
-            Object.assign(State, parsed);
-            if(State.dashboardCustomDate) State.dashboardCustomDate = new Date(State.dashboardCustomDate);
-            else State.dashboardCustomDate = new Date();
-            
-            if(State.txCustomDate) State.txCustomDate = new Date(State.txCustomDate);
-            else State.txCustomDate = new Date();
-
-            if(State.reportCustomDate) State.reportCustomDate = new Date(State.reportCustomDate);
-            else State.reportCustomDate = new Date();
+            applyHydratedState(parsed);
 
             if(!Array.isArray(State.accounts) || State.accounts.length === 0) {
               State.accounts = [
@@ -1811,14 +1929,6 @@
               ...(State.budgets || {})
             };
 
-            State.transactions = State.transactions.map(t => ({
-              ...t,
-              accountId: t.accountId || State.accounts[0].id,
-              status: t.status || 'paid',
-              recurring: t.recurring || false,
-              recurringId: t.recurringId || null,
-              isRecurringInstance: t.isRecurringInstance || false
-            }));
             State.selectedAccountId = State.selectedAccountId || State.accounts[0].id;
           }
         } catch (error) {
@@ -1826,8 +1936,152 @@
           localStorage.removeItem('golbuy_v6');
         }
       },
-      save: () => localStorage.setItem('golbuy_v6', JSON.stringify(State))
+      save: () => {
+        localStorage.setItem('golbuy_v6', JSON.stringify(sanitizeStateForCloud()));
+        if (!isApplyingRemoteState) queueCloudSave();
+      }
     };
+
+    async function ensureSupabase() {
+      if (supabaseClient) return supabaseClient;
+      if (!window.supabase?.createClient) {
+        setSyncStatus('SDK do Supabase indisponivel no momento.', 'off');
+        return null;
+      }
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true
+        }
+      });
+      return supabaseClient;
+    }
+
+    async function submitAuth(event) {
+      event.preventDefault();
+      const client = await ensureSupabase();
+      if (!client) return;
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      safeSetText('auth-status', authMode === 'login' ? 'Entrando...' : 'Criando conta...');
+
+      try {
+        const action = authMode === 'login'
+          ? client.auth.signInWithPassword({ email, password })
+          : client.auth.signUp({ email, password });
+        const { data, error } = await action;
+        if (error) throw error;
+        if (authMode === 'signup' && !data.session) {
+          safeSetText('auth-status', 'Conta criada. Verifique seu e-mail e depois entre.');
+          return;
+        }
+        safeSetText('auth-status', 'Conta conectada com sucesso.');
+      } catch (error) {
+        safeSetText('auth-status', `Falha: ${error.message}`);
+      }
+    }
+
+    async function logoutCloud() {
+      const client = await ensureSupabase();
+      if (!client) return;
+      await client.auth.signOut();
+      currentSessionUser = null;
+      setSyncStatus('Sessao encerrada.', 'warn');
+      showAuthShell(true);
+    }
+
+    function queueCloudSave() {
+      if (!currentSessionUser) return;
+      clearTimeout(cloudSyncTimer);
+      cloudSyncTimer = setTimeout(() => {
+        syncCloudNow(true);
+      }, 900);
+    }
+
+    async function syncCloudNow(silent = false) {
+      const client = await ensureSupabase();
+      if (!client || !currentSessionUser) return;
+      try {
+        if (!silent) setSyncStatus('Sincronizando dados...', 'warn');
+        const payload = {
+          user_id: currentSessionUser.id,
+          app_state: sanitizeStateForCloud(),
+          updated_at: new Date().toISOString()
+        };
+        const { error } = await client.from(SUPABASE_STATE_TABLE).upsert(payload);
+        if (error) throw error;
+        setSyncStatus('Dados salvos na nuvem.', 'ok');
+        if (!silent) showToast('Dados sincronizados com sucesso!');
+      } catch (error) {
+        console.error('Falha ao sincronizar:', error);
+        setSyncStatus('Falha ao sincronizar. Verifique a tabela user_states.', 'off');
+        if (!silent) showToast('Nao foi possivel sincronizar com a nuvem.', 'error');
+      }
+    }
+
+    async function loadCloudStateForUser(user) {
+      const client = await ensureSupabase();
+      if (!client || !user) return;
+      currentSessionUser = user;
+      try {
+        setSyncStatus('Carregando dados da nuvem...', 'warn');
+        const { data, error } = await client
+          .from(SUPABASE_STATE_TABLE)
+          .select('app_state, updated_at')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        if (error) throw error;
+
+        if (data?.app_state && Object.keys(data.app_state).length) {
+          isApplyingRemoteState = true;
+          applyHydratedState(data.app_state);
+          isApplyingRemoteState = false;
+          initTxDatePicker();
+          initReportDatePicker();
+          populateAccountOptions();
+          updateDashboard();
+          renderCalendar();
+          renderControlPage();
+          renderReports();
+          updateAllAvatars();
+          setSyncStatus('Dados carregados da nuvem.', 'ok');
+        } else {
+          await syncCloudNow(true);
+          setSyncStatus('Conta pronta. Dados iniciais enviados.', 'ok');
+        }
+      } catch (error) {
+        console.error('Falha ao carregar nuvem:', error);
+        setSyncStatus('Conta conectada, mas falta criar a tabela user_states.', 'off');
+      }
+    }
+
+    async function initCloudAuth() {
+      const client = await ensureSupabase();
+      if (!client) {
+        showAuthShell(false);
+        return;
+      }
+      const { data } = await client.auth.getSession();
+      if (data?.session?.user) {
+        showAuthShell(false);
+        await loadCloudStateForUser(data.session.user);
+      } else {
+        showAuthShell(true);
+        setSyncStatus('Entre para salvar seus dados online.', 'warn');
+        switchAuthMode('login');
+      }
+
+      client.auth.onAuthStateChange(async (event, session) => {
+        if (session?.user) {
+          currentSessionUser = session.user;
+          showAuthShell(false);
+          await loadCloudStateForUser(session.user);
+        } else if (event === 'SIGNED_OUT') {
+          currentSessionUser = null;
+          showAuthShell(true);
+        }
+      });
+    }
 
     // SIDEBAR
     function toggleSidebar(forceState) {
@@ -2792,7 +3046,7 @@
     // PERFIL
     function loadProfileToSettings() {
       document.getElementById('settings-name').value = State.profile.name || '';
-      document.getElementById('settings-email').value = State.profile.email || '';
+      document.getElementById('settings-email').value = currentSessionUser?.email || State.profile.email || '';
       updateProfilePhoto();
       renderSettingsAccounts();
       renderBudgetSettings();
@@ -2981,6 +3235,7 @@
     // INIT
     document.addEventListener('DOMContentLoaded', () => {
       DB.load();
+      showAuthShell(true);
       
       // Sincroniza inputs de data com estado
       initTxDatePicker();
@@ -2992,6 +3247,7 @@
       renderControlPage();
       renderReports();
       updateAllAvatars();
+      initCloudAuth();
       
       // Registrar Service Worker para PWA
       if ('serviceWorker' in navigator) {
