@@ -514,6 +514,34 @@
     .account-summary-title { font-size: 13px; font-weight: 600; color: #fff; }
     .account-summary-type { margin-top: 3px; font-size: 11px; color: #6b8a99; }
     .account-summary-balance { text-align: right; font-size: 13px; font-weight: 700; color: #fff; }
+    .admin-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .admin-stat { padding: 14px; border-radius: 16px; background: rgba(13, 31, 45, 0.82); border: 1px solid rgba(0, 180, 160, 0.08); }
+    .admin-stat-label { color: #6b8a99; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+    .admin-stat-value { color: #ffffff; font-size: 24px; font-weight: 700; line-height: 1.1; margin-top: 8px; }
+    .admin-stat-note { color: #86a8b7; font-size: 11px; margin-top: 6px; }
+    .admin-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .admin-inline-row { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .admin-password-box { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-radius: 12px; background: rgba(13, 31, 45, 0.82); border: 1px solid rgba(0, 180, 160, 0.08); }
+    .admin-password-value { color: #e8f4f8; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; font-weight: 700; word-break: break-all; }
+    .admin-list { display: grid; gap: 12px; }
+    .admin-access-card { padding: 14px; border-radius: 16px; background: rgba(13, 31, 45, 0.82); border: 1px solid rgba(0, 180, 160, 0.08); }
+    .admin-access-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .admin-access-title { color: #ffffff; font-size: 14px; font-weight: 700; }
+    .admin-access-email { color: #86a8b7; font-size: 12px; margin-top: 4px; word-break: break-word; }
+    .admin-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .admin-badge { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .admin-badge.role { background: rgba(0, 180, 160, 0.12); color: #7fe6d7; }
+    .admin-badge.status-active { background: rgba(0, 200, 83, 0.12); color: #8be0a7; }
+    .admin-badge.status-blocked { background: rgba(255, 82, 82, 0.12); color: #ff9b9b; }
+    .admin-badge.status-expired { background: rgba(255, 179, 0, 0.12); color: #ffd36b; }
+    .admin-access-meta { margin-top: 12px; display: grid; gap: 6px; color: #86a8b7; font-size: 12px; }
+    .admin-access-actions { margin-top: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .admin-secondary-btn { width: 100%; padding: 11px 12px; border-radius: 12px; background: rgba(0, 180, 160, 0.1); color: #00b4a0; border: 1px solid rgba(0, 180, 160, 0.14); font-size: 12px; font-weight: 700; cursor: pointer; }
+    .admin-secondary-btn.warn { background: rgba(255, 179, 0, 0.1); color: #ffcf5a; border-color: rgba(255, 179, 0, 0.18); }
+    .admin-secondary-btn.danger { background: rgba(255, 82, 82, 0.1); color: #ff9b9b; border-color: rgba(255, 82, 82, 0.18); }
+    .admin-empty { padding: 20px; border-radius: 16px; background: rgba(13, 31, 45, 0.66); border: 1px dashed rgba(0, 180, 160, 0.14); color: #86a8b7; font-size: 13px; text-align: center; }
+    .admin-gate-card { padding: 16px; border-radius: 16px; background: rgba(255, 179, 0, 0.08); border: 1px solid rgba(255, 179, 0, 0.16); color: #ffe2a1; }
+    .admin-gate-card strong { color: #fff3cd; }
     .auth-shell { position: fixed; inset: 0; z-index: 1200; display: flex; align-items: center; justify-content: center; padding: 24px; background:
       radial-gradient(circle at top left, rgba(0, 180, 160, 0.22) 0%, transparent 28%),
       radial-gradient(circle at bottom right, rgba(255, 179, 0, 0.14) 0%, transparent 24%),
@@ -640,6 +668,11 @@
       }
       .budget-input {
         width: 100%;
+      }
+      .admin-grid,
+      .admin-form-grid,
+      .admin-access-actions {
+        grid-template-columns: 1fr;
       }
       .button-row {
         flex-direction: column;
@@ -778,6 +811,10 @@
       <div class="sidebar-item" onclick="openPage('settings'); toggleSidebar();">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         <span>Configuracoes</span>
+      </div>
+      <div id="sidebar-admin-item" class="sidebar-item hidden" onclick="openPage('admin'); toggleSidebar();">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l6.16-3.422A12.083 12.083 0 0112 21a12.083 12.083 0 01-6.16-10.422L12 14z"/></svg>
+        <span>Painel Admin</span>
       </div>
     </div>
     
@@ -1358,10 +1395,34 @@
             <span id="settings-sync-dot" class="sync-status-dot warn"></span>
             <span id="settings-sync-text">Sincronizacao nao iniciada</span>
           </div>
+          <div id="settings-access-note" class="text-xs text-[#86a8b7] leading-5"></div>
           <div class="space-y-2">
             <button onclick="syncCloudNow()" class="settings-action-btn">Sincronizar Agora</button>
             <button onclick="logoutCloud()" class="w-full p-3 rounded-xl bg-expense/10 hover:bg-expense/20 transition-colors text-expense font-semibold">Sair da Conta</button>
           </div>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="section-header"><h2 class="section-title">Seguranca</h2></div>
+        <div class="p-4 space-y-3">
+          <div class="text-xs text-[#86a8b7] leading-5">Atualize sua senha sempre que receber um acesso temporario novo.</div>
+          <div class="space-y-3">
+            <input type="password" id="settings-new-password" class="input-styled" placeholder="Nova senha" minlength="6">
+            <input type="password" id="settings-confirm-password" class="input-styled" placeholder="Confirmar nova senha" minlength="6">
+          </div>
+          <button onclick="changeCurrentPassword()" class="settings-action-btn">Atualizar Senha</button>
+        </div>
+      </div>
+
+      <div id="settings-admin-card" class="card mt-4 hidden">
+        <div class="section-header">
+          <h2 class="section-title">Administracao</h2>
+          <span class="text-xs text-[#6b8a99]">Acesso exclusivo</span>
+        </div>
+        <div class="p-4 space-y-3">
+          <div class="text-xs text-[#86a8b7] leading-5">Gerencie e-mails autorizados, validade de uso, bloqueios e credenciais temporarias.</div>
+          <button onclick="openPage('admin')" class="settings-action-btn">Abrir Painel Admin</button>
         </div>
       </div>
 
@@ -1401,6 +1462,109 @@
         </div>
       </div>
       <button onclick="saveProfile()" class="w-full mt-4 mb-4 py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors">Salvar Alteracoes</button>
+    </section>
+
+    <section id="page-admin" class="hidden px-4 pt-4">
+      <div class="page-header">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-start gap-3 min-w-0 flex-1">
+            <button class="w-10 h-10 rounded-xl bg-[#132a3c] flex items-center justify-center text-[#6b8a99] hover:text-brand transition-colors" onclick="toggleSidebar()">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <div class="min-w-0">
+              <h1 class="font-display text-xl font-bold text-white leading-tight">Painel Admin</h1>
+              <p class="text-xs text-[#6b8a99] mt-1">Controle acessos, validade e bloqueios</p>
+            </div>
+          </div>
+          <div class="profile-header-avatar" id="header-avatar-admin"><span>AD</span></div>
+        </div>
+      </div>
+
+      <div id="admin-gate" class="card mt-4 hidden">
+        <div class="p-4">
+          <div class="admin-gate-card">
+            <strong>Area restrita.</strong> Somente contas administradoras podem acessar este painel.
+          </div>
+        </div>
+      </div>
+
+      <div id="admin-content" class="space-y-4">
+        <div class="card mt-4">
+          <div class="section-header"><h2 class="section-title">Resumo</h2></div>
+          <div class="p-4">
+            <div class="admin-grid">
+              <div class="admin-stat">
+                <div class="admin-stat-label">Acessos ativos</div>
+                <div class="admin-stat-value" id="admin-stat-active">0</div>
+                <div class="admin-stat-note">Contas liberadas para uso</div>
+              </div>
+              <div class="admin-stat">
+                <div class="admin-stat-label">Bloqueados</div>
+                <div class="admin-stat-value" id="admin-stat-blocked">0</div>
+                <div class="admin-stat-note">Acessos suspensos</div>
+              </div>
+              <div class="admin-stat">
+                <div class="admin-stat-label">Expirando</div>
+                <div class="admin-stat-value" id="admin-stat-expiring">0</div>
+                <div class="admin-stat-note">Validade em ate 7 dias</div>
+              </div>
+              <div class="admin-stat">
+                <div class="admin-stat-label">Ja usados</div>
+                <div class="admin-stat-value" id="admin-stat-claimed">0</div>
+                <div class="admin-stat-note">Contas que ja acessaram o app</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-header">
+            <h2 class="section-title">Novo Acesso</h2>
+            <button onclick="prefillAdminAccessForm()" class="text-xs font-semibold text-brand hover:text-brand-light transition-colors">Gerar Senha</button>
+          </div>
+          <div class="p-4 space-y-3">
+            <div class="admin-form-grid">
+              <div>
+                <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Nome</label>
+                <input type="text" id="admin-access-name" class="input-styled" placeholder="Nome do cliente">
+              </div>
+              <div>
+                <label class="text-xs text-[#6b8a99] font-medium mb-2 block">E-mail</label>
+                <input type="email" id="admin-access-email" class="input-styled" placeholder="cliente@email.com">
+              </div>
+              <div>
+                <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Validade</label>
+                <input type="date" id="admin-access-valid-until" class="input-styled">
+              </div>
+              <div>
+                <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Tipo de conta</label>
+                <select id="admin-access-role" class="input-styled">
+                  <option value="user">Usuario</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Senha temporaria</label>
+              <div class="admin-password-box">
+                <div id="admin-access-password" class="admin-password-value">-</div>
+                <button onclick="copyAdminPassword()" class="admin-secondary-btn" type="button">Copiar</button>
+              </div>
+            </div>
+            <button onclick="createManagedAccess()" class="w-full py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors">Criar Acesso e Conta</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-header">
+            <h2 class="section-title">Contas Liberadas</h2>
+            <button onclick="loadAdminData(false)" class="text-xs font-semibold text-brand hover:text-brand-light transition-colors">Atualizar</button>
+          </div>
+          <div class="p-4">
+            <div id="admin-access-list" class="admin-list"></div>
+          </div>
+        </div>
+      </div>
     </section>
     
   </div>
@@ -1634,11 +1798,17 @@
     const SUPABASE_URL = 'https://wdvrdxoawxlgkkdvayyy.supabase.co';
     const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_UaOGwGWamF4g9I4ezIoXRA_9QUoFI8J';
     const SUPABASE_STATE_TABLE = 'user_states';
+    const SUPABASE_PROFILES_TABLE = 'app_profiles';
+    const SUPABASE_ALLOWED_EMAILS_TABLE = 'allowed_emails';
+    const DEFAULT_ACCESS_DAYS = 30;
     let supabaseClient = null;
     let authMode = 'login';
     let currentSessionUser = null;
     let cloudSyncTimer = null;
     let isApplyingRemoteState = false;
+    let currentAccessProfile = null;
+    let currentAllowedAccess = null;
+    let adminAccessRows = [];
 
     // ESTADO
     const State = {
@@ -1712,6 +1882,31 @@
       return String(b.id).localeCompare(String(a.id), 'pt-BR', { numeric: true });
     });
     const getMonthLabel = (date) => date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
+    const toDateInputValue = (date) => new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    const buildFutureDate = (days = DEFAULT_ACCESS_DAYS) => {
+      const date = new Date();
+      date.setDate(date.getDate() + days);
+      return toDateInputValue(date);
+    };
+    const generateTempPassword = () => {
+      const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@#%';
+      let result = '';
+      for (let i = 0; i < 10; i += 1) result += alphabet[Math.floor(Math.random() * alphabet.length)];
+      return result;
+    };
+    const isExpiredDate = (dateString) => {
+      if (!dateString) return false;
+      const end = new Date(`${dateString}T23:59:59`);
+      return end.getTime() < Date.now();
+    };
+    const getAccessStatus = (record) => {
+      if (!record) return 'missing';
+      if (record.status === 'blocked') return 'blocked';
+      if (isExpiredDate(record.valid_until)) return 'expired';
+      return 'active';
+    };
+    const isAdminRole = (role) => role === 'admin';
 
     function getMonthTransactions(date) {
       return filterByDateRange(State.transactions, date, 'month').filter(t => !t.isRecurringInstance);
@@ -1806,6 +2001,18 @@
       if (mode === 'off') dot.classList.add('off');
     }
 
+    function setAccessNote(text = '') {
+      safeSetText('settings-access-note', text);
+    }
+
+    function toggleAdminUi(enabled) {
+      document.getElementById('sidebar-admin-item')?.classList.toggle('hidden', !enabled);
+      document.getElementById('settings-admin-card')?.classList.toggle('hidden', !enabled);
+      if (!enabled && !document.getElementById('page-admin')?.classList.contains('hidden')) {
+        openPage('dashboard');
+      }
+    }
+
     function showAuthShell(visible) {
       const shell = document.getElementById('auth-shell');
       if (!shell) return;
@@ -1829,7 +2036,7 @@
       safeSetText('auth-submit-btn', mode === 'login' ? 'Entrar' : 'Criar Conta');
       safeSetText('auth-status', mode === 'login'
         ? 'Entre com seu e-mail e senha para acessar sua base financeira.'
-        : 'Crie sua conta para comecar a salvar seus dados na nuvem.');
+        : 'Use apenas um e-mail previamente liberado pelo administrador.');
     }
 
     function sanitizeStateForCloud() {
@@ -1980,6 +2187,172 @@
       return supabaseClient;
     }
 
+    function createIsolatedSupabaseClient() {
+      if (!window.supabase?.createClient) return null;
+      return window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+          storageKey: `managed-access-${Date.now()}`
+        }
+      });
+    }
+
+    async function fetchAllowedAccessByEmail(email) {
+      const client = await ensureSupabase();
+      if (!client || !email) return null;
+      const { data, error } = await client
+        .from(SUPABASE_ALLOWED_EMAILS_TABLE)
+        .select('*')
+        .eq('email', normalizeEmail(email))
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    }
+
+    async function fetchProfileByUserId(userId) {
+      const client = await ensureSupabase();
+      if (!client || !userId) return null;
+      const { data, error } = await client
+        .from(SUPABASE_PROFILES_TABLE)
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    }
+
+    async function bootstrapAdminIfNeeded(user) {
+      const client = await ensureSupabase();
+      if (!client || !user?.id || !user?.email) return null;
+
+      const { data: existingAdmins, error: adminError } = await client
+        .from(SUPABASE_PROFILES_TABLE)
+        .select('user_id')
+        .eq('role', 'admin')
+        .limit(1);
+      if (adminError) throw adminError;
+      if (existingAdmins?.length) return null;
+
+      const bootstrapRecord = {
+        email: normalizeEmail(user.email),
+        full_name: State.profile.name || user.user_metadata?.name || user.email.split('@')[0],
+        role: 'admin',
+        status: 'active',
+        valid_until: '2099-12-31',
+        temp_password: null,
+        must_change_password: false,
+        account_created_at: new Date().toISOString(),
+        claimed_at: new Date().toISOString(),
+        created_by: user.id,
+        updated_at: new Date().toISOString()
+      };
+
+      await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).upsert(bootstrapRecord, { onConflict: 'email' });
+      const { data: profile, error: profileError } = await client
+        .from(SUPABASE_PROFILES_TABLE)
+        .upsert({
+          user_id: user.id,
+          email: normalizeEmail(user.email),
+          full_name: bootstrapRecord.full_name,
+          role: 'admin',
+          status: 'active',
+          valid_until: '2099-12-31',
+          created_by: user.id,
+          updated_at: new Date().toISOString(),
+          last_login_at: new Date().toISOString()
+        }, { onConflict: 'user_id' })
+        .select('*')
+        .single();
+      if (profileError) throw profileError;
+      return profile;
+    }
+
+    async function upsertManagedProfile(user, accessRecord) {
+      const client = await ensureSupabase();
+      if (!client || !user?.id || !accessRecord) return null;
+      const payload = {
+        user_id: user.id,
+        email: normalizeEmail(user.email),
+        full_name: accessRecord.full_name || State.profile.name || user.user_metadata?.name || user.email.split('@')[0],
+        role: accessRecord.role || 'user',
+        status: accessRecord.status || 'active',
+        valid_until: accessRecord.valid_until || null,
+        created_by: accessRecord.created_by || user.id,
+        updated_at: new Date().toISOString(),
+        last_login_at: new Date().toISOString()
+      };
+      const { data, error } = await client
+        .from(SUPABASE_PROFILES_TABLE)
+        .upsert(payload, { onConflict: 'user_id' })
+        .select('*')
+        .single();
+      if (error) throw error;
+
+      await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+        claimed_at: accessRecord.claimed_at || new Date().toISOString(),
+        account_created_at: accessRecord.account_created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }).eq('email', normalizeEmail(user.email));
+
+      return data;
+    }
+
+    async function enforceAccessForSession(user) {
+      try {
+        let profile = await bootstrapAdminIfNeeded(user);
+        let access = await fetchAllowedAccessByEmail(user.email);
+        if (!access && profile?.role === 'admin') {
+          access = {
+            email: normalizeEmail(user.email),
+            full_name: profile.full_name,
+            role: 'admin',
+            status: 'active',
+            valid_until: profile.valid_until
+          };
+        }
+
+        if (!access) {
+          await logoutCloud();
+          safeSetText('auth-status', 'Este e-mail ainda nao foi liberado para uso.');
+          setAccessNote('Sua conta depende de liberacao do administrador.');
+          return false;
+        }
+
+        const accessStatus = getAccessStatus(access);
+        if (accessStatus !== 'active') {
+          await logoutCloud();
+          safeSetText('auth-status', accessStatus === 'expired'
+            ? 'Seu acesso expirou. Fale com o administrador para renovar a validade.'
+            : 'Seu acesso esta bloqueado no momento.');
+          setAccessNote(accessStatus === 'expired'
+            ? `Validade encerrada em ${new Date(`${access.valid_until}T12:00:00`).toLocaleDateString('pt-BR')}.`
+            : 'A conta foi suspensa pelo administrador.');
+          return false;
+        }
+
+        profile = profile || await upsertManagedProfile(user, access);
+        currentAccessProfile = profile;
+        currentAllowedAccess = access;
+        State.profile.email = user.email;
+        if (profile?.full_name && (!State.profile.name || State.profile.name === 'Daniel Neves')) {
+          State.profile.name = profile.full_name;
+        }
+        toggleAdminUi(isAdminRole(profile.role));
+        setAccessNote(`Acesso liberado ate ${access.valid_until ? new Date(`${access.valid_until}T12:00:00`).toLocaleDateString('pt-BR') : 'sem data limite'}.`);
+        if (access.must_change_password) {
+          showToast('Altere a senha temporaria em Configuracoes assim que entrar.');
+        }
+        return true;
+      } catch (error) {
+        console.error('Falha ao validar acesso:', error);
+        setSyncStatus('Conta conectada, mas a camada admin ainda nao foi configurada.', 'off');
+        safeSetText('auth-status', 'Falta configurar as tabelas administrativas no Supabase.');
+        return false;
+      }
+    }
+
     async function submitAuth(event) {
       event.preventDefault();
       const client = await ensureSupabase();
@@ -1989,6 +2362,15 @@
       safeSetText('auth-status', authMode === 'login' ? 'Entrando...' : 'Criando conta...');
 
       try {
+        if (authMode === 'signup') {
+          const allowedAccess = await fetchAllowedAccessByEmail(email);
+          if (!allowedAccess) throw new Error('Este e-mail ainda nao foi liberado pelo administrador.');
+          if (getAccessStatus(allowedAccess) === 'expired') throw new Error('A validade deste acesso venceu. Fale com o administrador.');
+          if (getAccessStatus(allowedAccess) === 'blocked') throw new Error('Este acesso foi bloqueado pelo administrador.');
+          if (allowedAccess.temp_password && password !== allowedAccess.temp_password) {
+            throw new Error('Use a senha temporaria definida pelo administrador para concluir o primeiro cadastro.');
+          }
+        }
         const action = authMode === 'login'
           ? client.auth.signInWithPassword({ email, password })
           : client.auth.signUp({ email, password });
@@ -2011,6 +2393,11 @@
       if (!client) return;
       await client.auth.signOut();
       currentSessionUser = null;
+      currentAccessProfile = null;
+      currentAllowedAccess = null;
+      adminAccessRows = [];
+      toggleAdminUi(false);
+      setAccessNote('');
       setSyncStatus('Sessao encerrada.', 'warn');
       showAuthShell(true);
     }
@@ -2049,6 +2436,8 @@
       if (!client || !user) return;
       currentSessionUser = user;
       try {
+        const allowed = await enforceAccessForSession(user);
+        if (!allowed) return;
         setSyncStatus('Carregando dados da nuvem...', 'warn');
         const { data, error } = await client
           .from(SUPABASE_STATE_TABLE)
@@ -2092,6 +2481,7 @@
         await loadCloudStateForUser(data.session.user);
       } else {
         showAuthShell(true);
+        toggleAdminUi(false);
         setSyncStatus('Entre para salvar seus dados online.', 'warn');
         switchAuthMode('login');
       }
@@ -2103,6 +2493,9 @@
           await loadCloudStateForUser(session.user);
         } else if (event === 'SIGNED_OUT') {
           currentSessionUser = null;
+          currentAccessProfile = null;
+          currentAllowedAccess = null;
+          toggleAdminUi(false);
           showAuthShell(true);
         }
       });
@@ -2134,6 +2527,7 @@
       if(page === 'settings') loadProfileToSettings();
       if(page === 'control') renderControlPage();
       if(page === 'dashboard') updateDashboard();
+      if(page === 'admin') loadAdminPage();
       
       updateAllAvatars();
       closeAllDropdowns();
@@ -3068,13 +3462,353 @@
       renderCalendar();
     }
 
+    // ADMIN
+    function prefillAdminAccessForm() {
+      const password = generateTempPassword();
+      const validUntil = buildFutureDate();
+      if (document.getElementById('admin-access-password')) safeSetText('admin-access-password', password);
+      if (document.getElementById('admin-access-valid-until')) document.getElementById('admin-access-valid-until').value = validUntil;
+    }
+
+    function copyAdminPassword() {
+      const password = document.getElementById('admin-access-password')?.textContent?.trim();
+      if (!password || password === '-') {
+        showToast('Gere uma senha primeiro.', 'error');
+        return;
+      }
+      navigator.clipboard?.writeText(password).then(() => {
+        showToast('Senha temporaria copiada!');
+      }).catch(() => {
+        showToast('Nao foi possivel copiar agora.', 'error');
+      });
+    }
+
+    async function provisionManagedAccount(email, password, fullName) {
+      const isolatedClient = createIsolatedSupabaseClient();
+      if (!isolatedClient) throw new Error('SDK indisponivel para criar a conta.');
+      const { data, error } = await isolatedClient.auth.signUp({
+        email: normalizeEmail(email),
+        password,
+        options: {
+          data: { name: fullName || '' }
+        }
+      });
+      if (error && !/already registered|already been registered|already exists/i.test(error.message)) throw error;
+      return data?.user || null;
+    }
+
+    async function createManagedAccess() {
+      if (!currentSessionUser || !isAdminRole(currentAccessProfile?.role)) {
+        showToast('Somente administradores podem criar acessos.', 'error');
+        return;
+      }
+
+      const email = normalizeEmail(document.getElementById('admin-access-email')?.value);
+      const fullName = document.getElementById('admin-access-name')?.value?.trim() || '';
+      const validUntil = document.getElementById('admin-access-valid-until')?.value || buildFutureDate();
+      const role = document.getElementById('admin-access-role')?.value || 'user';
+      const tempPassword = document.getElementById('admin-access-password')?.textContent?.trim();
+
+      if (!email) {
+        showToast('Informe um e-mail valido.', 'error');
+        return;
+      }
+      if (!tempPassword || tempPassword === '-') {
+        showToast('Gere a senha temporaria antes de continuar.', 'error');
+        return;
+      }
+
+      try {
+        const client = await ensureSupabase();
+        const nowIso = new Date().toISOString();
+        const existingRow = adminAccessRows.find(row => normalizeEmail(row.email) === email);
+        const payload = {
+          email,
+          full_name: fullName,
+          role,
+          status: 'active',
+          valid_until: validUntil,
+          temp_password: tempPassword,
+          must_change_password: true,
+          created_by: currentSessionUser.id,
+          updated_at: nowIso
+        };
+
+        const { error } = await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).upsert(payload, { onConflict: 'email' });
+        if (error) throw error;
+
+        let createdUser = null;
+        try {
+          createdUser = await provisionManagedAccount(email, tempPassword, fullName);
+        } catch (accountError) {
+          console.error('Conta auth nao criada automaticamente:', accountError);
+        }
+
+        await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+          account_created_at: createdUser ? nowIso : (existingRow?.account_created_at || null),
+          updated_at: new Date().toISOString()
+        }).eq('email', email);
+
+        document.getElementById('admin-access-email').value = '';
+        document.getElementById('admin-access-name').value = '';
+        document.getElementById('admin-access-role').value = 'user';
+        prefillAdminAccessForm();
+        await loadAdminData(false);
+        showToast(createdUser
+          ? 'Acesso criado com conta pronta para uso.'
+          : 'Acesso salvo. Se a conta auth ja existir, entregue a senha temporaria e peça para entrar.');
+      } catch (error) {
+        console.error('Falha ao criar acesso:', error);
+        showToast(`Falha ao criar acesso: ${error.message}`, 'error');
+      }
+    }
+
+    async function loadAdminData(silent = true) {
+      if (!currentSessionUser || !isAdminRole(currentAccessProfile?.role)) return;
+      try {
+        const client = await ensureSupabase();
+        const [{ data: accessRows, error: accessError }, { data: profileRows, error: profileError }] = await Promise.all([
+          client.from(SUPABASE_ALLOWED_EMAILS_TABLE).select('*').order('created_at', { ascending: false }),
+          client.from(SUPABASE_PROFILES_TABLE).select('*').order('created_at', { ascending: false })
+        ]);
+        if (accessError) throw accessError;
+        if (profileError) throw profileError;
+
+        const profilesByEmail = new Map((profileRows || []).map(row => [normalizeEmail(row.email), row]));
+        adminAccessRows = (accessRows || []).map(row => ({
+          ...row,
+          profile: profilesByEmail.get(normalizeEmail(row.email)) || null,
+          effectiveStatus: getAccessStatus(row)
+        }));
+        renderAdminOverview();
+        renderAdminAccessList();
+        if (!silent) showToast('Painel administrativo atualizado.');
+      } catch (error) {
+        console.error('Falha ao carregar painel admin:', error);
+        showToast('Nao foi possivel carregar o painel administrativo.', 'error');
+      }
+    }
+
+    function renderAdminOverview() {
+      const active = adminAccessRows.filter(row => row.effectiveStatus === 'active').length;
+      const blocked = adminAccessRows.filter(row => row.effectiveStatus === 'blocked').length;
+      const expiring = adminAccessRows.filter(row => {
+        if (!row.valid_until || row.effectiveStatus !== 'active') return false;
+        const ms = new Date(`${row.valid_until}T23:59:59`).getTime() - Date.now();
+        return ms >= 0 && ms <= 7 * 24 * 60 * 60 * 1000;
+      }).length;
+      const claimed = adminAccessRows.filter(row => row.claimed_at || row.profile?.last_login_at).length;
+
+      safeSetText('admin-stat-active', String(active));
+      safeSetText('admin-stat-blocked', String(blocked));
+      safeSetText('admin-stat-expiring', String(expiring));
+      safeSetText('admin-stat-claimed', String(claimed));
+    }
+
+    function renderAdminAccessList() {
+      const container = document.getElementById('admin-access-list');
+      if (!container) return;
+      if (!adminAccessRows.length) {
+        container.innerHTML = '<div class="admin-empty">Nenhum e-mail autorizado ainda.</div>';
+        return;
+      }
+
+      container.innerHTML = adminAccessRows.map(row => {
+        const statusClass = row.effectiveStatus === 'active'
+          ? 'status-active'
+          : row.effectiveStatus === 'blocked'
+            ? 'status-blocked'
+            : 'status-expired';
+        const validityText = row.valid_until
+          ? new Date(`${row.valid_until}T12:00:00`).toLocaleDateString('pt-BR')
+          : 'Sem limite';
+        const lastAccess = row.profile?.last_login_at
+          ? new Date(row.profile.last_login_at).toLocaleString('pt-BR')
+          : 'Ainda nao acessou';
+        const tempPasswordInfo = row.temp_password
+          ? `<div>Senha temporaria atual: <strong>${row.temp_password}</strong></div>`
+          : '<div>Senha temporaria nao disponivel.</div>';
+
+        return `
+          <div class="admin-access-card">
+            <div class="admin-access-head">
+              <div class="min-w-0">
+                <div class="admin-access-title">${row.full_name || 'Sem nome definido'}</div>
+                <div class="admin-access-email">${row.email}</div>
+              </div>
+            </div>
+            <div class="admin-badges">
+              <span class="admin-badge role">${row.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
+              <span class="admin-badge ${statusClass}">${row.effectiveStatus === 'active' ? 'Ativo' : row.effectiveStatus === 'blocked' ? 'Bloqueado' : 'Expirado'}</span>
+            </div>
+            <div class="admin-access-meta">
+              <div>Validade: <strong>${validityText}</strong></div>
+              <div>Ultimo acesso: <strong>${lastAccess}</strong></div>
+              <div>${tempPasswordInfo}</div>
+            </div>
+            <div class="admin-access-actions">
+              <button class="admin-secondary-btn" onclick="renewManagedAccess('${row.email}', 30)">Renovar +30 dias</button>
+              <button class="admin-secondary-btn warn" onclick="toggleManagedAccessStatus('${row.email}')">${row.effectiveStatus === 'blocked' ? 'Reativar' : 'Bloquear'}</button>
+              <button class="admin-secondary-btn" onclick="regenerateManagedPassword('${row.email}')">Gerar senha inicial</button>
+              <button class="admin-secondary-btn danger" onclick="deleteManagedAccess('${row.email}')">Excluir acesso</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function renewManagedAccess(email, days = 30) {
+      try {
+        const client = await ensureSupabase();
+        const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
+        const base = current?.valid_until ? new Date(`${current.valid_until}T12:00:00`) : new Date();
+        const today = new Date();
+        if (base < today) base.setTime(today.getTime());
+        base.setDate(base.getDate() + days);
+        const validUntil = toDateInputValue(base);
+        await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+          valid_until: validUntil,
+          status: 'active',
+          updated_at: new Date().toISOString()
+        }).eq('email', normalizeEmail(email));
+        await client.from(SUPABASE_PROFILES_TABLE).update({
+          valid_until: validUntil,
+          status: 'active',
+          updated_at: new Date().toISOString()
+        }).eq('email', normalizeEmail(email));
+        await loadAdminData(true);
+        showToast('Validade renovada com sucesso!');
+      } catch (error) {
+        showToast(`Nao foi possivel renovar: ${error.message}`, 'error');
+      }
+    }
+
+    async function toggleManagedAccessStatus(email) {
+      try {
+        const client = await ensureSupabase();
+        const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
+        if (!current) return;
+        if (normalizeEmail(current.email) === normalizeEmail(currentSessionUser?.email) && current.role === 'admin') {
+          showToast('Nao bloqueie a propria conta administradora por aqui.', 'error');
+          return;
+        }
+        const nextStatus = current.effectiveStatus === 'blocked' ? 'active' : 'blocked';
+        await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+          status: nextStatus,
+          updated_at: new Date().toISOString()
+        }).eq('email', normalizeEmail(email));
+        await client.from(SUPABASE_PROFILES_TABLE).update({
+          status: nextStatus,
+          updated_at: new Date().toISOString()
+        }).eq('email', normalizeEmail(email));
+        await loadAdminData(true);
+        showToast(nextStatus === 'blocked' ? 'Conta bloqueada.' : 'Conta reativada.');
+      } catch (error) {
+        showToast(`Nao foi possivel atualizar o status: ${error.message}`, 'error');
+      }
+    }
+
+    async function regenerateManagedPassword(email) {
+      try {
+        const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
+        if (current?.profile?.last_login_at) {
+          showToast('Essa conta ja foi usada. A troca de senha de terceiros exige backend seguro e nao sera simulada no frontend.', 'error');
+          return;
+        }
+        const client = await ensureSupabase();
+        const newPassword = generateTempPassword();
+        await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+          temp_password: newPassword,
+          must_change_password: true,
+          updated_at: new Date().toISOString()
+        }).eq('email', normalizeEmail(email));
+        await loadAdminData(true);
+        showToast(`Nova senha inicial gerada para ${email}.`);
+      } catch (error) {
+        showToast(`Nao foi possivel gerar a nova senha: ${error.message}`, 'error');
+      }
+    }
+
+    async function deleteManagedAccess(email) {
+      if (!confirm(`Excluir o acesso de ${email}? Isso bloqueia novas entradas e remove os dados sincronizados deste usuario.`)) return;
+      try {
+        const client = await ensureSupabase();
+        const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
+        if (normalizeEmail(current?.email) === normalizeEmail(currentSessionUser?.email) && current?.role === 'admin') {
+          showToast('Nao exclua a propria conta administradora por aqui.', 'error');
+          return;
+        }
+        if (current?.profile?.user_id) {
+          await client.from(SUPABASE_STATE_TABLE).delete().eq('user_id', current.profile.user_id);
+          await client.from(SUPABASE_PROFILES_TABLE).delete().eq('user_id', current.profile.user_id);
+        }
+        await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).delete().eq('email', normalizeEmail(email));
+        await loadAdminData(true);
+        showToast('Acesso excluido com sucesso.');
+      } catch (error) {
+        showToast(`Nao foi possivel excluir o acesso: ${error.message}`, 'error');
+      }
+    }
+
+    function loadAdminPage() {
+      const isAdmin = isAdminRole(currentAccessProfile?.role);
+      document.getElementById('admin-gate')?.classList.toggle('hidden', isAdmin);
+      document.getElementById('admin-content')?.classList.toggle('hidden', !isAdmin);
+      if (!isAdmin) return;
+      prefillAdminAccessForm();
+      loadAdminData(true);
+    }
+
+    async function changeCurrentPassword() {
+      const newPassword = document.getElementById('settings-new-password')?.value || '';
+      const confirmPassword = document.getElementById('settings-confirm-password')?.value || '';
+      if (newPassword.length < 6) {
+        showToast('Use pelo menos 6 caracteres na nova senha.', 'error');
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        showToast('A confirmacao da senha nao confere.', 'error');
+        return;
+      }
+      try {
+        const client = await ensureSupabase();
+        const { error } = await client.auth.updateUser({ password: newPassword });
+        if (error) throw error;
+        if (currentSessionUser?.email) {
+          await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+            must_change_password: false,
+            temp_password: null,
+            updated_at: new Date().toISOString()
+          }).eq('email', normalizeEmail(currentSessionUser.email));
+          currentAllowedAccess = currentAllowedAccess ? { ...currentAllowedAccess, must_change_password: false, temp_password: null } : currentAllowedAccess;
+        }
+        document.getElementById('settings-new-password').value = '';
+        document.getElementById('settings-confirm-password').value = '';
+        setAccessNote(currentAllowedAccess?.valid_until
+          ? `Acesso liberado ate ${new Date(`${currentAllowedAccess.valid_until}T12:00:00`).toLocaleDateString('pt-BR')}.`
+          : 'Acesso liberado.');
+        showToast('Senha atualizada com sucesso!');
+      } catch (error) {
+        showToast(`Nao foi possivel atualizar a senha: ${error.message}`, 'error');
+      }
+    }
+
     // PERFIL
     function loadProfileToSettings() {
       document.getElementById('settings-name').value = State.profile.name || '';
-      document.getElementById('settings-email').value = currentSessionUser?.email || State.profile.email || '';
+      const emailInput = document.getElementById('settings-email');
+      emailInput.value = currentSessionUser?.email || State.profile.email || '';
+      emailInput.readOnly = Boolean(currentSessionUser?.email);
       updateProfilePhoto();
       renderSettingsAccounts();
       renderBudgetSettings();
+      if (currentAllowedAccess) {
+        setAccessNote(currentAllowedAccess.must_change_password
+          ? 'Sua conta ainda usa uma senha temporaria. Atualize a senha nesta tela.'
+          : `Acesso liberado ate ${currentAllowedAccess.valid_until ? new Date(`${currentAllowedAccess.valid_until}T12:00:00`).toLocaleDateString('pt-BR') : 'sem data limite'}.`);
+      } else {
+        setAccessNote('');
+      }
     }
 
     function renderSettingsAccounts() {
@@ -3190,7 +3924,7 @@
       const sidebarName = document.getElementById('sidebar-profile-name');
       if(sidebarName) sidebarName.textContent = name;
       
-      const headers = ['dashboard', 'control', 'transactions', 'calendar', 'goals', 'reports', 'settings'];
+      const headers = ['dashboard', 'control', 'transactions', 'calendar', 'goals', 'reports', 'settings', 'admin'];
       headers.forEach(h => {
         const el = document.getElementById(`header-avatar-${h}`);
         if(el) {
@@ -3203,11 +3937,29 @@
       });
     }
 
-    function saveProfile() {
+    async function saveProfile() {
       State.profile.name = document.getElementById('settings-name').value;
       State.profile.email = document.getElementById('settings-email').value;
       DB.save();
       updateAllAvatars();
+      try {
+        const client = await ensureSupabase();
+        if (client && currentSessionUser?.id) {
+          const fullName = State.profile.name || currentSessionUser.email?.split('@')[0] || 'Usuario';
+          await client.from(SUPABASE_PROFILES_TABLE).update({
+            full_name: fullName,
+            updated_at: new Date().toISOString()
+          }).eq('user_id', currentSessionUser.id);
+          if (currentSessionUser.email) {
+            await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+              full_name: fullName,
+              updated_at: new Date().toISOString()
+            }).eq('email', normalizeEmail(currentSessionUser.email));
+          }
+        }
+      } catch (error) {
+        console.error('Falha ao atualizar perfil administrado:', error);
+      }
       showToast('Perfil salvo com sucesso!');
     }
 
