@@ -1915,6 +1915,8 @@
     let isAdminRefreshRunning = false;
     let pendingAdminRefresh = false;
     let isAdminActionRunning = false;
+    let isSessionLoadRunning = false;
+    let loadedSessionUserId = null;
 
     const DEFAULT_STATE_TEMPLATE = {
       transactions: [],
@@ -2297,6 +2299,8 @@
       currentSessionUser = null;
       currentAccessProfile = null;
       currentAllowedAccess = null;
+      loadedSessionUserId = null;
+      isSessionLoadRunning = false;
       adminAccessRows = [];
       passwordChangeRequired = false;
       isChangingPassword = false;
@@ -2963,6 +2967,8 @@
       currentSessionUser = null;
       currentAccessProfile = null;
       currentAllowedAccess = null;
+      loadedSessionUserId = null;
+      isSessionLoadRunning = false;
       adminAccessRows = [];
       passwordChangeRequired = false;
       isChangingPassword = false;
@@ -3098,11 +3104,16 @@
     async function loadCloudStateForUser(user) {
       const client = await ensureSupabase();
       if (!client || !user) return false;
+      if (isSessionLoadRunning) return true;
       currentSessionUser = user;
+      isSessionLoadRunning = true;
       try {
         safeSetText('auth-status', 'Validando acesso...');
         const allowed = await enforceAccessForSession(user);
-        if (!allowed) return false;
+        if (!allowed) {
+          loadedSessionUserId = null;
+          return false;
+        }
         resetStateToDefaults({
           email: user.email || '',
           name: currentAccessProfile?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Usuário'
@@ -3144,14 +3155,25 @@
         if (passwordChangeRequired) {
           openPasswordChangeModal();
         }
+        loadedSessionUserId = user.id;
         return true;
       } catch (error) {
         console.error('Falha ao carregar nuvem:', error);
         const message = error?.message || 'erro desconhecido';
         setSyncStatus(`Falha ao carregar nuvem: ${message}`, 'off');
         safeSetText('auth-status', `Falha ao validar acesso: ${message}`);
-        showAuthShell(true);
+        if (currentAllowedAccess && getAccessStatus(currentAllowedAccess) === 'active') {
+          showAuthShell(false);
+          startAutoSync();
+          if (isAdminRole(currentAccessProfile?.role)) startAdminAutoRefresh();
+          loadedSessionUserId = user.id;
+          return true;
+        }
+        loadedSessionUserId = null;
+        if (!accessLockActive) showAuthShell(true);
         return false;
+      } finally {
+        isSessionLoadRunning = false;
       }
     }
 
@@ -3174,9 +3196,16 @@
 
       client.auth.onAuthStateChange(async (event, session) => {
         if (isChangingPassword && event === 'USER_UPDATED') return;
+        if (event === 'INITIAL_SESSION') return;
+        if (event === 'TOKEN_REFRESHED' && session?.user?.id === loadedSessionUserId) {
+          currentSessionUser = session.user;
+          return;
+        }
         if (session?.user) {
           currentSessionUser = session.user;
-          showAuthShell(true);
+          if (session.user.id !== loadedSessionUserId) {
+            safeSetText('auth-status', 'Validando acesso...');
+          }
           await loadCloudStateForUser(session.user);
         } else if (event === 'SIGNED_OUT') {
           if (accessLockActive) return;
@@ -3186,6 +3215,8 @@
           currentSessionUser = null;
           currentAccessProfile = null;
           currentAllowedAccess = null;
+          loadedSessionUserId = null;
+          isSessionLoadRunning = false;
           passwordChangeRequired = false;
           toggleAdminUi(false);
           showAuthShell(true);
