@@ -1916,6 +1916,7 @@
     let isAdminActionRunning = false;
     let isSessionLoadRunning = false;
     let loadedSessionUserId = null;
+    let cloudConnectionStale = false;
 
     const DEFAULT_STATE_TEMPLATE = {
       transactions: [],
@@ -2519,6 +2520,10 @@
     };
 
     async function ensureSupabase() {
+      if (cloudConnectionStale) {
+        supabaseClient = null;
+        cloudConnectionStale = false;
+      }
       if (supabaseClient) return supabaseClient;
       if (!window.supabase?.createClient) {
         setSyncStatus('Conexão com a nuvem indisponível no momento.', 'off');
@@ -2531,6 +2536,31 @@
         }
       });
       return supabaseClient;
+    }
+
+    async function ensureActiveSupabase() {
+      const client = await ensureSupabase();
+      if (!client) return null;
+      if (currentSessionUser) {
+        try {
+          const { data, error } = await withTimeout(
+            client.auth.getSession(),
+            8000,
+            'Tempo limite ao reativar sessão.'
+          );
+          if (error) throw error;
+          if (data?.session?.user) {
+            currentSessionUser = data.session.user;
+            loadedSessionUserId = data.session.user.id;
+          }
+        } catch (error) {
+          console.warn('Falha ao reativar sessão:', error);
+          supabaseClient = null;
+          cloudConnectionStale = false;
+          return await ensureSupabase();
+        }
+      }
+      return client;
     }
 
     function createIsolatedSupabaseClient() {
@@ -2950,7 +2980,7 @@
     }
 
     async function logoutCloud() {
-      const client = await ensureSupabase();
+      const client = await ensureActiveSupabase();
       if (!client) return;
       stopAutoSync();
       stopAdminAutoRefresh();
@@ -3007,11 +3037,14 @@
     function pauseBackgroundWork() {
       clearTimeout(cloudSyncTimer);
       pendingCloudSync = false;
+      cloudConnectionStale = true;
+      supabaseClient = null;
     }
 
     function resumeForegroundWork() {
       repairMojibakeInDom();
       syncBodyLock();
+      cloudConnectionStale = true;
       if (!currentSessionUser || accessLockActive) return;
       isAccessValidationRunning = false;
       isSessionLoadRunning = false;
@@ -3078,7 +3111,7 @@
     }
 
     async function syncCloudNow(silent = false) {
-      const client = await ensureSupabase();
+      const client = await ensureActiveSupabase();
       if (!client || !currentSessionUser) return;
       if (isCloudSyncRunning) {
         pendingCloudSync = true;
@@ -3117,7 +3150,7 @@
     }
 
     async function loadCloudStateForUser(user) {
-      const client = await ensureSupabase();
+      const client = await ensureActiveSupabase();
       if (!client || !user) return false;
       if (isSessionLoadRunning) return true;
       currentSessionUser = user;
@@ -4303,7 +4336,7 @@
 
       if (!beginAdminAction('Criando acesso...')) return;
       try {
-        const client = await ensureSupabase();
+        const client = await ensureActiveSupabase();
         const nowIso = new Date().toISOString();
         const existingRow = adminAccessRows.find(row => normalizeEmail(row.email) === email);
         if (existingRow?.profile?.last_login_at) {
@@ -4364,7 +4397,7 @@
         return;
       }
 
-      const client = await ensureSupabase();
+      const client = await ensureActiveSupabase();
       if (!client) {
         showToast('Conexão com a nuvem indisponível para criar o perfil teste.', 'error');
         return;
@@ -4428,7 +4461,7 @@
       isAdminRefreshRunning = true;
       try {
         safeSetText('admin-refresh-status', 'Atualizando...');
-        const client = await ensureSupabase();
+        const client = await ensureActiveSupabase();
         const [{ data: accessRows, error: accessError }, { data: profileRows, error: profileError }] = await withTimeout(
           Promise.all([
             client.from(SUPABASE_ALLOWED_EMAILS_TABLE).select('*').order('created_at', { ascending: false }),
@@ -4542,7 +4575,7 @@
     async function renewManagedAccess(email, days = 30) {
       if (!beginAdminAction('Renovando validade...')) return;
       try {
-        const client = await ensureSupabase();
+        const client = await ensureActiveSupabase();
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
         const base = getAccessExpiryDate(current) || new Date();
         const today = new Date();
@@ -4575,7 +4608,7 @@
     async function updateManagedAccessValidity(email) {
       if (!beginAdminAction('Atualizando validade...')) return;
       try {
-        const client = await ensureSupabase();
+        const client = await ensureActiveSupabase();
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
         if (!current) return;
         const input = document.getElementById(getAccessValidityInputId(email));
@@ -4612,7 +4645,7 @@
     async function toggleManagedAccessStatus(email) {
       if (!beginAdminAction('Atualizando status...')) return;
       try {
-        const client = await ensureSupabase();
+        const client = await ensureActiveSupabase();
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
         if (!current) return;
         if (normalizeEmail(current.email) === normalizeEmail(currentSessionUser?.email) && current.role === 'admin') {
@@ -4648,7 +4681,7 @@
           endAdminAction();
           return;
         }
-        const client = await ensureSupabase();
+        const client = await ensureActiveSupabase();
         const newPassword = generateTempPassword();
         await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
           temp_password: newPassword,
@@ -4668,7 +4701,7 @@
       if (!confirm(`Excluir o acesso de ${email}? Isso bloqueia novas entradas e remove os dados sincronizados deste usuário.`)) return;
       if (!beginAdminAction('Excluindo acesso...')) return;
       try {
-        const client = await ensureSupabase();
+        const client = await ensureActiveSupabase();
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
         if (normalizeEmail(current?.email) === normalizeEmail(currentSessionUser?.email) && current?.role === 'admin') {
           showToast('Não exclua a própria conta administradora por aqui.', 'error');
@@ -4723,7 +4756,7 @@
           submitBtn.style.opacity = '0.72';
         }
         if (statusId) safeSetText(statusId, 'Atualizando senha...');
-        const client = await ensureSupabase();
+        const client = await ensureActiveSupabase();
         if (!client) throw new Error('Conexão com autenticação indisponível.');
         const { error } = await withTimeout(
           client.auth.updateUser({ password: newPassword }),
@@ -4929,7 +4962,7 @@
       DB.save();
       updateAllAvatars();
       try {
-        const client = await ensureSupabase();
+        const client = await ensureActiveSupabase();
         if (client && currentSessionUser?.id) {
       const fullName = State.profile.name || currentSessionUser.email?.split('@')[0] || 'Usuário';
           await client.from(SUPABASE_PROFILES_TABLE).update({
@@ -5035,6 +5068,24 @@
       
       window.addEventListener('focus', () => {
         resumeForegroundWork();
+      });
+
+      window.addEventListener('pageshow', () => {
+        resumeForegroundWork();
+      });
+
+      window.addEventListener('pagehide', () => {
+        pauseBackgroundWork();
+      });
+
+      window.addEventListener('online', () => {
+        cloudConnectionStale = true;
+        resumeForegroundWork();
+      });
+
+      window.addEventListener('offline', () => {
+        pauseBackgroundWork();
+        setSyncStatus('Sem internet. As alterações locais ficam salvas neste aparelho.', 'warn');
       });
 
       document.addEventListener('visibilitychange', () => {
