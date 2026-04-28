@@ -2561,6 +2561,14 @@
       return /Invalid login credentials/i.test(String(error?.message || error || ''));
     }
 
+    function isAlreadyRegisteredError(error) {
+      return /User already registered|already registered/i.test(String(error?.message || error || ''));
+    }
+
+    function isTrialEmail(email) {
+      return /@trial\.controlefinanceiro\.app$/i.test(normalizeEmail(email));
+    }
+
     async function checkFirstAccessCredential(client, email, password) {
       if (!client || !email || !password) return null;
       try {
@@ -2598,8 +2606,40 @@
         15000,
         'Tempo limite ao criar primeiro acesso.'
       );
+      if (error && isAlreadyRegisteredError(error)) {
+        const conflict = new Error(firstAccess.is_trial
+          ? 'Este perfil teste antigo já existe no Auth do Supabase com outra senha. Gere um novo perfil teste no painel administrativo.'
+          : 'Este e-mail já possui conta no Auth do Supabase. Use a senha atual dessa conta ou faça recuperação de senha.');
+        conflict.code = 'FIRST_ACCESS_AUTH_EXISTS';
+        conflict.isTrial = Boolean(firstAccess.is_trial);
+        throw conflict;
+      }
       if (error) throw error;
       return { data, access: firstAccess };
+    }
+
+    async function getNextTrialEmail(client) {
+      try {
+        const { data, error } = await withTimeout(
+          client.rpc('next_trial_email'),
+          10000,
+          'Tempo limite ao gerar e-mail teste.'
+        );
+        if (!error && data) return normalizeEmail(Array.isArray(data) ? data[0] : data);
+        if (error) console.warn('Gerador sequencial de teste indisponível:', error);
+      } catch (error) {
+        console.warn('Falha ao gerar e-mail teste pelo Supabase:', error);
+      }
+
+      const usedNumbers = adminAccessRows
+        .filter(row => Boolean(row.is_trial))
+        .map(row => {
+          const match = String(row.email || '').match(/^teste(\d+)@trial\.controlefinanceiro\.app$/i);
+          return match ? Number(match[1]) : 0;
+        })
+        .filter(Boolean);
+      const nextTrialNumber = Math.max(1000, ...usedNumbers) + 1;
+      return normalizeEmail(`teste${String(nextTrialNumber).padStart(4, '0')}@trial.controlefinanceiro.app`);
     }
 
     async function fetchCurrentAccessSnapshot(email) {
@@ -2868,7 +2908,9 @@
         }
         if (authMode === 'login' && !data?.session) {
           if (data?.user) {
-            safeSetText('auth-status', 'Conta criada. Confirme o e-mail ou desative a confirmação de e-mail no Supabase para liberar o primeiro acesso automático.');
+            safeSetText('auth-status', isTrialEmail(email)
+              ? 'Perfil teste criado, mas o Supabase está exigindo confirmação de e-mail. Para perfil teste funcionar, desative Confirm email no Supabase Auth.'
+              : 'Conta criada. Confirme o e-mail ou desative a confirmação de e-mail no Supabase para liberar o primeiro acesso automático.');
             return;
           }
           safeSetText('auth-status', 'Falha: e-mail ou senha incorretos.');
@@ -2877,6 +2919,10 @@
         safeSetText('auth-status', 'Conta conectada com sucesso.');
       } catch (error) {
         const rawMessage = String(error?.message || 'Falha ao autenticar.');
+        if (error?.code === 'FIRST_ACCESS_AUTH_EXISTS') {
+          safeSetText('auth-status', error.message);
+          return;
+        }
         if (isInvalidLoginError(error)) {
           safeSetText('auth-status', authMode === 'login'
             ? 'Falha: e-mail ou senha incorretos.'
@@ -2887,10 +2933,12 @@
           safeSetText('auth-status', 'Falha: o e-mail ainda não foi confirmado. Verifique sua caixa de entrada e também a pasta de spam.');
           return;
         }
-        if (/User already registered|already registered/i.test(rawMessage)) {
+        if (isAlreadyRegisteredError(error)) {
           switchAuthMode('login');
           document.getElementById('auth-email').value = email;
-          safeSetText('auth-status', 'Este e-mail já tem conta. Use Entrar e confira a senha.');
+          safeSetText('auth-status', isTrialEmail(email)
+            ? 'Este perfil teste já existe no Auth com outra senha. Gere um novo perfil teste no painel administrativo.'
+            : 'Este e-mail já tem conta. Use Entrar e confira a senha.');
           return;
         }
         safeSetText('auth-status', `Falha: ${rawMessage}`);
@@ -4229,16 +4277,7 @@
       }
       const clientName = document.getElementById('admin-trial-name')?.value?.trim() || 'Perfil Teste';
       const tempPassword = generateTempPassword();
-      const usedNumbers = adminAccessRows
-        .filter(row => Boolean(row.is_trial))
-        .map(row => {
-          const match = String(row.email || '').match(/^teste(\d+)@trial\.controlefinanceiro\.app$/i);
-          return match ? Number(match[1]) : 0;
-        })
-        .filter(Boolean);
-      let nextTrialNumber = 1;
-      while (usedNumbers.includes(nextTrialNumber)) nextTrialNumber += 1;
-      const email = normalizeEmail(`teste${String(nextTrialNumber).padStart(3, '0')}@trial.controlefinanceiro.app`);
+      const email = await getNextTrialEmail(client);
       const expiresAtIso = new Date(Date.now() + DEFAULT_TRIAL_MINUTES * 60 * 1000).toISOString();
       const validUntil = deriveValidUntilDate(expiresAtIso);
       const nowIso = new Date().toISOString();
