@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Controle Financeiro - Painel</title>
   
-  <!-- PWA / Instalação -->
+  <!-- PWA / InstalaÃ§Ã£o -->
   <meta name="theme-color" content="#00b4a0">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -538,6 +538,7 @@
     .admin-badge.status-active { background: rgba(0, 200, 83, 0.12); color: #8be0a7; }
     .admin-badge.status-blocked { background: rgba(255, 82, 82, 0.12); color: #ff9b9b; }
     .admin-badge.status-expired { background: rgba(255, 179, 0, 0.12); color: #ffd36b; }
+    .admin-badge.warn { background: rgba(255, 179, 0, 0.14); color: #ffd36b; }
     .admin-access-meta { margin-top: 12px; display: grid; gap: 6px; color: #86a8b7; font-size: 12px; }
     .admin-access-actions { margin-top: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
     .admin-secondary-btn { width: 100%; padding: 11px 12px; border-radius: 12px; background: rgba(0, 180, 160, 0.1); color: #00b4a0; border: 1px solid rgba(0, 180, 160, 0.14); font-size: 12px; font-weight: 700; cursor: pointer; }
@@ -720,7 +721,7 @@
 
   <div id="auth-shell" class="auth-shell hidden">
     <div class="auth-card">
-      <div class="auth-kicker">Controle Financeiro</div>
+      <div class="auth-kicker">Controle Financeiro na Nuvem</div>
       <div class="auth-brand">
         <div class="auth-logo-wrap">
           <img class="auth-logo" src="logo-192.png" alt="Logomarca do aplicativo">
@@ -744,7 +745,7 @@
           </div>
           <div>
             <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Senha</label>
-            <input type="password" id="auth-password" class="input-styled" placeholder="Mínimo 6 caracteres" required minlength="6">
+            <input type="password" id="auth-password" class="input-styled" placeholder="MÃ­nimo 6 caracteres" required minlength="6">
           </div>
           <button type="submit" id="auth-submit-btn" class="w-full py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors">Entrar</button>
         </form>
@@ -759,9 +760,9 @@
       <div class="access-lock-icon">
         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4"/></svg>
       </div>
-      <h2 id="access-lock-title" class="font-display access-lock-title">Acesso indisponível</h2>
+      <h2 id="access-lock-title" class="font-display access-lock-title">Acesso indisponÃ­vel</h2>
       <p id="access-lock-message" class="access-lock-message">Entre em contato com o Suporte para regularizar seu acesso.</p>
-      <div id="access-lock-detail" class="access-lock-detail">Sua conta não está liberada para uso neste momento.</div>
+      <div id="access-lock-detail" class="access-lock-detail">Sua conta nÃ£o estÃ¡ liberada para uso neste momento.</div>
       <button onclick="returnToLogin()" class="w-full mt-5 py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors">Entrar com outra conta</button>
     </div>
   </div>
@@ -799,7 +800,7 @@
       </div>
       <div class="sidebar-item" onclick="openPage('transactions'); toggleSidebar();">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        <span>Transações</span>
+        <span>TransaÃ§Ãµes</span>
       </div>
     </div>
     
@@ -815,7 +816,7 @@
       <div class="sidebar-section-title">Planejamento</div>
       <div class="sidebar-item" onclick="openPage('calendar'); toggleSidebar();">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        <span>Calendário</span>
+        <span>CalendÃ¡rio</span>
       </div>
       <div class="sidebar-item" onclick="openPage('goals'); toggleSidebar();">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
@@ -823,7 +824,7 @@
       </div>
       <div class="sidebar-item" onclick="openPage('reports'); toggleSidebar();">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        <span>Relatórios</span>
+        <span>RelatÃ³rios</span>
       </div>
     </div>
     
@@ -831,7 +832,7 @@
       <div class="sidebar-section-title">Ferramentas</div>
       <div class="sidebar-item" onclick="openPage('settings'); toggleSidebar();">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        <span>Configurações</span>
+        <span>ConfiguraÃ§Ãµes</span>
       </div>
       <div id="sidebar-admin-item" class="sidebar-item hidden" onclick="openPage('admin'); toggleSidebar();">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l6.16-3.422A12.083 12.083 0 0112 21a12.083 12.083 0 01-6.16-10.422L12 14z"/></svg>
@@ -914,7 +915,7 @@
       <div class="card mt-4">
         <div class="section-header">
           <h2 class="section-title">Saude Financeira</h2>
-            <span class="text-xs text-[#6b8a99]" id="health-period-label">Mês atual</span>
+            <span class="text-xs text-[#6b8a99]" id="health-period-label">MÃªs atual</span>
         </div>
         <div class="p-4">
           <div class="health-grid">
@@ -926,12 +927,12 @@
             <div class="health-card">
               <div class="health-label">Comprometido</div>
               <div class="health-value text-orange" id="health-committed">R$ 0,00</div>
-              <div class="health-caption">Pendências e previsões do período</div>
+              <div class="health-caption">PendÃªncias e previsÃµes do perÃ­odo</div>
             </div>
             <div class="health-card">
               <div class="health-label">Livre</div>
               <div class="health-value text-brand" id="health-free">R$ 0,00</div>
-              <div class="health-caption">Margem disponível para decidir</div>
+              <div class="health-caption">Margem disponÃ­vel para decidir</div>
             </div>
           </div>
         </div>
@@ -939,15 +940,15 @@
 
       <div class="card mt-4">
         <div class="section-header">
-          <h2 class="section-title">Insights do Mês</h2>
-          <button class="text-xs font-semibold text-brand hover:text-brand-light transition-colors" onclick="openPage('reports')">Ver análise</button>
+          <h2 class="section-title">Insights do MÃªs</h2>
+          <button class="text-xs font-semibold text-brand hover:text-brand-light transition-colors" onclick="openPage('reports')">Ver anÃ¡lise</button>
         </div>
         <div class="p-4">
           <div id="dashboard-insights" class="insight-list"></div>
         </div>
       </div>
       
-      <!-- Pendências -->
+      <!-- PendÃªncias -->
       <div id="pending-alerts" class="mt-4 hidden">
         <div class="card p-4" style="border-left: 4px solid #ff8a50;">
           <div class="flex items-center gap-3 mb-3">
@@ -955,7 +956,7 @@
               <svg class="w-5 h-5 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
-              <p class="text-sm font-semibold text-white">Pendências do Período</p>
+              <p class="text-sm font-semibold text-white">PendÃªncias do PerÃ­odo</p>
               <p class="text-xs text-[#6b8a99]" id="pending-period-label">Valores a receber e a pagar</p>
             </div>
           </div>
@@ -973,29 +974,29 @@
         </div>
       </div>
       
-      <!-- Filtro de Período com Seletor de Mês -->
+      <!-- Filtro de PerÃ­odo com Seletor de MÃªs -->
       <div class="mt-4">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-3">
           <h2 class="font-display text-base font-semibold text-white">Acoes Rapidas</h2>
           <div class="relative">
             <div class="dropdown text-xs" onclick="toggleDropdown('period-select')">
-              <span id="period-select-label">Este mês</span>
+              <span id="period-select-label">Este mÃªs</span>
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </div>
             <div id="dropdown-period-select" class="hidden absolute right-0 mt-2 bg-[#132a3c] border border-brand/15 rounded-xl shadow-xl z-50 min-w-[140px]">
               <div class="py-1">
-                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('month', 'Este mês')">Este mês</button>
+                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('month', 'Este mÃªs')">Este mÃªs</button>
                 <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('week', 'Esta semana')">Esta semana</button>
                 <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('year', 'Este ano')">Este ano</button>
-                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('all', 'Todo período')">Todo período</button>
+                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('all', 'Todo perÃ­odo')">Todo perÃ­odo</button>
                 <div class="border-t border-brand/10 my-1"></div>
-                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors text-brand font-semibold" onclick="openDashboardMonthPicker()">Selecionar Mês Específico</button>
+                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors text-brand font-semibold" onclick="openDashboardMonthPicker()">Selecionar MÃªs EspecÃ­fico</button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Seletor de Mês Customizado (Escondido por padrão) -->
+        <!-- Seletor de MÃªs Customizado (Escondido por padrÃ£o) -->
         <div id="dashboard-month-picker" class="hidden mb-4 p-3 bg-[#132a3c] rounded-xl border border-brand/15">
            <div class="month-selector">
              <div class="month-btn" onclick="changeDashboardMonth(-1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></div>
@@ -1019,7 +1020,7 @@
               <svg class="w-5 h-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             </div>
             <div class="quick-action-content">
-              <div class="quick-action-title">Calendário</div>
+              <div class="quick-action-title">CalendÃ¡rio</div>
               <div class="quick-action-desc">Visualize compromissos</div>
             </div>
           </div>
@@ -1031,7 +1032,7 @@
             </div>
             <div class="quick-action-content">
               <div class="quick-action-title">Controle de Pagamentos</div>
-              <div class="quick-action-desc">Gerencie pendências</div>
+              <div class="quick-action-desc">Gerencie pendÃªncias</div>
             </div>
           </div>
         </div>
@@ -1050,10 +1051,10 @@
         </div>
       </div>
       
-      <!-- Transações Recentes -->
+      <!-- TransaÃ§Ãµes Recentes -->
       <div class="card mt-4 mb-4">
         <div class="section-header">
-          <h2 class="section-title">Transações Recentes</h2>
+          <h2 class="section-title">TransaÃ§Ãµes Recentes</h2>
           <button class="text-xs font-semibold text-brand hover:text-brand-light transition-colors" onclick="openPage('transactions')">Ver todas</button>
         </div>
         <div class="px-4 pb-4">
@@ -1075,7 +1076,7 @@
             </button>
             <div class="min-w-0">
               <h1 class="font-display text-xl font-bold text-white leading-tight">Controle de Pagamentos</h1>
-              <p class="text-xs text-[#6b8a99] mt-1">Gerencie pendências</p>
+              <p class="text-xs text-[#6b8a99] mt-1">Gerencie pendÃªncias</p>
             </div>
           </div>
           <div class="profile-header-avatar" id="header-avatar-control"><span>DN</span></div>
@@ -1133,15 +1134,15 @@
         </div>
         <div class="relative">
           <div class="dropdown text-xs" onclick="toggleDropdown('control-period')">
-            <span id="control-period-label">Este mês</span>
+            <span id="control-period-label">Este mÃªs</span>
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </div>
           <div id="dropdown-control-period" class="hidden absolute right-0 mt-2 bg-[#132a3c] border border-brand/15 rounded-xl shadow-xl z-50 min-w-[140px]">
             <div class="py-1">
-              <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10" onclick="setControlPeriod('month', 'Este mês')">Este mês</button>
+              <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10" onclick="setControlPeriod('month', 'Este mÃªs')">Este mÃªs</button>
               <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10" onclick="setControlPeriod('week', 'Esta semana')">Esta semana</button>
               <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10" onclick="setControlPeriod('year', 'Este ano')">Este ano</button>
-              <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10" onclick="setControlPeriod('all', 'Todo período')">Todo período</button>
+              <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10" onclick="setControlPeriod('all', 'Todo perÃ­odo')">Todo perÃ­odo</button>
             </div>
           </div>
         </div>
@@ -1172,7 +1173,7 @@
       </div>
     </section>
 
-      <!-- TRANSAÇÕES -->
+      <!-- TRANSAÃ‡Ã•ES -->
     <section id="page-transactions" class="hidden px-4 pt-4">
       <div class="page-header">
         <div class="flex items-start justify-between gap-3">
@@ -1181,14 +1182,14 @@
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
             <div class="min-w-0">
-              <h1 class="font-display text-xl font-bold text-white leading-tight">Transações</h1>
+              <h1 class="font-display text-xl font-bold text-white leading-tight">TransaÃ§Ãµes</h1>
             </div>
           </div>
           <div class="profile-header-avatar" id="header-avatar-transactions"><span>DN</span></div>
         </div>
       </div>
       
-      <!-- Filtro Mês Transações -->
+      <!-- Filtro MÃªs TransaÃ§Ãµes -->
       <div class="mt-4 mb-2">
         <div class="month-selector">
           <div class="month-btn" onclick="changeTxMonth(-1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></div>
@@ -1213,7 +1214,7 @@
       
       <div class="card mt-4 mb-4">
         <div class="p-4 flex justify-between items-center border-b border-brand/5">
-        <span class="text-sm text-[#6b8a99]" id="tx-count-label">0 transações</span>
+        <span class="text-sm text-[#6b8a99]" id="tx-count-label">0 transaÃ§Ãµes</span>
         </div>
         <div class="p-2">
           <div id="tx-list-empty" class="py-12 text-center text-[#6b8a99]">
@@ -1224,7 +1225,7 @@
       </div>
     </section>
 
-      <!-- CALENDÁRIO -->
+      <!-- CALENDÃRIO -->
     <section id="page-calendar" class="hidden px-4 pt-4">
       <div class="page-header">
         <div class="flex items-start justify-between gap-3">
@@ -1233,7 +1234,7 @@
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
             <div class="min-w-0">
-              <h1 class="font-display text-xl font-bold text-white leading-tight">Calendário Financeiro</h1>
+              <h1 class="font-display text-xl font-bold text-white leading-tight">CalendÃ¡rio Financeiro</h1>
             </div>
           </div>
           <div class="profile-header-avatar" id="header-avatar-calendar"><span>DN</span></div>
@@ -1262,11 +1263,11 @@
         <div id="cal-grid" class="grid grid-cols-7 gap-1 px-4 pb-4"></div>
       </div>
       
-      <!-- Resumo Dinâmico -->
+      <!-- Resumo DinÃ¢mico -->
       <div class="card mt-4 mb-4">
         <div class="section-header">
-        <h2 class="section-title" id="cal-detail-title">Resumo do Mês</h2>
-          <button id="cal-clear-filter" class="hidden text-xs text-brand" onclick="clearCalendarFilter()">Ver mês todo</button>
+        <h2 class="section-title" id="cal-detail-title">Resumo do MÃªs</h2>
+          <button id="cal-clear-filter" class="hidden text-xs text-brand" onclick="clearCalendarFilter()">Ver mÃªs todo</button>
         </div>
         <div class="p-4 grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-brand/5">
           <div class="text-center"><div class="text-xs text-[#6b8a99] mb-1">Receitas</div><div class="text-sm font-semibold text-income" id="cal-income">R$ 0,00</div></div>
@@ -1274,7 +1275,7 @@
           <div class="text-center"><div class="text-xs text-[#6b8a99] mb-1">Saldo</div><div class="text-sm font-semibold text-brand" id="cal-balance">R$ 0,00</div></div>
         </div>
         <div id="cal-day-list" class="p-2 max-h-60 overflow-y-auto hidden">
-            <!-- Lista de transações do dia clicado -->
+            <!-- Lista de transaÃ§Ãµes do dia clicado -->
         </div>
       </div>
     </section>
@@ -1307,7 +1308,7 @@
       <div id="goals-list" class="hidden mt-4 space-y-3 mb-4"></div>
     </section>
 
-      <!-- RELATÓRIOS -->
+      <!-- RELATÃ“RIOS -->
     <section id="page-reports" class="hidden px-4 pt-4">
       <div class="page-header">
         <div class="flex items-start justify-between gap-3">
@@ -1316,14 +1317,14 @@
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
             <div class="min-w-0">
-              <h1 class="font-display text-xl font-bold text-white leading-tight">Relatórios</h1>
+              <h1 class="font-display text-xl font-bold text-white leading-tight">RelatÃ³rios</h1>
             </div>
           </div>
           <div class="profile-header-avatar" id="header-avatar-reports"><span>DN</span></div>
         </div>
       </div>
 
-      <!-- Filtro Relatórios -->
+      <!-- Filtro RelatÃ³rios -->
       <div class="mt-4 mb-2">
         <div class="month-selector">
           <div class="month-btn" onclick="changeReportMonth(-1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></div>
@@ -1365,12 +1366,12 @@
       </div>
 
       <div class="card mt-4 mb-4">
-        <div class="section-header"><h2 class="section-title">Uso do Orçamento</h2></div>
+        <div class="section-header"><h2 class="section-title">Uso do OrÃ§amento</h2></div>
         <div class="p-4" id="report-budget-breakdown"></div>
       </div>
     </section>
 
-      <!-- CONFIGURAÇÕES -->
+      <!-- CONFIGURAÃ‡Ã•ES -->
     <section id="page-settings" class="hidden px-4 pt-4">
       <div class="page-header">
         <div class="flex items-start justify-between gap-3">
@@ -1379,7 +1380,7 @@
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
             <div class="min-w-0">
-              <h1 class="font-display text-xl font-bold text-white leading-tight">Configurações</h1>
+              <h1 class="font-display text-xl font-bold text-white leading-tight">ConfiguraÃ§Ãµes</h1>
             </div>
           </div>
           <div class="profile-header-avatar" id="header-avatar-settings"><span>DN</span></div>
@@ -1414,9 +1415,9 @@
         <div class="p-4 space-y-3">
           <div class="sync-status-chip">
             <span id="settings-sync-dot" class="sync-status-dot warn"></span>
-            <span id="settings-sync-text">Sincronização não iniciada</span>
+            <span id="settings-sync-text">SincronizaÃ§Ã£o nÃ£o iniciada</span>
           </div>
-          <div class="text-xs text-[#6b8a99] leading-5">Sincronização automática a cada 1 minuto. O botão manual continua disponível.</div>
+          <div class="text-xs text-[#6b8a99] leading-5">SincronizaÃ§Ã£o automÃ¡tica a cada 1 minuto. O botÃ£o manual continua disponÃ­vel.</div>
           <div id="settings-access-note" class="text-xs text-[#86a8b7] leading-5"></div>
           <div class="space-y-2">
             <button onclick="syncCloudNow()" class="settings-action-btn">Sincronizar Agora</button>
@@ -1426,7 +1427,7 @@
       </div>
 
       <div class="card mt-4">
-        <div class="section-header"><h2 class="section-title">Segurança</h2></div>
+        <div class="section-header"><h2 class="section-title">SeguranÃ§a</h2></div>
         <div class="p-4 space-y-3">
           <div class="text-xs text-[#86a8b7] leading-5">Atualize sua senha sempre que receber um acesso temporario novo.</div>
           <div class="space-y-3">
@@ -1439,11 +1440,11 @@
 
       <div id="settings-admin-card" class="card mt-4 hidden">
         <div class="section-header">
-          <h2 class="section-title">Administração do Sistema</h2>
+          <h2 class="section-title">AdministraÃ§Ã£o do Sistema</h2>
           <span class="text-xs text-[#6b8a99]">Acesso exclusivo</span>
         </div>
         <div class="p-4 space-y-3">
-          <div class="text-xs text-[#86a8b7] leading-5">Gerencie e-mails autorizados, validade de uso, bloqueios e credenciais temporárias.</div>
+          <div class="text-xs text-[#86a8b7] leading-5">Gerencie e-mails autorizados, validade de uso, bloqueios e credenciais temporÃ¡rias.</div>
           <button onclick="openPage('admin')" class="settings-action-btn">Abrir Painel do Administrador</button>
         </div>
       </div>
@@ -1458,7 +1459,7 @@
 
       <div class="card mt-4">
         <div class="section-header">
-          <h2 class="section-title">Orçamento do Mês</h2>
+          <h2 class="section-title">OrÃ§amento do MÃªs</h2>
           <span class="text-xs text-[#6b8a99]">Limites por categoria</span>
         </div>
         <div class="p-4">
@@ -1472,7 +1473,7 @@
           <button onclick="exportData()" class="w-full flex items-center justify-between gap-3 p-3 rounded-xl bg-[#0d1f2d] hover:bg-[#1a3649] transition-colors">
             <div class="flex items-center gap-3 min-w-0">
               <svg class="w-5 h-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-              <span class="text-sm text-[#e8f4f8]">Exportar cópia de segurança</span>
+              <span class="text-sm text-[#e8f4f8]">Exportar cÃ³pia de seguranÃ§a</span>
             </div>
           </button>
           <button onclick="clearAllData()" class="w-full flex items-center justify-between gap-3 p-3 rounded-xl bg-expense/10 hover:bg-expense/20 transition-colors">
@@ -1483,7 +1484,7 @@
           </button>
         </div>
       </div>
-        <button onclick="saveProfile()" class="w-full mt-4 mb-4 py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors">Salvar alterações</button>
+        <button onclick="saveProfile()" class="w-full mt-4 mb-4 py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors">Salvar alteraÃ§Ãµes</button>
     </section>
 
     <section id="page-admin" class="hidden px-4 pt-4">
@@ -1528,10 +1529,10 @@
               <div class="admin-stat">
                 <div class="admin-stat-label">Expirando</div>
                 <div class="admin-stat-value" id="admin-stat-expiring">0</div>
-            <div class="admin-stat-note">Validade em até 7 dias</div>
+            <div class="admin-stat-note">Validade em atÃ© 7 dias</div>
               </div>
               <div class="admin-stat">
-                <div class="admin-stat-label">Já usados</div>
+                <div class="admin-stat-label">JÃ¡ usados</div>
                 <div class="admin-stat-value" id="admin-stat-claimed">0</div>
                 <div class="admin-stat-note">Contas que ja acessaram o aplicativo</div>
               </div>
@@ -1555,25 +1556,43 @@
                 <input type="email" id="admin-access-email" class="input-styled" placeholder="cliente@email.com">
               </div>
               <div>
-                <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Validade</label>
-                <input type="date" id="admin-access-valid-until" class="input-styled">
+                <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Validade ate</label>
+                <input type="datetime-local" id="admin-access-valid-until-at" class="input-styled">
               </div>
               <div>
                 <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Tipo de conta</label>
                 <select id="admin-access-role" class="input-styled">
-              <option value="user">Usuário</option>
+              <option value="user">UsuÃ¡rio</option>
                   <option value="admin">Administrador</option>
                 </select>
               </div>
             </div>
             <div>
-            <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Senha temporária</label>
+            <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Senha temporÃ¡ria</label>
               <div class="admin-password-box">
                 <div id="admin-access-password" class="admin-password-value">-</div>
                 <button onclick="copyAdminPassword()" class="admin-secondary-btn" type="button">Copiar</button>
               </div>
             </div>
             <button onclick="createManagedAccess()" class="w-full py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors">Criar Acesso e Conta</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-header">
+            <h2 class="section-title">Perfil Teste</h2>
+            <span class="text-xs text-[#6b8a99]">30 min automatico</span>
+          </div>
+          <div class="p-4 space-y-3">
+            <div>
+              <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Nome do interessado</label>
+              <input type="text" id="admin-trial-name" class="input-styled" placeholder="Opcional">
+            </div>
+            <div class="admin-password-box">
+              <div id="admin-trial-credentials" class="admin-password-value">Nenhum perfil teste gerado.</div>
+              <button onclick="copyTrialCredentials()" class="admin-secondary-btn" type="button">Copiar</button>
+            </div>
+            <button onclick="createTrialAccess()" class="w-full py-3.5 bg-[#ffb300] text-[#0d1f2d] font-semibold rounded-xl hover:brightness-110 transition-colors">Gerar Perfil Teste 30 Min</button>
           </div>
         </div>
 
@@ -1607,15 +1626,15 @@
       </div>
       <div class="nav-item" data-page="transactions" onclick="openPage('transactions')">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        <span>Transações</span>
+        <span>TransaÃ§Ãµes</span>
       </div>
       <div class="nav-item" data-page="calendar" onclick="openPage('calendar')">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        <span>Calendário</span>
+        <span>CalendÃ¡rio</span>
       </div>
       <div class="nav-item" data-page="reports" onclick="openPage('reports')">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        <span>Relatórios</span>
+        <span>RelatÃ³rios</span>
       </div>
     </div>
   </nav>
@@ -1625,7 +1644,7 @@
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
   </button>
 
-  <!-- Modal Troca de Senha Temporária -->
+  <!-- Modal Troca de Senha TemporÃ¡ria -->
   <div id="modal-password-change" class="modal-overlay password-modal">
     <div class="modal-content">
       <div class="text-center mb-6">
@@ -1633,13 +1652,13 @@
           <svg class="w-7 h-7 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c1.105 0 2-.895 2-2V7a2 2 0 10-4 0v2c0 1.105.895 2 2 2zm-6 2h12v8H6v-8z"/></svg>
         </div>
         <h2 class="font-display text-lg font-bold text-white">Atualize sua senha</h2>
-        <p class="text-sm text-[#86a8b7] mt-2 leading-6">Você entrou com uma senha temporária. Crie uma nova senha para continuar usando sua conta.</p>
+        <p class="text-sm text-[#86a8b7] mt-2 leading-6">VocÃª entrou com uma senha temporÃ¡ria. Crie uma nova senha para continuar usando sua conta.</p>
       </div>
 
       <form onsubmit="changeCurrentPassword(event, 'forced')" class="space-y-4">
         <div>
           <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Nova senha</label>
-          <input type="password" id="force-new-password" class="input-styled" placeholder="Mínimo 6 caracteres" minlength="6" required>
+          <input type="password" id="force-new-password" class="input-styled" placeholder="MÃ­nimo 6 caracteres" minlength="6" required>
         </div>
         <div>
           <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Confirmar nova senha</label>
@@ -1852,6 +1871,7 @@
     const SUPABASE_PROFILES_TABLE = 'app_profiles';
     const SUPABASE_ALLOWED_EMAILS_TABLE = 'allowed_emails';
     const DEFAULT_ACCESS_DAYS = 30;
+    const DEFAULT_TRIAL_MINUTES = 30;
     const ACCESS_CHECK_INTERVAL_MS = 15000;
     let supabaseClient = null;
     let authMode = 'login';
@@ -1868,6 +1888,7 @@
     let passwordChangeRequired = false;
     let isChangingPassword = false;
     let accessLockActive = false;
+    let lastTrialCredentials = null;
 
     // ESTADO
     const State = {
@@ -1896,11 +1917,11 @@
       controlFilter: 'all',
       controlPeriod: 'month',
       dashboardPeriod: 'month',
-      // Novos estados para filtros de mês específico
+      // Novos estados para filtros de mÃªs especÃ­fico
       dashboardCustomDate: new Date(),
       txCustomDate: new Date(),
       reportCustomDate: new Date(),
-      calendarSelectedDate: null, // Para filtro de dia específico no calendário
+      calendarSelectedDate: null, // Para filtro de dia especÃ­fico no calendÃ¡rio
       categories: {
         expense: [
           { id: 'credit_card', name: 'Cartao', color: '#ffb300' },
@@ -1948,24 +1969,84 @@
       date.setDate(date.getDate() + days);
       return toDateInputValue(date);
     };
+    const toDateTimeLocalValue = (dateLike) => {
+      if (!dateLike) return '';
+      const date = new Date(dateLike);
+      if (Number.isNaN(date.getTime())) return '';
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      const hh = String(date.getHours()).padStart(2, '0');
+      const min = String(date.getMinutes()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+    };
+    const buildFutureDateTime = ({ days = DEFAULT_ACCESS_DAYS, minutes = 0, endOfDay = true } = {}) => {
+      const date = new Date();
+      date.setSeconds(0, 0);
+      if (endOfDay) {
+        date.setHours(23, 59, 0, 0);
+      }
+      date.setDate(date.getDate() + days);
+      date.setMinutes(date.getMinutes() + minutes);
+      return date;
+    };
+    const toIsoFromDateTimeLocal = (value) => {
+      if (!value) return null;
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? null : date.toISOString();
+    };
+    const deriveValidUntilDate = (isoValue) => {
+      if (!isoValue) return null;
+      return isoValue.slice(0, 10);
+    };
     const generateTempPassword = () => {
       const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@#%';
       let result = '';
       for (let i = 0; i < 10; i += 1) result += alphabet[Math.floor(Math.random() * alphabet.length)];
       return result;
     };
-    const isExpiredDate = (dateString) => {
-      if (!dateString) return false;
-      const end = new Date(`${dateString}T23:59:59`);
-      return end.getTime() < Date.now();
+    const getAccessExpiryDate = (record) => {
+      if (!record) return null;
+      if (record.valid_until_at) {
+        const dateTimeExpiry = new Date(record.valid_until_at);
+        if (!Number.isNaN(dateTimeExpiry.getTime())) return dateTimeExpiry;
+      }
+      if (record.valid_until) {
+        const dateExpiry = new Date(`${record.valid_until}T23:59:59`);
+        if (!Number.isNaN(dateExpiry.getTime())) return dateExpiry;
+      }
+      return null;
+    };
+    const isExpiredDate = (record) => {
+      const expiry = getAccessExpiryDate(record);
+      return expiry ? expiry.getTime() < Date.now() : false;
+    };
+    const formatAccessExpiry = (record, { withTime = true } = {}) => {
+      const expiry = getAccessExpiryDate(record);
+      if (!expiry) return 'Sem data limite';
+      return expiry.toLocaleString('pt-BR', withTime
+        ? { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }
+        : { day: '2-digit', month: '2-digit', year: 'numeric' }
+      );
+    };
+    const getAccessNoteText = (access) => {
+      if (!access) return '';
+      if (access.must_change_password) {
+        return 'Sua conta ainda usa uma senha temporaria. Atualize a senha nesta tela.';
+      }
+      return getAccessExpiryDate(access)
+        ? `Acesso liberado ate ${formatAccessExpiry(access)}.`
+        : 'Acesso liberado sem data limite.';
     };
     const getAccessStatus = (record) => {
       if (!record) return 'missing';
       if (record.status === 'blocked') return 'blocked';
-      if (isExpiredDate(record.valid_until)) return 'expired';
+      if (isExpiredDate(record)) return 'expired';
       return 'active';
     };
     const isAdminRole = (role) => role === 'admin';
+    const makeAccessDomKey = (email) => normalizeEmail(email).replace(/[^a-z0-9]/g, '-');
+    const getAccessValidityInputId = (email) => `admin-validity-${makeAccessDomKey(email)}`;
 
     function getMonthTransactions(date) {
       return filterByDateRange(State.transactions, date, 'month').filter(t => !t.isRecurringInstance);
@@ -2017,21 +2098,21 @@
       const insights = [];
 
       if (monthHealth.free < 0) {
-        insights.push(`Seu saldo livre do período está negativo em ${formatMoney(Math.abs(monthHealth.free))}. Vale reduzir novas despesas antes do fechamento.`);
+        insights.push(`Seu saldo livre do perÃ­odo estÃ¡ negativo em ${formatMoney(Math.abs(monthHealth.free))}. Vale reduzir novas despesas antes do fechamento.`);
       }
       if (exceeded[0]) {
-        insights.push(`O orçamento de ${exceeded[0].name} estourou ${exceeded[0].percent.toFixed(0)}% e já consumiu ${formatMoney(exceeded[0].spent)} no mês.`);
+        insights.push(`O orÃ§amento de ${exceeded[0].name} estourou ${exceeded[0].percent.toFixed(0)}% e jÃ¡ consumiu ${formatMoney(exceeded[0].spent)} no mÃªs.`);
       } else if (highUsage[0]) {
-        insights.push(`${highUsage[0].name} já consumiu ${highUsage[0].percent.toFixed(0)}% do limite mensal. Bom momento para segurar essa categoria.`);
+        insights.push(`${highUsage[0].name} jÃ¡ consumiu ${highUsage[0].percent.toFixed(0)}% do limite mensal. Bom momento para segurar essa categoria.`);
       }
       if (monthHealth.pendingExpense > 0 || monthHealth.pendingIncome > 0) {
-        insights.push(`Existem ${formatMoney(monthHealth.pendingExpense)} a pagar e ${formatMoney(monthHealth.pendingIncome)} a receber no período.`);
+        insights.push(`Existem ${formatMoney(monthHealth.pendingExpense)} a pagar e ${formatMoney(monthHealth.pendingIncome)} a receber no perÃ­odo.`);
       }
       if (biggestExpenseCategory && biggestExpenseCategory.spent > 0) {
-        insights.push(`A categoria com maior peso no mês foi ${biggestExpenseCategory.name}, com ${formatMoney(biggestExpenseCategory.spent)}.`);
+        insights.push(`A categoria com maior peso no mÃªs foi ${biggestExpenseCategory.name}, com ${formatMoney(biggestExpenseCategory.spent)}.`);
       }
       if (!insights.length) {
-        insights.push('Sem sinais de risco relevantes no período. A movimentação está equilibrada e sem pressão forte no caixa.');
+        insights.push('Sem sinais de risco relevantes no perÃ­odo. A movimentaÃ§Ã£o estÃ¡ equilibrada e sem pressÃ£o forte no caixa.');
       }
 
       return insights.slice(0, 4);
@@ -2078,15 +2159,15 @@
           detail: detail || 'A validade do seu acesso terminou.'
         },
         unauthorized: {
-          title: 'Acesso não autorizado',
+          title: 'Acesso nÃ£o autorizado',
           message: supportMessage,
-          detail: detail || 'Este e-mail ainda não foi liberado para uso.'
+          detail: detail || 'Este e-mail ainda nÃ£o foi liberado para uso.'
         }
       };
       return messages[reason] || {
-        title: 'Acesso indisponível',
+        title: 'Acesso indisponÃ­vel',
         message: supportMessage,
-        detail: detail || 'Sua conta não está liberada para uso neste momento.'
+        detail: detail || 'Sua conta nÃ£o estÃ¡ liberada para uso neste momento.'
       };
     }
 
@@ -2122,12 +2203,12 @@
       isChangingPassword = false;
       toggleAdminUi(false);
       setAccessNote('');
-      setSyncStatus('Acesso indisponível.', 'off');
+      setSyncStatus('Acesso indisponÃ­vel.', 'off');
       showAccessLock(reason, detail);
       try {
-        await withTimeout(client?.auth?.signOut?.() || Promise.resolve(), 10000, 'Tempo limite ao encerrar sessão.');
+        await withTimeout(client?.auth?.signOut?.() || Promise.resolve(), 10000, 'Tempo limite ao encerrar sessÃ£o.');
       } catch (error) {
-        console.warn('Falha ao encerrar sessão após bloqueio:', error);
+        console.warn('Falha ao encerrar sessÃ£o apÃ³s bloqueio:', error);
       }
     }
 
@@ -2220,9 +2301,9 @@
       }));
     }
 
-    // NOVO: Filtro Avançado por Data Específica
+    // NOVO: Filtro AvanÃ§ado por Data EspecÃ­fica
     function filterByDateRange(transactions, targetDate, mode = 'month') {
-      // mode: 'month' (usa mês/ano de targetDate), 'day' (usa dia/mês/ano)
+      // mode: 'month' (usa mÃªs/ano de targetDate), 'day' (usa dia/mÃªs/ano)
       const tYear = targetDate.getFullYear();
       const tMonth = targetDate.getMonth();
       const tDay = targetDate.getDate();
@@ -2239,16 +2320,16 @@
       });
     }
 
-    // CORREÇÃO: Filtro Inteligente para Recorrentes (Mantido)
+    // CORREÃ‡ÃƒO: Filtro Inteligente para Recorrentes (Mantido)
     function filterByPeriod(transactions, period, customDate = null) {
       const now = customDate || new Date();
       return transactions.filter(t => {
-        // Se for recorrente e o filtro for 'month', consideramos que ela aplica ao mês atual
+        // Se for recorrente e o filtro for 'month', consideramos que ela aplica ao mÃªs atual
         if (t.recurring && period === 'month') {
-          // Lógica refinada: Se a data da transação for menor que o mês atual, ela aparece
-          // Mas para simplificar e manter consistência com o pedido do usuário:
+          // LÃ³gica refinada: Se a data da transaÃ§Ã£o for menor que o mÃªs atual, ela aparece
+          // Mas para simplificar e manter consistÃªncia com o pedido do usuÃ¡rio:
           // Vamos considerar recorrentes se a data original for <= data atual do filtro
-          // A lógica original simplesmente retornava true. Vamos melhorar:
+          // A lÃ³gica original simplesmente retornava true. Vamos melhorar:
           const txDate = new Date(t.date);
           if (txDate.getFullYear() < now.getFullYear() || (txDate.getFullYear() === now.getFullYear() && txDate.getMonth() <= now.getMonth())) {
              return true;
@@ -2264,14 +2345,14 @@
         } else if(period === 'year') {
           return txDate.getFullYear() === now.getFullYear();
         } else if (period === 'custom') {
-          // Filtro customizado baseado em data específica (Mês)
+          // Filtro customizado baseado em data especÃ­fica (MÃªs)
            return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
         }
         return true;
       });
     }
 
-    // NOTIFICAÇÃO TOAST
+    // NOTIFICAÃ‡ÃƒO TOAST
     function showToast(message, type = 'success') {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
@@ -2337,7 +2418,7 @@
     async function ensureSupabase() {
       if (supabaseClient) return supabaseClient;
       if (!window.supabase?.createClient) {
-        setSyncStatus('Conexão com a nuvem indisponível no momento.', 'off');
+        setSyncStatus('ConexÃ£o com a nuvem indisponÃ­vel no momento.', 'off');
         return null;
       }
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
@@ -2389,23 +2470,25 @@
               role: row.role || 'user',
               status: row.status || (row.effective_status === 'blocked' ? 'blocked' : 'active'),
               valid_until: row.valid_until || null,
+              valid_until_at: row.valid_until_at || null,
               temp_password: row.temp_password || null,
               must_change_password: Boolean(row.must_change_password),
               account_created_at: row.account_created_at || null,
               claimed_at: row.claimed_at || null,
-              effective_status: row.effective_status || null
+              effective_status: row.effective_status || null,
+              is_trial: Boolean(row.is_trial)
             };
           }
         }
         if (error) console.warn('Falha ao consultar status de acesso via RPC:', error);
       } catch (error) {
-        console.warn('RPC de status de acesso indisponível, usando consulta direta:', error);
+        console.warn('RPC de status de acesso indisponÃ­vel, usando consulta direta:', error);
       }
 
       const access = await fetchAllowedAccessByEmail(normalizedEmail);
       return access
-        ? { ...access, effective_status: getAccessStatus(access) }
-        : { email: normalizedEmail, effective_status: 'missing', status: 'blocked', valid_until: null };
+        ? { ...access, effective_status: getAccessStatus(access), is_trial: Boolean(access.is_trial), valid_until_at: access.valid_until_at || null }
+        : { email: normalizedEmail, effective_status: 'missing', status: 'blocked', valid_until: null, valid_until_at: null, is_trial: false };
     }
 
     function resolveAccessStatus(access) {
@@ -2416,14 +2499,14 @@
 
     function buildAccessBlockDetail(accessStatus, access) {
       if (accessStatus === 'expired') {
-        return access?.valid_until
-          ? `Validade encerrada em ${new Date(`${access.valid_until}T12:00:00`).toLocaleDateString('pt-BR')}. Entre em contato com o Suporte para regularizar.`
+        return getAccessExpiryDate(access)
+          ? `Validade encerrada em ${formatAccessExpiry(access)}. Entre em contato com o Suporte para regularizar.`
           : 'A validade do seu acesso terminou. Entre em contato com o Suporte para regularizar.';
       }
       if (accessStatus === 'blocked') {
         return 'Sua conta foi bloqueada. Entre em contato com o Suporte para regularizar.';
       }
-      return 'Este e-mail não está liberado para uso. Entre em contato com o Suporte para regularizar.';
+      return 'Este e-mail nÃ£o estÃ¡ liberado para uso. Entre em contato com o Suporte para regularizar.';
     }
 
     function getAccessBlockReason(accessStatus) {
@@ -2462,8 +2545,10 @@
         role: 'admin',
         status: 'active',
         valid_until: '2099-12-31',
+        valid_until_at: '2099-12-31T23:59:59Z',
         temp_password: null,
         must_change_password: false,
+        is_trial: false,
         account_created_at: new Date().toISOString(),
         claimed_at: new Date().toISOString(),
         created_by: user.id,
@@ -2480,6 +2565,8 @@
           role: 'admin',
           status: 'active',
           valid_until: '2099-12-31',
+          valid_until_at: '2099-12-31T23:59:59Z',
+          is_trial: false,
           created_by: user.id,
           updated_at: new Date().toISOString(),
           last_login_at: new Date().toISOString()
@@ -2500,6 +2587,8 @@
         role: accessRecord.role || 'user',
         status: accessRecord.status || 'active',
         valid_until: accessRecord.valid_until || null,
+        valid_until_at: accessRecord.valid_until_at || null,
+        is_trial: Boolean(accessRecord.is_trial),
         created_by: accessRecord.created_by || user.id,
         updated_at: new Date().toISOString(),
         last_login_at: new Date().toISOString()
@@ -2532,14 +2621,16 @@
             role: 'admin',
             status: 'active',
             valid_until: profile.valid_until,
+            valid_until_at: profile.valid_until_at || null,
             must_change_password: false,
-            effective_status: 'active'
+            effective_status: 'active',
+            is_trial: false
           };
           accessStatus = 'active';
         }
 
         if (!access || accessStatus === 'missing') {
-          await blockCurrentAccess('unauthorized', 'Este e-mail ainda não foi liberado para uso. Entre em contato com o Suporte para regularizar.');
+          await blockCurrentAccess('unauthorized', 'Este e-mail ainda nÃ£o foi liberado para uso. Entre em contato com o Suporte para regularizar.');
           return false;
         }
 
@@ -2567,13 +2658,13 @@
           State.profile.name = profile.full_name;
         }
         toggleAdminUi(isAdminRole(profile.role));
-        setAccessNote(`Acesso liberado até ${access.valid_until ? new Date(`${access.valid_until}T12:00:00`).toLocaleDateString('pt-BR') : 'sem data limite'}.`);
+        setAccessNote(getAccessNoteText(access));
         return true;
       } catch (error) {
         console.error('Falha ao validar acesso:', error);
         const message = error?.message || 'erro desconhecido';
-        setSyncStatus(`Falha na área administrativa: ${message}`, 'off');
-        safeSetText('auth-status', `Falha na área administrativa: ${message}`);
+        setSyncStatus(`Falha na Ã¡rea administrativa: ${message}`, 'off');
+        safeSetText('auth-status', `Falha na Ã¡rea administrativa: ${message}`);
         return false;
       }
     }
@@ -2589,11 +2680,11 @@
       try {
         if (authMode === 'signup') {
           const allowedAccess = await fetchAllowedAccessByEmail(email);
-          if (!allowedAccess) throw new Error('Este e-mail ainda não foi liberado. Entre em contato com o Suporte.');
+          if (!allowedAccess) throw new Error('Este e-mail ainda nÃ£o foi liberado. Entre em contato com o Suporte.');
           if (getAccessStatus(allowedAccess) === 'expired') throw new Error('A validade deste acesso venceu. Entre em contato com o Suporte para regularizar.');
           if (getAccessStatus(allowedAccess) === 'blocked') throw new Error('Este acesso foi bloqueado. Entre em contato com o Suporte para regularizar.');
           if (allowedAccess.temp_password && password !== allowedAccess.temp_password) {
-            throw new Error('Use a senha temporária definida pelo administrador para concluir o primeiro cadastro.');
+            throw new Error('Use a senha temporÃ¡ria definida pelo administrador para concluir o primeiro cadastro.');
           }
         }
         const action = authMode === 'login'
@@ -2604,7 +2695,7 @@
         if (authMode === 'signup' && !data.session) {
           switchAuthMode('login');
           document.getElementById('auth-email').value = email;
-          safeSetText('auth-status', 'Conta criada. Antes do primeiro acesso, confirme o cadastro pelo e-mail enviado e verifique também a pasta de spam.');
+          safeSetText('auth-status', 'Conta criada. Antes do primeiro acesso, confirme o cadastro pelo e-mail enviado e verifique tambÃ©m a pasta de spam.');
           return;
         }
         safeSetText('auth-status', 'Conta conectada com sucesso.');
@@ -2620,9 +2711,9 @@
       stopAdminAutoRefresh();
       closePasswordChangeModal();
       try {
-        await withTimeout(client.auth.signOut(), 10000, 'Tempo limite ao encerrar sessão.');
+        await withTimeout(client.auth.signOut(), 10000, 'Tempo limite ao encerrar sessÃ£o.');
       } catch (error) {
-        console.warn('Falha ao encerrar sessão remota:', error);
+        console.warn('Falha ao encerrar sessÃ£o remota:', error);
       }
       currentSessionUser = null;
       currentAccessProfile = null;
@@ -2633,7 +2724,7 @@
       accessLockActive = false;
       toggleAdminUi(false);
       setAccessNote('');
-      setSyncStatus('Sessão encerrada.', 'warn');
+      setSyncStatus('SessÃ£o encerrada.', 'warn');
       showAuthShell(true);
     }
 
@@ -2702,7 +2793,7 @@
         const access = await fetchCurrentAccessSnapshot(currentSessionUser.email);
         const accessStatus = resolveAccessStatus(access);
         if (accessStatus === 'missing') {
-          await blockCurrentAccess('unauthorized', 'Este e-mail não está liberado para uso. Entre em contato com o Suporte para regularizar.');
+          await blockCurrentAccess('unauthorized', 'Este e-mail nÃ£o estÃ¡ liberado para uso. Entre em contato com o Suporte para regularizar.');
           return false;
         }
 
@@ -2745,7 +2836,7 @@
         console.error('Falha ao sincronizar:', error);
         const message = error?.message || 'erro desconhecido';
         setSyncStatus(`Falha ao sincronizar: ${message}`, 'off');
-        if (!silent) showToast(`Não foi possível sincronizar: ${message}`, 'error');
+        if (!silent) showToast(`NÃ£o foi possÃ­vel sincronizar: ${message}`, 'error');
       }
     }
 
@@ -2868,7 +2959,7 @@
       toggleSidebar(false);
     }
 
-    // FUNÇÕES DO SELETOR DE MÊS (DASHBOARD)
+    // FUNÃ‡Ã•ES DO SELETOR DE MÃŠS (DASHBOARD)
     function openDashboardMonthPicker() {
       const picker = document.getElementById('dashboard-month-picker');
       const input = document.getElementById('dashboard-date-input');
@@ -2876,8 +2967,8 @@
       
       if(isVisible) {
         picker.classList.add('hidden');
-        State.dashboardPeriod = 'month'; // volta para o padrão se fechar sem usar
-        document.getElementById('period-select-label').textContent = 'Este mês';
+        State.dashboardPeriod = 'month'; // volta para o padrÃ£o se fechar sem usar
+        document.getElementById('period-select-label').textContent = 'Este mÃªs';
       } else {
         picker.classList.remove('hidden');
         // Sincroniza o input com a data atual do filtro
@@ -2910,7 +3001,7 @@
       updateDashboard();
     }
 
-    // FUNÇÕES DO SELETOR DE MÊS (TRANSACTIONS)
+    // FUNÃ‡Ã•ES DO SELETOR DE MÃŠS (TRANSACTIONS)
     function initTxDatePicker() {
       const input = document.getElementById('tx-date-input');
       const y = State.txCustomDate.getFullYear();
@@ -2933,7 +3024,7 @@
       renderTransactions();
     }
 
-    // FUNÇÕES DO SELETOR DE MÊS (RELATÓRIOS)
+    // FUNÃ‡Ã•ES DO SELETOR DE MÃŠS (RELATÃ“RIOS)
     function initReportDatePicker() {
       const input = document.getElementById('report-date-input');
       const y = State.reportCustomDate.getFullYear();
@@ -2964,7 +3055,7 @@
     }
 
     function setPeriod(value, label) {
-      // Se selecionar um padrão, esconde o picker customizado
+      // Se selecionar um padrÃ£o, esconde o picker customizado
       if(value !== 'custom') {
          document.getElementById('dashboard-month-picker').classList.add('hidden');
          State.dashboardPeriod = value;
@@ -3494,7 +3585,7 @@
     function renderTransactions() {
       let visible = State.transactions.filter(t => !t.isRecurringInstance);
       
-      // Filtro por mês customizado (não pelo filtro rápido currentFilter.period)
+      // Filtro por mÃªs customizado (nÃ£o pelo filtro rÃ¡pido currentFilter.period)
       visible = filterByDateRange(visible, State.txCustomDate, 'month');
 
       // Filtro por tipo
@@ -3513,11 +3604,11 @@
       if(visible.length === 0) {
         listEl.classList.add('hidden');
         emptyEl.classList.remove('hidden');
-      document.getElementById('tx-count-label').textContent = '0 transações';
+      document.getElementById('tx-count-label').textContent = '0 transaÃ§Ãµes';
       } else {
         listEl.classList.remove('hidden');
         emptyEl.classList.add('hidden');
-      document.getElementById('tx-count-label').textContent = `${visible.length} transações`;
+      document.getElementById('tx-count-label').textContent = `${visible.length} transaÃ§Ãµes`;
         
         listEl.innerHTML = visible.map(t => {
           const cat = getCategory(t.category);
@@ -3585,7 +3676,7 @@
       }
     }
 
-    // FUNÇÃO RELATÓRIO FUNCIONAL
+    // FUNÃ‡ÃƒO RELATÃ“RIO FUNCIONAL
     function renderReports() {
       const monthTx = filterByDateRange(State.transactions, State.reportCustomDate, 'month');
       
@@ -3596,7 +3687,7 @@
       document.getElementById('report-total-expense').textContent = formatMoney(expense);
       document.getElementById('report-balance').textContent = formatMoney(income - expense);
 
-      // Gráfico Despesas
+      // GrÃ¡fico Despesas
       const expContainer = document.getElementById('report-expenses-breakdown');
       const expByCat = {};
       monthTx.filter(t => t.type === 'expense').forEach(t => { expByCat[t.category] = (expByCat[t.category] || 0) + t.amount; });
@@ -3622,7 +3713,7 @@
         expContainer.innerHTML = '<p class="text-center text-sm text-[#6b8a99]">Sem dados de despesas</p>';
       }
 
-      // Gráfico Receitas
+      // GrÃ¡fico Receitas
       const incContainer = document.getElementById('report-income-breakdown');
       const incByCat = {};
       monthTx.filter(t => t.type === 'income').forEach(t => { incByCat[t.category] = (incByCat[t.category] || 0) + t.amount; });
@@ -3667,12 +3758,12 @@
           `;
         }).join('');
       } else {
-      budgetContainer.innerHTML = '<p class="text-center text-sm text-[#6b8a99]">Defina limites de orçamento nas configurações.</p>';
+      budgetContainer.innerHTML = '<p class="text-center text-sm text-[#6b8a99]">Defina limites de orÃ§amento nas configuraÃ§Ãµes.</p>';
       }
     }
 
     function renderCalendar() {
-      const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+      const monthNames = ['Janeiro', 'Fevereiro', 'MarÃ§o', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
       document.getElementById('cal-month-year').textContent = `${monthNames[calDate.getMonth()]} ${calDate.getFullYear()}`;
       
       const firstDay = new Date(calDate.getFullYear(), calDate.getMonth(), 1);
@@ -3687,7 +3778,7 @@
         html += `<div class="text-center py-2 text-[#3d5a6a] text-sm">${prevMonth.getDate() - i}</div>`;
       }
       
-      // Usa filterByDateRange para pegar transações do mês visualizado
+      // Usa filterByDateRange para pegar transaÃ§Ãµes do mÃªs visualizado
       const monthTx = filterByDateRange(State.transactions, calDate, 'month');
       
       for(let d = 1; d <= lastDay.getDate(); d++) {
@@ -3743,15 +3834,15 @@
       let displayTx = monthTx;
       
       if(State.calendarSelectedDate) {
-        // Filtra pelo dia específico
+        // Filtra pelo dia especÃ­fico
         displayTx = monthTx.filter(t => t.date === State.calendarSelectedDate);
         const dateObj = new Date(State.calendarSelectedDate + 'T00:00:00');
         titleEl.textContent = `Dia ${dateObj.getDate()} de ${dateObj.toLocaleDateString('pt-BR', { month: 'long' })}`;
         clearBtn.classList.remove('hidden');
         listEl.classList.remove('hidden');
       } else {
-        // Resumo do mês
-        titleEl.textContent = "Resumo do Mês";
+        // Resumo do mÃªs
+        titleEl.textContent = "Resumo do MÃªs";
         clearBtn.classList.add('hidden');
         listEl.classList.add('hidden');
       }
@@ -3780,28 +3871,28 @@
           `;
         }).join('');
       } else if (State.calendarSelectedDate && displayTx.length === 0) {
-        listEl.innerHTML = '<p class="text-center text-xs text-[#6b8a99] py-4">Sem transações neste dia.</p>';
+        listEl.innerHTML = '<p class="text-center text-xs text-[#6b8a99] py-4">Sem transaÃ§Ãµes neste dia.</p>';
       }
     }
 
     function calPrev() {
       calDate.setMonth(calDate.getMonth() - 1);
-      State.calendarSelectedDate = null; // Reset selection ao mudar de mês
+      State.calendarSelectedDate = null; // Reset selection ao mudar de mÃªs
       renderCalendar();
     }
 
     function calNext() {
       calDate.setMonth(calDate.getMonth() + 1);
-      State.calendarSelectedDate = null; // Reset selection ao mudar de mês
+      State.calendarSelectedDate = null; // Reset selection ao mudar de mÃªs
       renderCalendar();
     }
 
     // ADMIN
     function prefillAdminAccessForm() {
       const password = generateTempPassword();
-      const validUntil = buildFutureDate();
+      const validUntilAt = toDateTimeLocalValue(buildFutureDateTime());
       if (document.getElementById('admin-access-password')) safeSetText('admin-access-password', password);
-      if (document.getElementById('admin-access-valid-until')) document.getElementById('admin-access-valid-until').value = validUntil;
+      if (document.getElementById('admin-access-valid-until-at')) document.getElementById('admin-access-valid-until-at').value = validUntilAt;
     }
 
     function copyAdminPassword() {
@@ -3811,15 +3902,28 @@
         return;
       }
       navigator.clipboard?.writeText(password).then(() => {
-        showToast('Senha temporária copiada!');
+        showToast('Senha temporÃ¡ria copiada!');
       }).catch(() => {
-        showToast('Não foi possível copiar agora.', 'error');
+        showToast('NÃ£o foi possÃ­vel copiar agora.', 'error');
+      });
+    }
+
+    function copyTrialCredentials() {
+      if (!lastTrialCredentials) {
+        showToast('Gere um perfil teste primeiro.', 'error');
+        return;
+      }
+      const payload = `Usuario: ${lastTrialCredentials.email}\nSenha: ${lastTrialCredentials.password}\nValidade: ${lastTrialCredentials.expiresAt}`;
+      navigator.clipboard?.writeText(payload).then(() => {
+        showToast('Credenciais de teste copiadas!');
+      }).catch(() => {
+        showToast('NÃ£o foi possÃ­vel copiar agora.', 'error');
       });
     }
 
     async function provisionManagedAccount(email, password, fullName) {
       const isolatedClient = createIsolatedSupabaseClient();
-      if (!isolatedClient) throw new Error('Conexão com a nuvem indisponível para criar a conta.');
+      if (!isolatedClient) throw new Error('ConexÃ£o com a nuvem indisponÃ­vel para criar a conta.');
       const { data, error } = await isolatedClient.auth.signUp({
         email: normalizeEmail(email),
         password,
@@ -3839,16 +3943,22 @@
 
       const email = normalizeEmail(document.getElementById('admin-access-email')?.value);
       const fullName = document.getElementById('admin-access-name')?.value?.trim() || '';
-      const validUntil = document.getElementById('admin-access-valid-until')?.value || buildFutureDate();
+      const validUntilInput = document.getElementById('admin-access-valid-until-at')?.value || toDateTimeLocalValue(buildFutureDateTime());
+      const validUntilAt = toIsoFromDateTimeLocal(validUntilInput);
+      const validUntil = deriveValidUntilDate(validUntilAt);
       const role = document.getElementById('admin-access-role')?.value || 'user';
       const tempPassword = document.getElementById('admin-access-password')?.textContent?.trim();
 
       if (!email) {
-        showToast('Informe um e-mail válido.', 'error');
+        showToast('Informe um e-mail vÃ¡lido.', 'error');
+        return;
+      }
+      if (!validUntilAt) {
+        showToast('Defina uma validade com data e hora.', 'error');
         return;
       }
       if (!tempPassword || tempPassword === '-') {
-        showToast('Gere a senha temporária antes de continuar.', 'error');
+        showToast('Gere a senha temporÃ¡ria antes de continuar.', 'error');
         return;
       }
 
@@ -3862,8 +3972,10 @@
           role,
           status: 'active',
           valid_until: validUntil,
+          valid_until_at: validUntilAt,
           temp_password: tempPassword,
           must_change_password: true,
+          is_trial: false,
           created_by: currentSessionUser.id,
           updated_at: nowIso
         };
@@ -3875,7 +3987,7 @@
         try {
           createdUser = await provisionManagedAccount(email, tempPassword, fullName);
         } catch (accountError) {
-          console.error('Conta de autenticação não criada automaticamente:', accountError);
+          console.error('Conta de autenticaÃ§Ã£o nÃ£o criada automaticamente:', accountError);
         }
 
         await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
@@ -3890,10 +4002,74 @@
         await loadAdminData(false);
         showToast(createdUser
           ? 'Acesso criado com conta pronta para uso.'
-          : 'Acesso salvo. Se a conta de autenticação já existir, entregue a senha temporária e peça para entrar.');
+          : 'Acesso salvo. Se a conta de autenticaÃ§Ã£o jÃ¡ existir, entregue a senha temporÃ¡ria e peÃ§a para entrar.');
       } catch (error) {
         console.error('Falha ao criar acesso:', error);
         showToast(`Falha ao criar acesso: ${error.message}`, 'error');
+      }
+    }
+
+    async function createTrialAccess() {
+      if (!currentSessionUser || !isAdminRole(currentAccessProfile?.role)) {
+        showToast('Somente administradores podem criar perfis teste.', 'error');
+        return;
+      }
+
+      const fullName = document.getElementById('admin-trial-name')?.value?.trim() || 'Perfil teste';
+      const tempPassword = generateTempPassword();
+      const trialCode = `${Date.now()}${Math.floor(Math.random() * 900 + 100)}`;
+      const email = normalizeEmail(`teste.${trialCode}@trial.controlefinanceiro.app`);
+      const expiresAtIso = new Date(Date.now() + DEFAULT_TRIAL_MINUTES * 60 * 1000).toISOString();
+      const validUntil = deriveValidUntilDate(expiresAtIso);
+
+      try {
+        const client = await ensureSupabase();
+        const nowIso = new Date().toISOString();
+        const payload = {
+          email,
+          full_name: fullName,
+          role: 'user',
+          status: 'active',
+          valid_until: validUntil,
+          valid_until_at: expiresAtIso,
+          temp_password: tempPassword,
+          must_change_password: false,
+          is_trial: true,
+          created_by: currentSessionUser.id,
+          updated_at: nowIso
+        };
+
+        const { error } = await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).upsert(payload, { onConflict: 'email' });
+        if (error) throw error;
+
+        let createdUser = null;
+        try {
+          createdUser = await provisionManagedAccount(email, tempPassword, fullName);
+        } catch (accountError) {
+          console.error('Falha ao provisionar perfil teste:', accountError);
+        }
+
+        await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+          account_created_at: createdUser ? nowIso : null,
+          updated_at: new Date().toISOString()
+        }).eq('email', email);
+
+        lastTrialCredentials = {
+          email,
+          password: tempPassword,
+          expiresAt: formatAccessExpiry({ valid_until_at: expiresAtIso })
+        };
+        const credentialsEl = document.getElementById('admin-trial-credentials');
+        if (credentialsEl) {
+          credentialsEl.innerHTML = `Usuario: <strong>${email}</strong><br>Senha: <strong>${tempPassword}</strong><br>Validade: <strong>${lastTrialCredentials.expiresAt}</strong>`;
+        }
+
+        document.getElementById('admin-trial-name').value = '';
+        await loadAdminData(false);
+        showToast('Perfil teste criado com validade de 30 minutos.');
+      } catch (error) {
+        console.error('Falha ao criar perfil teste:', error);
+        showToast(`Falha ao criar perfil teste: ${error.message}`, 'error');
       }
     }
 
@@ -3922,7 +4098,7 @@
       } catch (error) {
         console.error('Falha ao carregar painel admin:', error);
         safeSetText('admin-refresh-status', 'Falha ao atualizar');
-        showToast('Não foi possível carregar o painel administrativo.', 'error');
+        showToast('NÃ£o foi possÃ­vel carregar o painel administrativo.', 'error');
       }
     }
 
@@ -3930,8 +4106,10 @@
       const active = adminAccessRows.filter(row => row.effectiveStatus === 'active').length;
       const blocked = adminAccessRows.filter(row => row.effectiveStatus === 'blocked').length;
       const expiring = adminAccessRows.filter(row => {
-        if (!row.valid_until || row.effectiveStatus !== 'active') return false;
-        const ms = new Date(`${row.valid_until}T23:59:59`).getTime() - Date.now();
+        if (row.effectiveStatus !== 'active') return false;
+        const expiry = getAccessExpiryDate(row);
+        if (!expiry) return false;
+        const ms = expiry.getTime() - Date.now();
         return ms >= 0 && ms <= 7 * 24 * 60 * 60 * 1000;
       }).length;
       const claimed = adminAccessRows.filter(row => row.claimed_at || row.profile?.last_login_at).length;
@@ -3951,20 +4129,19 @@
       }
 
       container.innerHTML = adminAccessRows.map(row => {
+        const validityInputId = getAccessValidityInputId(row.email);
         const statusClass = row.effectiveStatus === 'active'
           ? 'status-active'
           : row.effectiveStatus === 'blocked'
             ? 'status-blocked'
             : 'status-expired';
-        const validityText = row.valid_until
-          ? new Date(`${row.valid_until}T12:00:00`).toLocaleDateString('pt-BR')
-          : 'Sem limite';
+        const validityText = formatAccessExpiry(row);
         const lastAccess = row.profile?.last_login_at
           ? new Date(row.profile.last_login_at).toLocaleString('pt-BR')
-          : 'Ainda não acessou';
+          : 'Ainda nÃ£o acessou';
         const tempPasswordInfo = row.temp_password
-          ? `<div>Senha temporária atual: <strong>${row.temp_password}</strong></div>`
-          : '<div>Senha temporária não disponível.</div>';
+          ? `<div>Senha temporÃ¡ria atual: <strong>${row.temp_password}</strong></div>`
+          : '<div>Senha temporÃ¡ria nÃ£o disponÃ­vel.</div>';
 
         return `
           <div class="admin-access-card">
@@ -3975,15 +4152,21 @@
               </div>
             </div>
             <div class="admin-badges">
-              <span class="admin-badge role">${row.role === 'admin' ? 'Administrador' : 'Usuário'}</span>
+              <span class="admin-badge role">${row.role === 'admin' ? 'Administrador' : 'UsuÃ¡rio'}</span>
               <span class="admin-badge ${statusClass}">${row.effectiveStatus === 'active' ? 'Ativo' : row.effectiveStatus === 'blocked' ? 'Bloqueado' : 'Expirado'}</span>
+              ${row.is_trial ? '<span class="admin-badge warn">Teste 30 min</span>' : ''}
             </div>
             <div class="admin-access-meta">
               <div>Validade: <strong>${validityText}</strong></div>
-              <div>Último acesso: <strong>${lastAccess}</strong></div>
+              <div>Ãšltimo acesso: <strong>${lastAccess}</strong></div>
               <div>${tempPasswordInfo}</div>
+              <div class="space-y-2">
+                <label class="text-[11px] text-[#86a8b7] block">Alterar validade</label>
+                <input type="datetime-local" id="${validityInputId}" class="input-styled" value="${toDateTimeLocalValue(getAccessExpiryDate(row) || '')}">
+              </div>
             </div>
             <div class="admin-access-actions">
+              <button class="admin-secondary-btn" onclick="updateManagedAccessValidity('${row.email}')">Salvar validade</button>
               <button class="admin-secondary-btn" onclick="renewManagedAccess('${row.email}', 30)">Renovar +30 dias</button>
               <button class="admin-secondary-btn warn" onclick="toggleManagedAccessStatus('${row.email}')">${row.effectiveStatus === 'blocked' ? 'Reativar' : 'Bloquear'}</button>
               <button class="admin-secondary-btn" onclick="regenerateManagedPassword('${row.email}')">Gerar senha inicial</button>
@@ -3998,25 +4181,62 @@
       try {
         const client = await ensureSupabase();
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
-        const base = current?.valid_until ? new Date(`${current.valid_until}T12:00:00`) : new Date();
+        const base = getAccessExpiryDate(current) || new Date();
         const today = new Date();
         if (base < today) base.setTime(today.getTime());
         base.setDate(base.getDate() + days);
-        const validUntil = toDateInputValue(base);
+        base.setSeconds(0, 0);
+        const validUntilAt = base.toISOString();
+        const validUntil = deriveValidUntilDate(validUntilAt);
         await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
           valid_until: validUntil,
+          valid_until_at: validUntilAt,
           status: 'active',
           updated_at: new Date().toISOString()
         }).eq('email', normalizeEmail(email));
         await client.from(SUPABASE_PROFILES_TABLE).update({
           valid_until: validUntil,
+          valid_until_at: validUntilAt,
           status: 'active',
           updated_at: new Date().toISOString()
         }).eq('email', normalizeEmail(email));
         await loadAdminData(true);
         showToast('Validade renovada com sucesso!');
       } catch (error) {
-        showToast(`Não foi possível renovar: ${error.message}`, 'error');
+        showToast(`NÃ£o foi possÃ­vel renovar: ${error.message}`, 'error');
+      }
+    }
+
+    async function updateManagedAccessValidity(email) {
+      try {
+        const client = await ensureSupabase();
+        const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
+        if (!current) return;
+        const inputId = getAccessValidityInputId(email);
+        const nextValue = document.getElementById(inputId)?.value || '';
+        const validUntilAt = toIsoFromDateTimeLocal(nextValue);
+        if (!validUntilAt) {
+          showToast('Defina uma validade com data e hora.', 'error');
+          return;
+        }
+        const validUntil = deriveValidUntilDate(validUntilAt);
+        const nextStatus = current.status === 'blocked' ? 'blocked' : 'active';
+        await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+          valid_until: validUntil,
+          valid_until_at: validUntilAt,
+          status: nextStatus,
+          updated_at: new Date().toISOString()
+        }).eq('email', normalizeEmail(email));
+        await client.from(SUPABASE_PROFILES_TABLE).update({
+          valid_until: validUntil,
+          valid_until_at: validUntilAt,
+          status: nextStatus,
+          updated_at: new Date().toISOString()
+        }).eq('email', normalizeEmail(email));
+        await loadAdminData(true);
+        showToast('Validade atualizada com sucesso!');
+      } catch (error) {
+        showToast(`Nao foi possivel salvar a validade: ${error.message}`, 'error');
       }
     }
 
@@ -4026,7 +4246,7 @@
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
         if (!current) return;
         if (normalizeEmail(current.email) === normalizeEmail(currentSessionUser?.email) && current.role === 'admin') {
-          showToast('Não bloqueie a própria conta administradora por aqui.', 'error');
+          showToast('NÃ£o bloqueie a prÃ³pria conta administradora por aqui.', 'error');
           return;
         }
         const nextStatus = current.effectiveStatus === 'blocked' ? 'active' : 'blocked';
@@ -4041,7 +4261,7 @@
         await loadAdminData(true);
         showToast(nextStatus === 'blocked' ? 'Conta bloqueada.' : 'Conta reativada.');
       } catch (error) {
-        showToast(`Não foi possível atualizar o status: ${error.message}`, 'error');
+        showToast(`NÃ£o foi possÃ­vel atualizar o status: ${error.message}`, 'error');
       }
     }
 
@@ -4049,7 +4269,7 @@
       try {
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
         if (current?.profile?.last_login_at) {
-          showToast('Essa conta já foi usada. Para alterar a senha de outra pessoa, use uma recuperação de senha ou uma função segura do servidor.', 'error');
+          showToast('Essa conta jÃ¡ foi usada. Para alterar a senha de outra pessoa, use uma recuperaÃ§Ã£o de senha ou uma funÃ§Ã£o segura do servidor.', 'error');
           return;
         }
         const client = await ensureSupabase();
@@ -4062,17 +4282,17 @@
         await loadAdminData(true);
         showToast(`Nova senha inicial gerada para ${email}.`);
       } catch (error) {
-        showToast(`Não foi possível gerar a nova senha: ${error.message}`, 'error');
+        showToast(`NÃ£o foi possÃ­vel gerar a nova senha: ${error.message}`, 'error');
       }
     }
 
     async function deleteManagedAccess(email) {
-      if (!confirm(`Excluir o acesso de ${email}? Isso bloqueia novas entradas e remove os dados sincronizados deste usuário.`)) return;
+      if (!confirm(`Excluir o acesso de ${email}? Isso bloqueia novas entradas e remove os dados sincronizados deste usuÃ¡rio.`)) return;
       try {
         const client = await ensureSupabase();
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
         if (normalizeEmail(current?.email) === normalizeEmail(currentSessionUser?.email) && current?.role === 'admin') {
-          showToast('Não exclua a própria conta administradora por aqui.', 'error');
+          showToast('NÃ£o exclua a prÃ³pria conta administradora por aqui.', 'error');
           return;
         }
         if (current?.profile?.user_id) {
@@ -4081,9 +4301,9 @@
         }
         await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).delete().eq('email', normalizeEmail(email));
         await loadAdminData(true);
-        showToast('Acesso excluído com sucesso.');
+        showToast('Acesso excluÃ­do com sucesso.');
       } catch (error) {
-        showToast(`Não foi possível excluir o acesso: ${error.message}`, 'error');
+        showToast(`NÃ£o foi possÃ­vel excluir o acesso: ${error.message}`, 'error');
       }
     }
 
@@ -4111,8 +4331,8 @@
         return;
       }
       if (newPassword !== confirmPassword) {
-        if (statusId) safeSetText(statusId, 'A confirmação da senha não confere.');
-        showToast('A confirmação da senha não confere.', 'error');
+        if (statusId) safeSetText(statusId, 'A confirmaÃ§Ã£o da senha nÃ£o confere.');
+        showToast('A confirmaÃ§Ã£o da senha nÃ£o confere.', 'error');
         return;
       }
       try {
@@ -4126,11 +4346,11 @@
         }
         if (statusId) safeSetText(statusId, 'Atualizando senha...');
         const client = await ensureSupabase();
-        if (!client) throw new Error('Conexão com autenticação indisponível.');
+        if (!client) throw new Error('ConexÃ£o com autenticaÃ§Ã£o indisponÃ­vel.');
         const { error } = await withTimeout(
           client.auth.updateUser({ password: newPassword }),
           20000,
-          'Tempo limite ao atualizar senha. Verifique sua conexão e tente novamente.'
+          'Tempo limite ao atualizar senha. Verifique sua conexÃ£o e tente novamente.'
         );
         if (error) throw error;
         if (currentSessionUser?.email) {
@@ -4149,7 +4369,7 @@
                 updated_at: new Date().toISOString()
               }).eq('email', normalizeEmail(currentSessionUser.email)),
               20000,
-              'Tempo limite ao limpar senha temporária.'
+              'Tempo limite ao limpar senha temporÃ¡ria.'
             );
           }
           currentAllowedAccess = currentAllowedAccess ? { ...currentAllowedAccess, must_change_password: false, temp_password: null } : currentAllowedAccess;
@@ -4159,10 +4379,8 @@
         document.getElementById('settings-confirm-password').value = '';
         document.getElementById('force-new-password').value = '';
         document.getElementById('force-confirm-password').value = '';
-        setAccessNote(currentAllowedAccess?.valid_until
-          ? `Acesso liberado até ${new Date(`${currentAllowedAccess.valid_until}T12:00:00`).toLocaleDateString('pt-BR')}.`
-          : 'Acesso liberado.');
-        if (statusId) safeSetText(statusId, 'Senha atualizada. Você será desconectado para entrar novamente.');
+        setAccessNote(getAccessNoteText(currentAllowedAccess));
+        if (statusId) safeSetText(statusId, 'Senha atualizada. VocÃª serÃ¡ desconectado para entrar novamente.');
         showToast('Senha atualizada com sucesso. Entre novamente com a nova senha.');
         if (submitBtn) submitBtn.textContent = 'Senha Atualizada';
         setTimeout(() => {
@@ -4178,7 +4396,7 @@
           submitBtn.style.opacity = '';
         }
         if (statusId) safeSetText(statusId, `Falha: ${error.message}`);
-        showToast(`Não foi possível atualizar a senha: ${error.message}`, 'error');
+        showToast(`NÃ£o foi possÃ­vel atualizar a senha: ${error.message}`, 'error');
       }
     }
 
@@ -4192,9 +4410,7 @@
       renderSettingsAccounts();
       renderBudgetSettings();
       if (currentAllowedAccess) {
-        setAccessNote(currentAllowedAccess.must_change_password
-          ? 'Sua conta ainda usa uma senha temporária. Atualize a senha nesta tela.'
-          : `Acesso liberado até ${currentAllowedAccess.valid_until ? new Date(`${currentAllowedAccess.valid_until}T12:00:00`).toLocaleDateString('pt-BR') : 'sem data limite'}.`);
+        setAccessNote(getAccessNoteText(currentAllowedAccess));
       } else {
         setAccessNote('');
       }
@@ -4227,7 +4443,7 @@
         <div class="budget-row">
           <div class="budget-meta">
             <div class="budget-name">${item.name}</div>
-            <div class="budget-sub">Gasto no mês: ${formatMoney(item.spent)}${item.budget > 0 ? ` de ${formatMoney(item.budget)}` : ''}</div>
+            <div class="budget-sub">Gasto no mÃªs: ${formatMoney(item.spent)}${item.budget > 0 ? ` de ${formatMoney(item.budget)}` : ''}</div>
           </div>
           <input
             type="text"
@@ -4334,7 +4550,7 @@
       try {
         const client = await ensureSupabase();
         if (client && currentSessionUser?.id) {
-      const fullName = State.profile.name || currentSessionUser.email?.split('@')[0] || 'Usuário';
+      const fullName = State.profile.name || currentSessionUser.email?.split('@')[0] || 'UsuÃ¡rio';
           await client.from(SUPABASE_PROFILES_TABLE).update({
             full_name: fullName,
             updated_at: new Date().toISOString()
@@ -4361,7 +4577,7 @@
       a.download = 'controle_financeiro_backup_' + new Date().toISOString().split('T')[0] + '.json';
       a.click();
       URL.revokeObjectURL(url);
-      showToast('Cópia de segurança exportada!');
+      showToast('CÃ³pia de seguranÃ§a exportada!');
     }
 
     function clearAllData() {
@@ -4479,3 +4695,4 @@
   </script>
 </body>
 </html>
+
