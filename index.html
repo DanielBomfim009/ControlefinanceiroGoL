@@ -1852,12 +1852,15 @@
     const SUPABASE_PROFILES_TABLE = 'app_profiles';
     const SUPABASE_ALLOWED_EMAILS_TABLE = 'allowed_emails';
     const DEFAULT_ACCESS_DAYS = 30;
+    const ACCESS_CHECK_INTERVAL_MS = 15000;
     let supabaseClient = null;
     let authMode = 'login';
     let currentSessionUser = null;
     let cloudSyncTimer = null;
     let cloudAutoSyncInterval = null;
+    let accessWatchInterval = null;
     let adminAutoRefreshInterval = null;
+    let isAccessValidationRunning = false;
     let isApplyingRemoteState = false;
     let currentAccessProfile = null;
     let currentAllowedAccess = null;
@@ -2370,6 +2373,65 @@
       return data;
     }
 
+    async function fetchCurrentAccessSnapshot(email) {
+      const client = await ensureSupabase();
+      const normalizedEmail = normalizeEmail(email);
+      if (!client || !normalizedEmail) return null;
+
+      try {
+        const { data, error } = await client.rpc('get_my_access_status');
+        if (!error && data) {
+          const row = Array.isArray(data) ? data[0] : data;
+          if (row) {
+            return {
+              email: normalizeEmail(row.email || normalizedEmail),
+              full_name: row.full_name || '',
+              role: row.role || 'user',
+              status: row.status || (row.effective_status === 'blocked' ? 'blocked' : 'active'),
+              valid_until: row.valid_until || null,
+              temp_password: row.temp_password || null,
+              must_change_password: Boolean(row.must_change_password),
+              account_created_at: row.account_created_at || null,
+              claimed_at: row.claimed_at || null,
+              effective_status: row.effective_status || null
+            };
+          }
+        }
+        if (error) console.warn('Falha ao consultar status de acesso via RPC:', error);
+      } catch (error) {
+        console.warn('RPC de status de acesso indisponível, usando consulta direta:', error);
+      }
+
+      const access = await fetchAllowedAccessByEmail(normalizedEmail);
+      return access
+        ? { ...access, effective_status: getAccessStatus(access) }
+        : { email: normalizedEmail, effective_status: 'missing', status: 'blocked', valid_until: null };
+    }
+
+    function resolveAccessStatus(access) {
+      if (!access) return 'missing';
+      if (['active', 'blocked', 'expired', 'missing'].includes(access.effective_status)) return access.effective_status;
+      return getAccessStatus(access);
+    }
+
+    function buildAccessBlockDetail(accessStatus, access) {
+      if (accessStatus === 'expired') {
+        return access?.valid_until
+          ? `Validade encerrada em ${new Date(`${access.valid_until}T12:00:00`).toLocaleDateString('pt-BR')}. Entre em contato com o Suporte para regularizar.`
+          : 'A validade do seu acesso terminou. Entre em contato com o Suporte para regularizar.';
+      }
+      if (accessStatus === 'blocked') {
+        return 'Sua conta foi bloqueada. Entre em contato com o Suporte para regularizar.';
+      }
+      return 'Este e-mail não está liberado para uso. Entre em contato com o Suporte para regularizar.';
+    }
+
+    function getAccessBlockReason(accessStatus) {
+      if (accessStatus === 'expired') return 'expired';
+      if (accessStatus === 'blocked') return 'blocked';
+      return 'unauthorized';
+    }
+
     async function fetchProfileByUserId(userId) {
       const client = await ensureSupabase();
       if (!client || !userId) return null;
@@ -2461,30 +2523,28 @@
     async function enforceAccessForSession(user) {
       try {
         let profile = await bootstrapAdminIfNeeded(user);
-        let access = await fetchAllowedAccessByEmail(user.email);
-        if (!access && profile?.role === 'admin') {
+        let access = await fetchCurrentAccessSnapshot(user.email);
+        let accessStatus = resolveAccessStatus(access);
+        if (accessStatus === 'missing' && profile?.role === 'admin') {
           access = {
             email: normalizeEmail(user.email),
             full_name: profile.full_name,
             role: 'admin',
             status: 'active',
-            valid_until: profile.valid_until
+            valid_until: profile.valid_until,
+            must_change_password: false,
+            effective_status: 'active'
           };
+          accessStatus = 'active';
         }
 
-        if (!access) {
-        await blockCurrentAccess('unauthorized', 'Este e-mail ainda não foi liberado para uso. Entre em contato com o Suporte para regularizar.');
+        if (!access || accessStatus === 'missing') {
+          await blockCurrentAccess('unauthorized', 'Este e-mail ainda não foi liberado para uso. Entre em contato com o Suporte para regularizar.');
           return false;
         }
 
-        const accessStatus = getAccessStatus(access);
         if (accessStatus !== 'active') {
-          await blockCurrentAccess(
-            accessStatus === 'expired' ? 'expired' : 'blocked',
-            accessStatus === 'expired'
-              ? `Validade encerrada em ${new Date(`${access.valid_until}T12:00:00`).toLocaleDateString('pt-BR')}. Entre em contato com o Suporte para regularizar.`
-              : 'Sua conta foi bloqueada. Entre em contato com o Suporte para regularizar.'
-          );
+          await blockCurrentAccess(getAccessBlockReason(accessStatus), buildAccessBlockDetail(accessStatus, access));
           return false;
         }
 
@@ -2588,6 +2648,10 @@
     function startAutoSync() {
       stopAutoSync();
       if (!currentSessionUser) return;
+      validateCurrentAccessStatus().catch(error => console.warn('Falha ao validar acesso automaticamente:', error));
+      accessWatchInterval = setInterval(() => {
+        validateCurrentAccessStatus().catch(error => console.warn('Falha ao validar acesso automaticamente:', error));
+      }, ACCESS_CHECK_INTERVAL_MS);
       cloudAutoSyncInterval = setInterval(() => {
         syncCloudNow(true);
       }, 60000);
@@ -2597,6 +2661,10 @@
       if (cloudAutoSyncInterval) {
         clearInterval(cloudAutoSyncInterval);
         cloudAutoSyncInterval = null;
+      }
+      if (accessWatchInterval) {
+        clearInterval(accessWatchInterval);
+        accessWatchInterval = null;
       }
       clearTimeout(cloudSyncTimer);
     }
@@ -2619,38 +2687,42 @@
 
     async function validateCurrentAccessStatus() {
       if (!currentSessionUser?.email) return false;
-      if (currentAllowedAccess) {
-        const localAccessStatus = getAccessStatus(currentAllowedAccess);
-        if (localAccessStatus !== 'active') {
-          await blockCurrentAccess(
-            localAccessStatus === 'expired' ? 'expired' : 'blocked',
-            localAccessStatus === 'expired'
-              ? `Validade encerrada em ${new Date(`${currentAllowedAccess.valid_until}T12:00:00`).toLocaleDateString('pt-BR')}. Entre em contato com o Suporte para regularizar.`
-              : 'Sua conta foi bloqueada. Entre em contato com o Suporte para regularizar.'
-          );
+      if (isAccessValidationRunning) return true;
+      isAccessValidationRunning = true;
+
+      try {
+        if (currentAllowedAccess) {
+          const localAccessStatus = getAccessStatus(currentAllowedAccess);
+          if (localAccessStatus !== 'active') {
+            await blockCurrentAccess(getAccessBlockReason(localAccessStatus), buildAccessBlockDetail(localAccessStatus, currentAllowedAccess));
+            return false;
+          }
+        }
+
+        const access = await fetchCurrentAccessSnapshot(currentSessionUser.email);
+        const accessStatus = resolveAccessStatus(access);
+        if (accessStatus === 'missing') {
+          await blockCurrentAccess('unauthorized', 'Este e-mail não está liberado para uso. Entre em contato com o Suporte para regularizar.');
           return false;
         }
-      }
 
-      const access = await fetchAllowedAccessByEmail(currentSessionUser.email);
-      if (!access) {
-        await blockCurrentAccess('unauthorized', 'Este e-mail não está liberado para uso. Entre em contato com o Suporte para regularizar.');
-        return false;
-      }
+        if (accessStatus !== 'active') {
+          await blockCurrentAccess(getAccessBlockReason(accessStatus), buildAccessBlockDetail(accessStatus, access));
+          return false;
+        }
 
-      const accessStatus = getAccessStatus(access);
-      if (accessStatus !== 'active') {
-        await blockCurrentAccess(
-          accessStatus === 'expired' ? 'expired' : 'blocked',
-          accessStatus === 'expired'
-            ? `Validade encerrada em ${new Date(`${access.valid_until}T12:00:00`).toLocaleDateString('pt-BR')}. Entre em contato com o Suporte para regularizar.`
-            : 'Sua conta foi bloqueada. Entre em contato com o Suporte para regularizar.'
-        );
-        return false;
+        currentAllowedAccess = access;
+        return true;
+      } catch (error) {
+        const localAccessStatus = currentAllowedAccess ? getAccessStatus(currentAllowedAccess) : 'active';
+        if (localAccessStatus !== 'active') {
+          await blockCurrentAccess(getAccessBlockReason(localAccessStatus), buildAccessBlockDetail(localAccessStatus, currentAllowedAccess));
+          return false;
+        }
+        throw error;
+      } finally {
+        isAccessValidationRunning = false;
       }
-
-      currentAllowedAccess = access;
-      return true;
     }
 
     async function syncCloudNow(silent = false) {
@@ -4343,11 +4415,43 @@
       updateAllAvatars();
       initCloudAuth();
       
+      window.addEventListener('focus', () => {
+        if (currentSessionUser) {
+          validateCurrentAccessStatus().catch(error => console.warn('Falha ao validar acesso ao voltar para o app:', error));
+        }
+      });
+
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && currentSessionUser) {
+          validateCurrentAccessStatus().catch(error => console.warn('Falha ao validar acesso ao reabrir o app:', error));
+        }
+      });
+
       // Registrar Service Worker para PWA
       if ('serviceWorker' in navigator) {
+        let refreshingServiceWorker = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (refreshingServiceWorker) return;
+          refreshingServiceWorker = true;
+          window.location.reload();
+        });
+
         navigator.serviceWorker.register('sw.js')
           .then(registration => {
             console.log('Service Worker registrado com sucesso:', registration);
+            registration.update();
+            if (registration.waiting) {
+              registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+            registration.addEventListener('updatefound', () => {
+              const worker = registration.installing;
+              if (!worker) return;
+              worker.addEventListener('statechange', () => {
+                if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+                  worker.postMessage({ type: 'SKIP_WAITING' });
+                }
+              });
+            });
           })
           .catch(error => {
             console.log('Registro do Service Worker falhou:', error);

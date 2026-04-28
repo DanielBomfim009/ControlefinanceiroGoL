@@ -1,5 +1,5 @@
-const VERSION = 'v5';
-const CACHE_NAME = `golbuy-smart-${VERSION}`;
+const VERSION = 'v6';
+const CACHE_NAME = `controle-financeiro-${VERSION}`;
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -13,6 +13,7 @@ const OPTIONAL_ASSETS = [
 
 const EXTERNAL_ASSETS = [
   'https://cdn.tailwindcss.com/',
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap'
 ];
 
@@ -32,11 +33,23 @@ async function cacheMany(cache, urls) {
   );
 }
 
+async function cacheCoreAssets(cache) {
+  await Promise.allSettled(
+    CORE_ASSETS.map(async (url) => {
+      const request = new Request(url, { cache: 'reload' });
+      const response = await fetch(request);
+      if (response && response.ok) {
+        await cache.put(url, response.clone());
+      }
+    })
+  );
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
-      await cache.addAll(CORE_ASSETS);
+      await cacheCoreAssets(cache);
       await cacheMany(cache, OPTIONAL_ASSETS);
       await cacheMany(cache, EXTERNAL_ASSETS);
       await self.skipWaiting();
@@ -72,7 +85,7 @@ async function staleWhileRevalidate(request) {
 async function networkFirst(request) {
   const cache = await caches.open(CACHE_NAME);
   try {
-    const response = await fetch(request);
+    const response = await fetch(new Request(request, { cache: 'reload' }));
     if (response && response.ok) {
       cache.put(request, response.clone());
     }

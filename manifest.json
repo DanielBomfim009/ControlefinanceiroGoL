@@ -1,8 +1,8 @@
 {
-  "name": "GoL Buy Smart - Controle Financeiro Completo v4.0",
-  "short_name": "GoL Buy",
-  "version": "4.0",
-  "description": "Dashboard Financeiro Inteligente com Controle de Pagamentos - Gerencie receitas, despesas, valores a receber e a pagar",
+  "name": "Controle Financeiro",
+  "short_name": "Controle",
+  "version": "4.1",
+  "description": "Painel financeiro inteligente com controle de pagamentos, receitas, despesas, valores a receber e valores a pagar",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0d1f2d",
@@ -30,13 +30,13 @@
   "related_applications": [],
   "shortcuts": [
     {
-      "name": "Nova Transação",
+      "name": "Nova transação",
       "short_name": "Nova",
       "description": "Adicionar uma nova transação",
       "url": "./index.html?action=new"
     },
     {
-      "name": "Controle de Pagamentos",
+      "name": "Controle de pagamentos",
       "short_name": "Controle",
       "description": "Gerenciar pagamentos pendentes",
       "url": "./index.html?page=control"
