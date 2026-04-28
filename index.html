@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Controle Financeiro - Painel</title>
   
-  <!-- PWA / InstalaÃ§Ã£o -->
+  <!-- PWA / Instalação -->
   <meta name="theme-color" content="#00b4a0">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -759,7 +759,7 @@
           </div>
           <div>
             <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Senha</label>
-            <input type="password" id="auth-password" class="input-styled" placeholder="MÃ­nimo 6 caracteres" required minlength="6">
+            <input type="password" id="auth-password" class="input-styled" placeholder="Mínimo 6 caracteres" required minlength="6">
           </div>
           <button type="submit" id="auth-submit-btn" class="w-full py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors">Entrar</button>
         </form>
@@ -774,9 +774,9 @@
       <div class="access-lock-icon">
         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4"/></svg>
       </div>
-      <h2 id="access-lock-title" class="font-display access-lock-title">Acesso indisponÃ­vel</h2>
+      <h2 id="access-lock-title" class="font-display access-lock-title">Acesso indisponível</h2>
       <p id="access-lock-message" class="access-lock-message">Entre em contato com o Suporte para regularizar seu acesso.</p>
-      <div id="access-lock-detail" class="access-lock-detail">Sua conta nÃ£o estÃ¡ liberada para uso neste momento.</div>
+      <div id="access-lock-detail" class="access-lock-detail">Sua conta não está liberada para uso neste momento.</div>
       <button onclick="returnToLogin()" class="w-full mt-5 py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors">Entrar com outra conta</button>
     </div>
   </div>
@@ -814,7 +814,7 @@
       </div>
       <div class="sidebar-item" onclick="openPage('transactions'); toggleSidebar();">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        <span>TransaÃ§Ãµes</span>
+        <span>Transações</span>
       </div>
     </div>
     
@@ -830,7 +830,7 @@
       <div class="sidebar-section-title">Planejamento</div>
       <div class="sidebar-item" onclick="openPage('calendar'); toggleSidebar();">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        <span>CalendÃ¡rio</span>
+        <span>Calendário</span>
       </div>
       <div class="sidebar-item" onclick="openPage('goals'); toggleSidebar();">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
@@ -838,7 +838,7 @@
       </div>
       <div class="sidebar-item" onclick="openPage('reports'); toggleSidebar();">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        <span>RelatÃ³rios</span>
+        <span>Relatérios</span>
       </div>
     </div>
     
@@ -846,7 +846,7 @@
       <div class="sidebar-section-title">Ferramentas</div>
       <div class="sidebar-item" onclick="openPage('settings'); toggleSidebar();">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        <span>ConfiguraÃ§Ãµes</span>
+        <span>Configurações</span>
       </div>
       <div id="sidebar-admin-item" class="sidebar-item hidden" onclick="openPage('admin'); toggleSidebar();">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l6.16-3.422A12.083 12.083 0 0112 21a12.083 12.083 0 01-6.16-10.422L12 14z"/></svg>
@@ -929,7 +929,7 @@
       <div class="card mt-4">
         <div class="section-header">
           <h2 class="section-title">Saude Financeira</h2>
-            <span class="text-xs text-[#6b8a99]" id="health-period-label">MÃªs atual</span>
+            <span class="text-xs text-[#6b8a99]" id="health-period-label">Mês atual</span>
         </div>
         <div class="p-4">
           <div class="health-grid">
@@ -941,12 +941,12 @@
             <div class="health-card">
               <div class="health-label">Comprometido</div>
               <div class="health-value text-orange" id="health-committed">R$ 0,00</div>
-              <div class="health-caption">PendÃªncias e previsÃµes do perÃ­odo</div>
+              <div class="health-caption">Pendências e previsões do período</div>
             </div>
             <div class="health-card">
               <div class="health-label">Livre</div>
               <div class="health-value text-brand" id="health-free">R$ 0,00</div>
-              <div class="health-caption">Margem disponÃ­vel para decidir</div>
+              <div class="health-caption">Margem disponível para decidir</div>
             </div>
           </div>
         </div>
@@ -954,15 +954,15 @@
 
       <div class="card mt-4">
         <div class="section-header">
-          <h2 class="section-title">Insights do MÃªs</h2>
-          <button class="text-xs font-semibold text-brand hover:text-brand-light transition-colors" onclick="openPage('reports')">Ver anÃ¡lise</button>
+          <h2 class="section-title">Insights do Mês</h2>
+          <button class="text-xs font-semibold text-brand hover:text-brand-light transition-colors" onclick="openPage('reports')">Ver análise</button>
         </div>
         <div class="p-4">
           <div id="dashboard-insights" class="insight-list"></div>
         </div>
       </div>
       
-      <!-- PendÃªncias -->
+      <!-- Pendências -->
       <div id="pending-alerts" class="mt-4 hidden">
         <div class="card p-4" style="border-left: 4px solid #ff8a50;">
           <div class="flex items-center gap-3 mb-3">
@@ -970,7 +970,7 @@
               <svg class="w-5 h-5 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
-              <p class="text-sm font-semibold text-white">PendÃªncias do PerÃ­odo</p>
+              <p class="text-sm font-semibold text-white">Pendências do Período</p>
               <p class="text-xs text-[#6b8a99]" id="pending-period-label">Valores a receber e a pagar</p>
             </div>
           </div>
@@ -988,29 +988,29 @@
         </div>
       </div>
       
-      <!-- Filtro de PerÃ­odo com Seletor de MÃªs -->
+      <!-- Filtro de Período com Seletor de Mês -->
       <div class="mt-4">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-3">
           <h2 class="font-display text-base font-semibold text-white">Acoes Rapidas</h2>
           <div class="relative">
             <div class="dropdown text-xs" onclick="toggleDropdown('period-select')">
-              <span id="period-select-label">Este mÃªs</span>
+              <span id="period-select-label">Este mês</span>
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </div>
             <div id="dropdown-period-select" class="hidden absolute right-0 mt-2 bg-[#132a3c] border border-brand/15 rounded-xl shadow-xl z-50 min-w-[140px]">
               <div class="py-1">
-                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('month', 'Este mÃªs')">Este mÃªs</button>
+                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('month', 'Este mês')">Este mês</button>
                 <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('week', 'Esta semana')">Esta semana</button>
                 <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('year', 'Este ano')">Este ano</button>
-                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('all', 'Todo perÃ­odo')">Todo perÃ­odo</button>
+                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors" onclick="setPeriod('all', 'Todo período')">Todo período</button>
                 <div class="border-t border-brand/10 my-1"></div>
-                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors text-brand font-semibold" onclick="openDashboardMonthPicker()">Selecionar MÃªs EspecÃ­fico</button>
+                <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10 transition-colors text-brand font-semibold" onclick="openDashboardMonthPicker()">Selecionar Mês Específico</button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Seletor de MÃªs Customizado (Escondido por padrÃ£o) -->
+        <!-- Seletor de Mês Customizado (Escondido por padrão) -->
         <div id="dashboard-month-picker" class="hidden mb-4 p-3 bg-[#132a3c] rounded-xl border border-brand/15">
            <div class="month-selector">
              <div class="month-btn" onclick="changeDashboardMonth(-1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></div>
@@ -1034,7 +1034,7 @@
               <svg class="w-5 h-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             </div>
             <div class="quick-action-content">
-              <div class="quick-action-title">CalendÃ¡rio</div>
+              <div class="quick-action-title">Calendário</div>
               <div class="quick-action-desc">Visualize compromissos</div>
             </div>
           </div>
@@ -1046,7 +1046,7 @@
             </div>
             <div class="quick-action-content">
               <div class="quick-action-title">Controle de Pagamentos</div>
-              <div class="quick-action-desc">Gerencie pendÃªncias</div>
+              <div class="quick-action-desc">Gerencie pendências</div>
             </div>
           </div>
         </div>
@@ -1065,10 +1065,10 @@
         </div>
       </div>
       
-      <!-- TransaÃ§Ãµes Recentes -->
+      <!-- Transações Recentes -->
       <div class="card mt-4 mb-4">
         <div class="section-header">
-          <h2 class="section-title">TransaÃ§Ãµes Recentes</h2>
+          <h2 class="section-title">Transações Recentes</h2>
           <button class="text-xs font-semibold text-brand hover:text-brand-light transition-colors" onclick="openPage('transactions')">Ver todas</button>
         </div>
         <div class="px-4 pb-4">
@@ -1090,7 +1090,7 @@
             </button>
             <div class="min-w-0">
               <h1 class="font-display text-xl font-bold text-white leading-tight">Controle de Pagamentos</h1>
-              <p class="text-xs text-[#6b8a99] mt-1">Gerencie pendÃªncias</p>
+              <p class="text-xs text-[#6b8a99] mt-1">Gerencie pendências</p>
             </div>
           </div>
           <div class="profile-header-avatar" id="header-avatar-control"><span>DN</span></div>
@@ -1148,15 +1148,15 @@
         </div>
         <div class="relative">
           <div class="dropdown text-xs" onclick="toggleDropdown('control-period')">
-            <span id="control-period-label">Este mÃªs</span>
+            <span id="control-period-label">Este mês</span>
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </div>
           <div id="dropdown-control-period" class="hidden absolute right-0 mt-2 bg-[#132a3c] border border-brand/15 rounded-xl shadow-xl z-50 min-w-[140px]">
             <div class="py-1">
-              <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10" onclick="setControlPeriod('month', 'Este mÃªs')">Este mÃªs</button>
+              <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10" onclick="setControlPeriod('month', 'Este mês')">Este mês</button>
               <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10" onclick="setControlPeriod('week', 'Esta semana')">Esta semana</button>
               <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10" onclick="setControlPeriod('year', 'Este ano')">Este ano</button>
-              <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10" onclick="setControlPeriod('all', 'Todo perÃ­odo')">Todo perÃ­odo</button>
+              <button class="w-full px-4 py-2.5 text-left text-sm hover:bg-brand/10" onclick="setControlPeriod('all', 'Todo período')">Todo período</button>
             </div>
           </div>
         </div>
@@ -1187,7 +1187,7 @@
       </div>
     </section>
 
-      <!-- TRANSAÃ‡Ã•ES -->
+      <!-- TRANSAÇÕES -->
     <section id="page-transactions" class="hidden px-4 pt-4">
       <div class="page-header">
         <div class="flex items-start justify-between gap-3">
@@ -1196,14 +1196,14 @@
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
             <div class="min-w-0">
-              <h1 class="font-display text-xl font-bold text-white leading-tight">TransaÃ§Ãµes</h1>
+              <h1 class="font-display text-xl font-bold text-white leading-tight">Transações</h1>
             </div>
           </div>
           <div class="profile-header-avatar" id="header-avatar-transactions"><span>DN</span></div>
         </div>
       </div>
       
-      <!-- Filtro MÃªs TransaÃ§Ãµes -->
+      <!-- Filtro Mês Transações -->
       <div class="mt-4 mb-2">
         <div class="month-selector">
           <div class="month-btn" onclick="changeTxMonth(-1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></div>
@@ -1228,7 +1228,7 @@
       
       <div class="card mt-4 mb-4">
         <div class="p-4 flex justify-between items-center border-b border-brand/5">
-        <span class="text-sm text-[#6b8a99]" id="tx-count-label">0 transaÃ§Ãµes</span>
+        <span class="text-sm text-[#6b8a99]" id="tx-count-label">0 transações</span>
         </div>
         <div class="p-2">
           <div id="tx-list-empty" class="py-12 text-center text-[#6b8a99]">
@@ -1239,7 +1239,7 @@
       </div>
     </section>
 
-      <!-- CALENDÃRIO -->
+      <!-- CALENDÁRIO -->
     <section id="page-calendar" class="hidden px-4 pt-4">
       <div class="page-header">
         <div class="flex items-start justify-between gap-3">
@@ -1248,7 +1248,7 @@
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
             <div class="min-w-0">
-              <h1 class="font-display text-xl font-bold text-white leading-tight">CalendÃ¡rio Financeiro</h1>
+              <h1 class="font-display text-xl font-bold text-white leading-tight">Calendário Financeiro</h1>
             </div>
           </div>
           <div class="profile-header-avatar" id="header-avatar-calendar"><span>DN</span></div>
@@ -1277,11 +1277,11 @@
         <div id="cal-grid" class="grid grid-cols-7 gap-1 px-4 pb-4"></div>
       </div>
       
-      <!-- Resumo DinÃ¢mico -->
+      <!-- Resumo Dinâmico -->
       <div class="card mt-4 mb-4">
         <div class="section-header">
-        <h2 class="section-title" id="cal-detail-title">Resumo do MÃªs</h2>
-          <button id="cal-clear-filter" class="hidden text-xs text-brand" onclick="clearCalendarFilter()">Ver mÃªs todo</button>
+        <h2 class="section-title" id="cal-detail-title">Resumo do Mês</h2>
+          <button id="cal-clear-filter" class="hidden text-xs text-brand" onclick="clearCalendarFilter()">Ver mês todo</button>
         </div>
         <div class="p-4 grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-brand/5">
           <div class="text-center"><div class="text-xs text-[#6b8a99] mb-1">Receitas</div><div class="text-sm font-semibold text-income" id="cal-income">R$ 0,00</div></div>
@@ -1289,7 +1289,7 @@
           <div class="text-center"><div class="text-xs text-[#6b8a99] mb-1">Saldo</div><div class="text-sm font-semibold text-brand" id="cal-balance">R$ 0,00</div></div>
         </div>
         <div id="cal-day-list" class="p-2 max-h-60 overflow-y-auto hidden">
-            <!-- Lista de transaÃ§Ãµes do dia clicado -->
+            <!-- Lista de transações do dia clicado -->
         </div>
       </div>
     </section>
@@ -1322,7 +1322,7 @@
       <div id="goals-list" class="hidden mt-4 space-y-3 mb-4"></div>
     </section>
 
-      <!-- RELATÃ“RIOS -->
+      <!-- RELATÓRIOS -->
     <section id="page-reports" class="hidden px-4 pt-4">
       <div class="page-header">
         <div class="flex items-start justify-between gap-3">
@@ -1331,14 +1331,14 @@
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
             <div class="min-w-0">
-              <h1 class="font-display text-xl font-bold text-white leading-tight">RelatÃ³rios</h1>
+              <h1 class="font-display text-xl font-bold text-white leading-tight">Relatérios</h1>
             </div>
           </div>
           <div class="profile-header-avatar" id="header-avatar-reports"><span>DN</span></div>
         </div>
       </div>
 
-      <!-- Filtro RelatÃ³rios -->
+      <!-- Filtro Relatérios -->
       <div class="mt-4 mb-2">
         <div class="month-selector">
           <div class="month-btn" onclick="changeReportMonth(-1)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></div>
@@ -1380,12 +1380,12 @@
       </div>
 
       <div class="card mt-4 mb-4">
-        <div class="section-header"><h2 class="section-title">Uso do OrÃ§amento</h2></div>
+        <div class="section-header"><h2 class="section-title">Uso do Orçamento</h2></div>
         <div class="p-4" id="report-budget-breakdown"></div>
       </div>
     </section>
 
-      <!-- CONFIGURAÃ‡Ã•ES -->
+      <!-- CONFIGURAÇÕES -->
     <section id="page-settings" class="hidden px-4 pt-4">
       <div class="page-header">
         <div class="flex items-start justify-between gap-3">
@@ -1394,7 +1394,7 @@
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
             <div class="min-w-0">
-              <h1 class="font-display text-xl font-bold text-white leading-tight">ConfiguraÃ§Ãµes</h1>
+              <h1 class="font-display text-xl font-bold text-white leading-tight">Configurações</h1>
             </div>
           </div>
           <div class="profile-header-avatar" id="header-avatar-settings"><span>DN</span></div>
@@ -1429,9 +1429,9 @@
         <div class="p-4 space-y-3">
           <div class="sync-status-chip">
             <span id="settings-sync-dot" class="sync-status-dot warn"></span>
-            <span id="settings-sync-text">SincronizaÃ§Ã£o nÃ£o iniciada</span>
+            <span id="settings-sync-text">Sincronização não iniciada</span>
           </div>
-          <div class="text-xs text-[#6b8a99] leading-5">SincronizaÃ§Ã£o automÃ¡tica a cada 1 minuto. O botÃ£o manual continua disponÃ­vel.</div>
+          <div class="text-xs text-[#6b8a99] leading-5">A sincronização acontece quando você faz alterações. O botão manual continua disponível.</div>
           <div id="settings-access-note" class="text-xs text-[#86a8b7] leading-5"></div>
           <div id="settings-access-summary" class="access-summary-box hidden"></div>
           <div class="space-y-2">
@@ -1442,7 +1442,7 @@
       </div>
 
       <div class="card mt-4">
-        <div class="section-header"><h2 class="section-title">SeguranÃ§a</h2></div>
+        <div class="section-header"><h2 class="section-title">Segurança</h2></div>
         <div class="p-4 space-y-3">
           <div class="text-xs text-[#86a8b7] leading-5">Atualize sua senha sempre que receber um acesso temporario novo.</div>
           <div class="space-y-3">
@@ -1455,11 +1455,11 @@
 
       <div id="settings-admin-card" class="card mt-4 hidden">
         <div class="section-header">
-          <h2 class="section-title">AdministraÃ§Ã£o do Sistema</h2>
+          <h2 class="section-title">Administração do Sistema</h2>
           <span class="text-xs text-[#6b8a99]">Acesso exclusivo</span>
         </div>
         <div class="p-4 space-y-3">
-          <div class="text-xs text-[#86a8b7] leading-5">Gerencie e-mails autorizados, validade de uso, bloqueios e credenciais temporÃ¡rias.</div>
+          <div class="text-xs text-[#86a8b7] leading-5">Gerencie e-mails autorizados, validade de uso, bloqueios e credenciais temporárias.</div>
           <button onclick="openPage('admin')" class="settings-action-btn">Abrir Painel do Administrador</button>
         </div>
       </div>
@@ -1474,7 +1474,7 @@
 
       <div class="card mt-4">
         <div class="section-header">
-          <h2 class="section-title">OrÃ§amento do MÃªs</h2>
+          <h2 class="section-title">Orçamento do Mês</h2>
           <span class="text-xs text-[#6b8a99]">Limites por categoria</span>
         </div>
         <div class="p-4">
@@ -1488,13 +1488,13 @@
           <button onclick="exportData()" class="w-full flex items-center justify-between gap-3 p-3 rounded-xl bg-[#0d1f2d] hover:bg-[#1a3649] transition-colors">
             <div class="flex items-center gap-3 min-w-0">
               <svg class="w-5 h-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-              <span class="text-sm text-[#e8f4f8]">Exportar cÃ³pia de seguranÃ§a</span>
+              <span class="text-sm text-[#e8f4f8]">Exportar cópia de segurança</span>
             </div>
           </button>
           <button onclick="document.getElementById('backup-import-input').click()" class="w-full flex items-center justify-between gap-3 p-3 rounded-xl bg-[#0d1f2d] hover:bg-[#1a3649] transition-colors">
             <div class="flex items-center gap-3 min-w-0">
               <svg class="w-5 h-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9M4 9H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2M15 15h5"/></svg>
-              <span class="text-sm text-[#e8f4f8]">Importar cÃ³pia de seguranÃ§a</span>
+              <span class="text-sm text-[#e8f4f8]">Importar cópia de segurança</span>
             </div>
           </button>
           <input type="file" id="backup-import-input" accept=".json,application/json" class="hidden" onchange="importData(event)">
@@ -1506,7 +1506,7 @@
           </button>
         </div>
       </div>
-        <button onclick="saveProfile()" class="w-full mt-4 mb-4 py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors">Salvar alteraÃ§Ãµes</button>
+        <button onclick="saveProfile()" class="w-full mt-4 mb-4 py-3.5 bg-brand text-white font-semibold rounded-xl hover:bg-brand-light transition-colors">Salvar alterações</button>
     </section>
 
     <section id="page-admin" class="hidden px-4 pt-4">
@@ -1551,10 +1551,10 @@
               <div class="admin-stat">
                 <div class="admin-stat-label">Expirando</div>
                 <div class="admin-stat-value" id="admin-stat-expiring">0</div>
-            <div class="admin-stat-note">Validade em atÃ© 7 dias</div>
+            <div class="admin-stat-note">Validade em até 7 dias</div>
               </div>
               <div class="admin-stat">
-                <div class="admin-stat-label">JÃ¡ usados</div>
+                <div class="admin-stat-label">Já usados</div>
                 <div class="admin-stat-value" id="admin-stat-claimed">0</div>
                 <div class="admin-stat-note">Contas que ja acessaram o aplicativo</div>
               </div>
@@ -1584,13 +1584,13 @@
               <div>
                 <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Tipo de conta</label>
                 <select id="admin-access-role" class="input-styled">
-              <option value="user">UsuÃ¡rio</option>
+              <option value="user">Usuário</option>
                   <option value="admin">Administrador</option>
                 </select>
               </div>
             </div>
             <div>
-            <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Senha temporÃ¡ria</label>
+            <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Senha temporária</label>
               <div class="admin-password-box">
                 <div id="admin-access-password" class="admin-password-value">-</div>
                 <button onclick="copyAdminPassword()" class="admin-secondary-btn" type="button">Copiar</button>
@@ -1650,15 +1650,15 @@
       </div>
       <div class="nav-item" data-page="transactions" onclick="openPage('transactions')">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        <span>TransaÃ§Ãµes</span>
+        <span>Transações</span>
       </div>
       <div class="nav-item" data-page="calendar" onclick="openPage('calendar')">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        <span>CalendÃ¡rio</span>
+        <span>Calendário</span>
       </div>
       <div class="nav-item" data-page="reports" onclick="openPage('reports')">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        <span>RelatÃ³rios</span>
+        <span>Relatérios</span>
       </div>
     </div>
   </nav>
@@ -1668,7 +1668,7 @@
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
   </button>
 
-  <!-- Modal Troca de Senha TemporÃ¡ria -->
+  <!-- Modal Troca de Senha Temporária -->
   <div id="modal-password-change" class="modal-overlay password-modal">
     <div class="modal-content">
       <div class="text-center mb-6">
@@ -1676,13 +1676,13 @@
           <svg class="w-7 h-7 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c1.105 0 2-.895 2-2V7a2 2 0 10-4 0v2c0 1.105.895 2 2 2zm-6 2h12v8H6v-8z"/></svg>
         </div>
         <h2 class="font-display text-lg font-bold text-white">Atualize sua senha</h2>
-        <p class="text-sm text-[#86a8b7] mt-2 leading-6">VocÃª entrou com uma senha temporÃ¡ria. Crie uma nova senha para continuar usando sua conta.</p>
+        <p class="text-sm text-[#86a8b7] mt-2 leading-6">Você entrou com uma senha temporária. Crie uma nova senha para continuar usando sua conta.</p>
       </div>
 
       <form onsubmit="changeCurrentPassword(event, 'forced')" class="space-y-4">
         <div>
           <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Nova senha</label>
-          <input type="password" id="force-new-password" class="input-styled" placeholder="MÃ­nimo 6 caracteres" minlength="6" required>
+          <input type="password" id="force-new-password" class="input-styled" placeholder="Mínimo 6 caracteres" minlength="6" required>
         </div>
         <div>
           <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Confirmar nova senha</label>
@@ -2083,7 +2083,7 @@
       Object.assign(State, fresh);
     };
     const repairTextEncoding = (value) => {
-      if (typeof value !== 'string' || !/[ÃÂâ€]/.test(value)) return value;
+      if (typeof value !== 'string' || !/[\u00c3\u00c2\u00e2\u20ac]/.test(value)) return value;
       try {
         return decodeURIComponent(escape(value));
       } catch (error) {
@@ -2176,21 +2176,21 @@
       const insights = [];
 
       if (monthHealth.free < 0) {
-        insights.push(`Seu saldo livre do perÃ­odo estÃ¡ negativo em ${formatMoney(Math.abs(monthHealth.free))}. Vale reduzir novas despesas antes do fechamento.`);
+        insights.push(`Seu saldo livre do período está negativo em ${formatMoney(Math.abs(monthHealth.free))}. Vale reduzir novas despesas antes do fechamento.`);
       }
       if (exceeded[0]) {
-        insights.push(`O orÃ§amento de ${exceeded[0].name} estourou ${exceeded[0].percent.toFixed(0)}% e jÃ¡ consumiu ${formatMoney(exceeded[0].spent)} no mÃªs.`);
+        insights.push(`O orçamento de ${exceeded[0].name} estourou ${exceeded[0].percent.toFixed(0)}% e já consumiu ${formatMoney(exceeded[0].spent)} no mês.`);
       } else if (highUsage[0]) {
-        insights.push(`${highUsage[0].name} jÃ¡ consumiu ${highUsage[0].percent.toFixed(0)}% do limite mensal. Bom momento para segurar essa categoria.`);
+        insights.push(`${highUsage[0].name} já consumiu ${highUsage[0].percent.toFixed(0)}% do limite mensal. Bom momento para segurar essa categoria.`);
       }
       if (monthHealth.pendingExpense > 0 || monthHealth.pendingIncome > 0) {
-        insights.push(`Existem ${formatMoney(monthHealth.pendingExpense)} a pagar e ${formatMoney(monthHealth.pendingIncome)} a receber no perÃ­odo.`);
+        insights.push(`Existem ${formatMoney(monthHealth.pendingExpense)} a pagar e ${formatMoney(monthHealth.pendingIncome)} a receber no período.`);
       }
       if (biggestExpenseCategory && biggestExpenseCategory.spent > 0) {
-        insights.push(`A categoria com maior peso no mÃªs foi ${biggestExpenseCategory.name}, com ${formatMoney(biggestExpenseCategory.spent)}.`);
+        insights.push(`A categoria com maior peso no mês foi ${biggestExpenseCategory.name}, com ${formatMoney(biggestExpenseCategory.spent)}.`);
       }
       if (!insights.length) {
-        insights.push('Sem sinais de risco relevantes no perÃ­odo. A movimentaÃ§Ã£o estÃ¡ equilibrada e sem pressÃ£o forte no caixa.');
+        insights.push('Sem sinais de risco relevantes no período. A movimentação está equilibrada e sem pressão forte no caixa.');
       }
 
       return insights.slice(0, 4);
@@ -2258,15 +2258,15 @@
           detail: detail || 'A validade do seu acesso terminou.'
         },
         unauthorized: {
-          title: 'Acesso nÃ£o autorizado',
+          title: 'Acesso não autorizado',
           message: supportMessage,
-          detail: detail || 'Este e-mail ainda nÃ£o foi liberado para uso.'
+          detail: detail || 'Este e-mail ainda não foi liberado para uso.'
         }
       };
       return messages[reason] || {
-        title: 'Acesso indisponÃ­vel',
+        title: 'Acesso indisponível',
         message: supportMessage,
-        detail: detail || 'Sua conta nÃ£o estÃ¡ liberada para uso neste momento.'
+        detail: detail || 'Sua conta não está liberada para uso neste momento.'
       };
     }
 
@@ -2303,12 +2303,12 @@
       toggleAdminUi(false);
       setAccessNote('');
       renderAccessSummary(null);
-      setSyncStatus('Acesso indisponÃ­vel.', 'off');
+      setSyncStatus('Acesso indisponível.', 'off');
       showAccessLock(reason, detail);
       try {
-        await withTimeout(client?.auth?.signOut?.() || Promise.resolve(), 10000, 'Tempo limite ao encerrar sessÃ£o.');
+        await withTimeout(client?.auth?.signOut?.() || Promise.resolve(), 10000, 'Tempo limite ao encerrar sessão.');
       } catch (error) {
-        console.warn('Falha ao encerrar sessÃ£o apÃ³s bloqueio:', error);
+        console.warn('Falha ao encerrar sessão após bloqueio:', error);
       }
     }
 
@@ -2401,9 +2401,9 @@
       }));
     }
 
-    // NOVO: Filtro AvanÃ§ado por Data EspecÃ­fica
+    // NOVO: Filtro Avançado por Data Específica
     function filterByDateRange(transactions, targetDate, mode = 'month') {
-      // mode: 'month' (usa mÃªs/ano de targetDate), 'day' (usa dia/mÃªs/ano)
+      // mode: 'month' (usa mês/ano de targetDate), 'day' (usa dia/mês/ano)
       const tYear = targetDate.getFullYear();
       const tMonth = targetDate.getMonth();
       const tDay = targetDate.getDate();
@@ -2420,16 +2420,16 @@
       });
     }
 
-    // CORREÃ‡ÃƒO: Filtro Inteligente para Recorrentes (Mantido)
+    // CORREÇÃO: Filtro Inteligente para Recorrentes (Mantido)
     function filterByPeriod(transactions, period, customDate = null) {
       const now = customDate || new Date();
       return transactions.filter(t => {
-        // Se for recorrente e o filtro for 'month', consideramos que ela aplica ao mÃªs atual
+        // Se for recorrente e o filtro for 'month', consideramos que ela aplica ao mês atual
         if (t.recurring && period === 'month') {
-          // LÃ³gica refinada: Se a data da transaÃ§Ã£o for menor que o mÃªs atual, ela aparece
-          // Mas para simplificar e manter consistÃªncia com o pedido do usuÃ¡rio:
+          // Lógica refinada: Se a data da transação for menor que o mês atual, ela aparece
+          // Mas para simplificar e manter consistência com o pedido do usuário:
           // Vamos considerar recorrentes se a data original for <= data atual do filtro
-          // A lÃ³gica original simplesmente retornava true. Vamos melhorar:
+          // A lógica original simplesmente retornava true. Vamos melhorar:
           const txDate = new Date(t.date);
           if (txDate.getFullYear() < now.getFullYear() || (txDate.getFullYear() === now.getFullYear() && txDate.getMonth() <= now.getMonth())) {
              return true;
@@ -2445,14 +2445,14 @@
         } else if(period === 'year') {
           return txDate.getFullYear() === now.getFullYear();
         } else if (period === 'custom') {
-          // Filtro customizado baseado em data especÃ­fica (MÃªs)
+          // Filtro customizado baseado em data específica (Mês)
            return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
         }
         return true;
       });
     }
 
-    // NOTIFICAÃ‡ÃƒO TOAST
+    // NOTIFICAÇÃO TOAST
     function showToast(message, type = 'success') {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
@@ -2521,7 +2521,7 @@
     async function ensureSupabase() {
       if (supabaseClient) return supabaseClient;
       if (!window.supabase?.createClient) {
-        setSyncStatus('ConexÃ£o com a nuvem indisponÃ­vel no momento.', 'off');
+        setSyncStatus('Conexão com a nuvem indisponível no momento.', 'off');
         return null;
       }
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
@@ -2670,7 +2670,7 @@
         }
         if (error) console.warn('Falha ao consultar status de acesso via RPC:', error);
       } catch (error) {
-        console.warn('RPC de status de acesso indisponÃ­vel, usando consulta direta:', error);
+        console.warn('RPC de status de acesso indisponível, usando consulta direta:', error);
       }
 
       const access = await fetchAllowedAccessByEmail(normalizedEmail);
@@ -2694,7 +2694,7 @@
       if (accessStatus === 'blocked') {
         return 'Sua conta foi bloqueada. Entre em contato com o Suporte para regularizar.';
       }
-      return 'Este e-mail nÃ£o estÃ¡ liberado para uso. Entre em contato com o Suporte para regularizar.';
+      return 'Este e-mail não está liberado para uso. Entre em contato com o Suporte para regularizar.';
     }
 
     function getAccessBlockReason(accessStatus) {
@@ -2821,7 +2821,7 @@
         }
 
         if (!access || accessStatus === 'missing') {
-          await blockCurrentAccess('unauthorized', 'Este e-mail ainda nÃ£o foi liberado para uso. Entre em contato com o Suporte para regularizar.');
+          await blockCurrentAccess('unauthorized', 'Este e-mail ainda não foi liberado para uso. Entre em contato com o Suporte para regularizar.');
           return false;
         }
 
@@ -2855,8 +2855,8 @@
       } catch (error) {
         console.error('Falha ao validar acesso:', error);
         const message = error?.message || 'erro desconhecido';
-        setSyncStatus(`Falha na Ã¡rea administrativa: ${message}`, 'off');
-        safeSetText('auth-status', `Falha na Ã¡rea administrativa: ${message}`);
+        setSyncStatus(`Falha na área administrativa: ${message}`, 'off');
+        safeSetText('auth-status', `Falha na área administrativa: ${message}`);
         return false;
       }
     }
@@ -2903,7 +2903,7 @@
         if (authMode === 'signup' && !data.session) {
           switchAuthMode('login');
           document.getElementById('auth-email').value = email;
-          safeSetText('auth-status', 'Conta criada. Antes do primeiro acesso, confirme o cadastro pelo e-mail enviado e verifique tambÃ©m a pasta de spam.');
+          safeSetText('auth-status', 'Conta criada. Antes do primeiro acesso, confirme o cadastro pelo e-mail enviado e verifique também a pasta de spam.');
           return;
         }
         if (authMode === 'login' && !data?.session) {
@@ -2933,6 +2933,10 @@
           safeSetText('auth-status', 'Falha: o e-mail ainda não foi confirmado. Verifique sua caixa de entrada e também a pasta de spam.');
           return;
         }
+        if (/banned|disabled|blocked/i.test(rawMessage)) {
+          showAccessLock('blocked', 'Sua conta está bloqueada. Entre em contato com o Suporte para regularizar.');
+          return;
+        }
         if (isAlreadyRegisteredError(error)) {
           switchAuthMode('login');
           document.getElementById('auth-email').value = email;
@@ -2952,9 +2956,9 @@
       stopAdminAutoRefresh();
       closePasswordChangeModal();
       try {
-        await withTimeout(client.auth.signOut(), 10000, 'Tempo limite ao encerrar sessÃ£o.');
+        await withTimeout(client.auth.signOut(), 10000, 'Tempo limite ao encerrar sessão.');
       } catch (error) {
-        console.warn('Falha ao encerrar sessÃ£o remota:', error);
+        console.warn('Falha ao encerrar sessão remota:', error);
       }
       currentSessionUser = null;
       currentAccessProfile = null;
@@ -2966,7 +2970,7 @@
       toggleAdminUi(false);
       setAccessNote('');
       renderAccessSummary(null);
-      setSyncStatus('SessÃ£o encerrada.', 'warn');
+      setSyncStatus('Sessão encerrada.', 'warn');
       showAuthShell(true);
     }
 
@@ -3029,7 +3033,7 @@
           accessStatus = 'active';
         }
         if (accessStatus === 'missing') {
-          await blockCurrentAccess('unauthorized', 'Este e-mail nÃ£o estÃ¡ liberado para uso. Entre em contato com o Suporte para regularizar.');
+          await blockCurrentAccess('unauthorized', 'Este e-mail não está liberado para uso. Entre em contato com o Suporte para regularizar.');
           return false;
         }
 
@@ -3081,7 +3085,7 @@
         console.error('Falha ao sincronizar:', error);
         const message = error?.message || 'erro desconhecido';
         setSyncStatus(`Falha ao sincronizar: ${message}`, 'off');
-        if (!silent) showToast(`NÃ£o foi possÃ­vel sincronizar: ${message}`, 'error');
+        if (!silent) showToast(`Não foi possível sincronizar: ${message}`, 'error');
       } finally {
         isCloudSyncRunning = false;
         if (pendingCloudSync && currentSessionUser) {
@@ -3093,16 +3097,18 @@
 
     async function loadCloudStateForUser(user) {
       const client = await ensureSupabase();
-      if (!client || !user) return;
+      if (!client || !user) return false;
       currentSessionUser = user;
       try {
+        safeSetText('auth-status', 'Validando acesso...');
         const allowed = await enforceAccessForSession(user);
-        if (!allowed) return;
+        if (!allowed) return false;
         resetStateToDefaults({
           email: user.email || '',
-          name: currentAccessProfile?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Usuario'
+          name: currentAccessProfile?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Usuário'
         });
         DB.load(user.email);
+        showAuthShell(false);
         setSyncStatus('Carregando dados da nuvem...', 'warn');
         const { data, error } = await client
           .from(SUPABASE_STATE_TABLE)
@@ -3138,10 +3144,14 @@
         if (passwordChangeRequired) {
           openPasswordChangeModal();
         }
+        return true;
       } catch (error) {
         console.error('Falha ao carregar nuvem:', error);
         const message = error?.message || 'erro desconhecido';
         setSyncStatus(`Falha ao carregar nuvem: ${message}`, 'off');
+        safeSetText('auth-status', `Falha ao validar acesso: ${message}`);
+        showAuthShell(true);
+        return false;
       }
     }
 
@@ -3153,7 +3163,7 @@
       }
       const { data } = await client.auth.getSession();
       if (data?.session?.user) {
-        showAuthShell(false);
+        showAuthShell(true);
         await loadCloudStateForUser(data.session.user);
       } else {
         showAuthShell(true);
@@ -3166,7 +3176,7 @@
         if (isChangingPassword && event === 'USER_UPDATED') return;
         if (session?.user) {
           currentSessionUser = session.user;
-          showAuthShell(false);
+          showAuthShell(true);
           await loadCloudStateForUser(session.user);
         } else if (event === 'SIGNED_OUT') {
           if (accessLockActive) return;
@@ -3216,7 +3226,7 @@
       toggleSidebar(false);
     }
 
-    // FUNÃ‡Ã•ES DO SELETOR DE MÃŠS (DASHBOARD)
+    // FUNÇÕES DO SELETOR DE MÊS (DASHBOARD)
     function openDashboardMonthPicker() {
       const picker = document.getElementById('dashboard-month-picker');
       const input = document.getElementById('dashboard-date-input');
@@ -3224,8 +3234,8 @@
       
       if(isVisible) {
         picker.classList.add('hidden');
-        State.dashboardPeriod = 'month'; // volta para o padrÃ£o se fechar sem usar
-        document.getElementById('period-select-label').textContent = 'Este mÃªs';
+        State.dashboardPeriod = 'month'; // volta para o padrão se fechar sem usar
+        document.getElementById('period-select-label').textContent = 'Este mês';
       } else {
         picker.classList.remove('hidden');
         // Sincroniza o input com a data atual do filtro
@@ -3258,7 +3268,7 @@
       updateDashboard();
     }
 
-    // FUNÃ‡Ã•ES DO SELETOR DE MÃŠS (TRANSACTIONS)
+    // FUNÇÕES DO SELETOR DE MÊS (TRANSACTIONS)
     function initTxDatePicker() {
       const input = document.getElementById('tx-date-input');
       const y = State.txCustomDate.getFullYear();
@@ -3281,7 +3291,7 @@
       renderTransactions();
     }
 
-    // FUNÃ‡Ã•ES DO SELETOR DE MÃŠS (RELATÃ“RIOS)
+    // FUNÇÕES DO SELETOR DE MÊS (RELATÓRIOS)
     function initReportDatePicker() {
       const input = document.getElementById('report-date-input');
       const y = State.reportCustomDate.getFullYear();
@@ -3312,7 +3322,7 @@
     }
 
     function setPeriod(value, label) {
-      // Se selecionar um padrÃ£o, esconde o picker customizado
+      // Se selecionar um padrão, esconde o picker customizado
       if(value !== 'custom') {
          document.getElementById('dashboard-month-picker').classList.add('hidden');
          State.dashboardPeriod = value;
@@ -3842,7 +3852,7 @@
     function renderTransactions() {
       let visible = State.transactions.filter(t => !t.isRecurringInstance);
       
-      // Filtro por mÃªs customizado (nÃ£o pelo filtro rÃ¡pido currentFilter.period)
+      // Filtro por mês customizado (não pelo filtro rápido currentFilter.period)
       visible = filterByDateRange(visible, State.txCustomDate, 'month');
 
       // Filtro por tipo
@@ -3861,11 +3871,11 @@
       if(visible.length === 0) {
         listEl.classList.add('hidden');
         emptyEl.classList.remove('hidden');
-      document.getElementById('tx-count-label').textContent = '0 transaÃ§Ãµes';
+      document.getElementById('tx-count-label').textContent = '0 transações';
       } else {
         listEl.classList.remove('hidden');
         emptyEl.classList.add('hidden');
-      document.getElementById('tx-count-label').textContent = `${visible.length} transaÃ§Ãµes`;
+      document.getElementById('tx-count-label').textContent = `${visible.length} transações`;
         
         listEl.innerHTML = visible.map(t => {
           const cat = getCategory(t.category);
@@ -3933,7 +3943,7 @@
       }
     }
 
-    // FUNÃ‡ÃƒO RELATÃ“RIO FUNCIONAL
+    // FUNÇÃO RELATÓRIO FUNCIONAL
     function renderReports() {
       const monthTx = filterByDateRange(State.transactions, State.reportCustomDate, 'month');
       
@@ -3944,7 +3954,7 @@
       document.getElementById('report-total-expense').textContent = formatMoney(expense);
       document.getElementById('report-balance').textContent = formatMoney(income - expense);
 
-      // GrÃ¡fico Despesas
+      // Gráfico Despesas
       const expContainer = document.getElementById('report-expenses-breakdown');
       const expByCat = {};
       monthTx.filter(t => t.type === 'expense').forEach(t => { expByCat[t.category] = (expByCat[t.category] || 0) + t.amount; });
@@ -3970,7 +3980,7 @@
         expContainer.innerHTML = '<p class="text-center text-sm text-[#6b8a99]">Sem dados de despesas</p>';
       }
 
-      // GrÃ¡fico Receitas
+      // Gráfico Receitas
       const incContainer = document.getElementById('report-income-breakdown');
       const incByCat = {};
       monthTx.filter(t => t.type === 'income').forEach(t => { incByCat[t.category] = (incByCat[t.category] || 0) + t.amount; });
@@ -4015,12 +4025,12 @@
           `;
         }).join('');
       } else {
-      budgetContainer.innerHTML = '<p class="text-center text-sm text-[#6b8a99]">Defina limites de orÃ§amento nas configuraÃ§Ãµes.</p>';
+      budgetContainer.innerHTML = '<p class="text-center text-sm text-[#6b8a99]">Defina limites de orçamento nas configurações.</p>';
       }
     }
 
     function renderCalendar() {
-      const monthNames = ['Janeiro', 'Fevereiro', 'MarÃ§o', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+      const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
       document.getElementById('cal-month-year').textContent = `${monthNames[calDate.getMonth()]} ${calDate.getFullYear()}`;
       
       const firstDay = new Date(calDate.getFullYear(), calDate.getMonth(), 1);
@@ -4035,7 +4045,7 @@
         html += `<div class="text-center py-2 text-[#3d5a6a] text-sm">${prevMonth.getDate() - i}</div>`;
       }
       
-      // Usa filterByDateRange para pegar transaÃ§Ãµes do mÃªs visualizado
+      // Usa filterByDateRange para pegar transações do mês visualizado
       const monthTx = filterByDateRange(State.transactions, calDate, 'month');
       
       for(let d = 1; d <= lastDay.getDate(); d++) {
@@ -4091,15 +4101,15 @@
       let displayTx = monthTx;
       
       if(State.calendarSelectedDate) {
-        // Filtra pelo dia especÃ­fico
+        // Filtra pelo dia específico
         displayTx = monthTx.filter(t => t.date === State.calendarSelectedDate);
         const dateObj = new Date(State.calendarSelectedDate + 'T00:00:00');
         titleEl.textContent = `Dia ${dateObj.getDate()} de ${dateObj.toLocaleDateString('pt-BR', { month: 'long' })}`;
         clearBtn.classList.remove('hidden');
         listEl.classList.remove('hidden');
       } else {
-        // Resumo do mÃªs
-        titleEl.textContent = "Resumo do MÃªs";
+        // Resumo do mês
+        titleEl.textContent = "Resumo do Mês";
         clearBtn.classList.add('hidden');
         listEl.classList.add('hidden');
       }
@@ -4128,19 +4138,19 @@
           `;
         }).join('');
       } else if (State.calendarSelectedDate && displayTx.length === 0) {
-        listEl.innerHTML = '<p class="text-center text-xs text-[#6b8a99] py-4">Sem transaÃ§Ãµes neste dia.</p>';
+        listEl.innerHTML = '<p class="text-center text-xs text-[#6b8a99] py-4">Sem transações neste dia.</p>';
       }
     }
 
     function calPrev() {
       calDate.setMonth(calDate.getMonth() - 1);
-      State.calendarSelectedDate = null; // Reset selection ao mudar de mÃªs
+      State.calendarSelectedDate = null; // Reset selection ao mudar de mês
       renderCalendar();
     }
 
     function calNext() {
       calDate.setMonth(calDate.getMonth() + 1);
-      State.calendarSelectedDate = null; // Reset selection ao mudar de mÃªs
+      State.calendarSelectedDate = null; // Reset selection ao mudar de mês
       renderCalendar();
     }
 
@@ -4159,9 +4169,9 @@
         return;
       }
       navigator.clipboard?.writeText(password).then(() => {
-        showToast('Senha temporÃ¡ria copiada!');
+        showToast('Senha temporária copiada!');
       }).catch(() => {
-        showToast('NÃ£o foi possÃ­vel copiar agora.', 'error');
+        showToast('Não foi possível copiar agora.', 'error');
       });
     }
 
@@ -4174,7 +4184,7 @@
       navigator.clipboard?.writeText(text).then(() => {
         showToast('Credenciais do teste copiadas.');
       }).catch(() => {
-        showToast('NÃ£o foi possÃ­vel copiar agora.', 'error');
+        showToast('Não foi possível copiar agora.', 'error');
       });
     }
 
@@ -4192,6 +4202,29 @@
       isAdminActionRunning = false;
     }
 
+    async function setAuthBanForManagedAccess(client, email, shouldBan) {
+      const { error } = await withTimeout(
+        client.rpc('admin_set_auth_ban', {
+          target_email: normalizeEmail(email),
+          should_ban: Boolean(shouldBan)
+        }),
+        15000,
+        shouldBan ? 'Tempo limite ao bloquear autenticação.' : 'Tempo limite ao desbloquear autenticação.'
+      );
+      if (error) throw error;
+    }
+
+    async function deleteManagedAuthAccount(client, email) {
+      const { error } = await withTimeout(
+        client.rpc('admin_delete_access_account', {
+          target_email: normalizeEmail(email)
+        }),
+        20000,
+        'Tempo limite ao excluir a conta.'
+      );
+      if (error) throw error;
+    }
+
     async function createManagedAccess() {
       if (!currentSessionUser || !isAdminRole(currentAccessProfile?.role)) {
         showToast('Somente administradores podem criar acessos.', 'error');
@@ -4207,15 +4240,15 @@
       const tempPassword = document.getElementById('admin-access-password')?.textContent?.trim();
 
       if (!email) {
-        showToast('Informe um e-mail vÃ¡lido.', 'error');
+        showToast('Informe um e-mail válido.', 'error');
         return;
       }
       if (!tempPassword || tempPassword === '-') {
-        showToast('Gere a senha temporÃ¡ria antes de continuar.', 'error');
+        showToast('Gere a senha temporária antes de continuar.', 'error');
         return;
       }
       if (!validUntilAt) {
-        showToast('Defina uma validade vÃ¡lida para a conta.', 'error');
+        showToast('Defina uma validade válida para a conta.', 'error');
         return;
       }
 
@@ -4224,6 +4257,18 @@
         const client = await ensureSupabase();
         const nowIso = new Date().toISOString();
         const existingRow = adminAccessRows.find(row => normalizeEmail(row.email) === email);
+        if (existingRow?.profile?.last_login_at) {
+          const shouldReset = confirm(`Este e-mail já foi usado antes. Para entregar uma nova senha temporária, a conta antiga de ${email} será removida do Auth e recriada no primeiro acesso. Continuar?`);
+          if (!shouldReset) return;
+        }
+        if (email !== normalizeEmail(currentSessionUser?.email)) {
+          try {
+            await deleteManagedAuthAccount(client, email);
+          } catch (cleanupError) {
+            console.warn('Não foi possível limpar Auth antigo antes de recriar acesso:', cleanupError);
+            throw new Error(`Não foi possível preparar este e-mail para uma nova senha temporária. Rode o SQL de reparo atualizado e tente novamente. Detalhe: ${cleanupError.message}`);
+          }
+        }
         const payload = {
           email,
           full_name: fullName,
@@ -4361,7 +4406,7 @@
       } catch (error) {
         console.error('Falha ao carregar painel admin:', error);
         safeSetText('admin-refresh-status', 'Falha ao atualizar');
-        showToast('NÃ£o foi possÃ­vel carregar o painel administrativo.', 'error');
+        showToast('Não foi possível carregar o painel administrativo.', 'error');
       } finally {
         isAdminRefreshRunning = false;
         if (pendingAdminRefresh && currentSessionUser && isAdminRole(currentAccessProfile?.role)) {
@@ -4406,10 +4451,10 @@
         const validityText = formatAccessExpiry(row);
         const lastAccess = row.profile?.last_login_at
           ? new Date(row.profile.last_login_at).toLocaleString('pt-BR')
-          : 'Ainda nÃ£o acessou';
+          : 'Ainda não acessou';
         const tempPasswordInfo = row.temp_password
-          ? `<div>Senha temporÃ¡ria atual: <strong>${escapeHtml(row.temp_password)}</strong></div>`
-          : '<div>Senha temporÃ¡ria nÃ£o disponÃ­vel.</div>';
+          ? `<div>Senha temporária atual: <strong>${escapeHtml(row.temp_password)}</strong></div>`
+          : '<div>Senha temporária não disponível.</div>';
 
         return `
           <div class="admin-access-card">
@@ -4420,13 +4465,13 @@
               </div>
             </div>
             <div class="admin-badges">
-              <span class="admin-badge role">${row.role === 'admin' ? 'Administrador' : 'UsuÃ¡rio'}</span>
+              <span class="admin-badge role">${row.role === 'admin' ? 'Administrador' : 'Usuário'}</span>
               <span class="admin-badge ${statusClass}">${row.effectiveStatus === 'active' ? 'Ativo' : row.effectiveStatus === 'blocked' ? 'Bloqueado' : 'Expirado'}</span>
               ${row.is_trial ? '<span class="admin-badge warn">Teste 30 min</span>' : ''}
             </div>
             <div class="admin-access-meta">
               <div>Validade: <strong>${validityText}</strong></div>
-              <div>Ãšltimo acesso: <strong>${lastAccess}</strong></div>
+              <div>Último acesso: <strong>${lastAccess}</strong></div>
               <div>${tempPasswordInfo}</div>
               <div class="space-y-2">
                 <label class="text-xs text-[#6b8a99] font-medium block">Ajustar validade</label>
@@ -4456,22 +4501,23 @@
         base.setDate(base.getDate() + days);
         const validUntilAt = base.toISOString();
         const validUntil = deriveValidUntilDate(validUntilAt);
-        await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+        await withTimeout(client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
           valid_until: validUntil,
           valid_until_at: validUntilAt,
           status: 'active',
           updated_at: new Date().toISOString()
-        }).eq('email', normalizeEmail(email));
-        await client.from(SUPABASE_PROFILES_TABLE).update({
+        }).eq('email', normalizeEmail(email)), 15000, 'Tempo limite ao renovar validade.');
+        await withTimeout(client.from(SUPABASE_PROFILES_TABLE).update({
           valid_until: validUntil,
           valid_until_at: validUntilAt,
           status: 'active',
           updated_at: new Date().toISOString()
-        }).eq('email', normalizeEmail(email));
+        }).eq('email', normalizeEmail(email)), 15000, 'Tempo limite ao atualizar perfil.');
+        await setAuthBanForManagedAccess(client, email, false);
         await loadAdminData(true);
         showToast('Validade renovada com sucesso!');
       } catch (error) {
-        showToast(`NÃ£o foi possÃ­vel renovar: ${error.message}`, 'error');
+        showToast(`Não foi possível renovar: ${error.message}`, 'error');
       } finally {
         endAdminAction();
       }
@@ -4486,28 +4532,29 @@
         const input = document.getElementById(getAccessValidityInputId(email));
         const validUntilAt = toIsoFromDateTimeLocal(input?.value || '');
         if (!validUntilAt) {
-          showToast('Informe uma data e hora vÃ¡lidas.', 'error');
+          showToast('Informe uma data e hora válidas.', 'error');
           return;
         }
         const validUntil = deriveValidUntilDate(validUntilAt);
         const status = current.status === 'blocked' ? 'blocked' : 'active';
         const updatedAt = new Date().toISOString();
-        await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+        await withTimeout(client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
           valid_until: validUntil,
           valid_until_at: validUntilAt,
           status,
           updated_at: updatedAt
-        }).eq('email', normalizeEmail(email));
-        await client.from(SUPABASE_PROFILES_TABLE).update({
+        }).eq('email', normalizeEmail(email)), 15000, 'Tempo limite ao atualizar validade.');
+        await withTimeout(client.from(SUPABASE_PROFILES_TABLE).update({
           valid_until: validUntil,
           valid_until_at: validUntilAt,
           status,
           updated_at: updatedAt
-        }).eq('email', normalizeEmail(email));
+        }).eq('email', normalizeEmail(email)), 15000, 'Tempo limite ao atualizar perfil.');
+        await setAuthBanForManagedAccess(client, email, status === 'blocked' || new Date(validUntilAt).getTime() <= Date.now());
         await loadAdminData(true);
         showToast('Validade atualizada com sucesso.');
       } catch (error) {
-        showToast(`NÃ£o foi possÃ­vel atualizar a validade: ${error.message}`, 'error');
+        showToast(`Não foi possível atualizar a validade: ${error.message}`, 'error');
       } finally {
         endAdminAction();
       }
@@ -4520,23 +4567,24 @@
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
         if (!current) return;
         if (normalizeEmail(current.email) === normalizeEmail(currentSessionUser?.email) && current.role === 'admin') {
-          showToast('NÃ£o bloqueie a prÃ³pria conta administradora por aqui.', 'error');
+          showToast('Não bloqueie a própria conta administradora por aqui.', 'error');
           endAdminAction();
           return;
         }
         const nextStatus = current.effectiveStatus === 'blocked' ? 'active' : 'blocked';
-        await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+        await withTimeout(client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
           status: nextStatus,
           updated_at: new Date().toISOString()
-        }).eq('email', normalizeEmail(email));
-        await client.from(SUPABASE_PROFILES_TABLE).update({
+        }).eq('email', normalizeEmail(email)), 15000, 'Tempo limite ao atualizar status.');
+        await withTimeout(client.from(SUPABASE_PROFILES_TABLE).update({
           status: nextStatus,
           updated_at: new Date().toISOString()
-        }).eq('email', normalizeEmail(email));
+        }).eq('email', normalizeEmail(email)), 15000, 'Tempo limite ao atualizar perfil.');
+        await setAuthBanForManagedAccess(client, email, nextStatus === 'blocked');
         await loadAdminData(true);
         showToast(nextStatus === 'blocked' ? 'Conta bloqueada.' : 'Conta reativada.');
       } catch (error) {
-        showToast(`NÃ£o foi possÃ­vel atualizar o status: ${error.message}`, 'error');
+        showToast(`Não foi possível atualizar o status: ${error.message}`, 'error');
       } finally {
         endAdminAction();
       }
@@ -4547,7 +4595,7 @@
       try {
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
         if (current?.profile?.last_login_at) {
-          showToast('Essa conta jÃ¡ foi usada. Para alterar a senha de outra pessoa, use uma recuperaÃ§Ã£o de senha ou uma funÃ§Ã£o segura do servidor.', 'error');
+          showToast('Essa conta já foi usada. Para alterar a senha de outra pessoa, use uma recuperação de senha ou uma função segura do servidor.', 'error');
           endAdminAction();
           return;
         }
@@ -4561,32 +4609,28 @@
         await loadAdminData(true);
         showToast(`Nova senha inicial gerada para ${email}.`);
       } catch (error) {
-        showToast(`NÃ£o foi possÃ­vel gerar a nova senha: ${error.message}`, 'error');
+        showToast(`Não foi possível gerar a nova senha: ${error.message}`, 'error');
       } finally {
         endAdminAction();
       }
     }
 
     async function deleteManagedAccess(email) {
-      if (!confirm(`Excluir o acesso de ${email}? Isso bloqueia novas entradas e remove os dados sincronizados deste usuÃ¡rio.`)) return;
+      if (!confirm(`Excluir o acesso de ${email}? Isso bloqueia novas entradas e remove os dados sincronizados deste usuário.`)) return;
       if (!beginAdminAction('Excluindo acesso...')) return;
       try {
         const client = await ensureSupabase();
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
         if (normalizeEmail(current?.email) === normalizeEmail(currentSessionUser?.email) && current?.role === 'admin') {
-          showToast('NÃ£o exclua a prÃ³pria conta administradora por aqui.', 'error');
+          showToast('Não exclua a própria conta administradora por aqui.', 'error');
           endAdminAction();
           return;
         }
-        if (current?.profile?.user_id) {
-          await client.from(SUPABASE_STATE_TABLE).delete().eq('user_id', current.profile.user_id);
-          await client.from(SUPABASE_PROFILES_TABLE).delete().eq('user_id', current.profile.user_id);
-        }
-        await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).delete().eq('email', normalizeEmail(email));
+        await deleteManagedAuthAccount(client, email);
         await loadAdminData(true);
-        showToast('Acesso excluÃ­do com sucesso.');
+        showToast('Acesso excluído com sucesso.');
       } catch (error) {
-        showToast(`NÃ£o foi possÃ­vel excluir o acesso: ${error.message}`, 'error');
+        showToast(`Não foi possível excluir o acesso: ${error.message}`, 'error');
       } finally {
         endAdminAction();
       }
@@ -4616,8 +4660,8 @@
         return;
       }
       if (newPassword !== confirmPassword) {
-        if (statusId) safeSetText(statusId, 'A confirmaÃ§Ã£o da senha nÃ£o confere.');
-        showToast('A confirmaÃ§Ã£o da senha nÃ£o confere.', 'error');
+        if (statusId) safeSetText(statusId, 'A confirmação da senha não confere.');
+        showToast('A confirmação da senha não confere.', 'error');
         return;
       }
       try {
@@ -4631,11 +4675,11 @@
         }
         if (statusId) safeSetText(statusId, 'Atualizando senha...');
         const client = await ensureSupabase();
-        if (!client) throw new Error('ConexÃ£o com autenticaÃ§Ã£o indisponÃ­vel.');
+        if (!client) throw new Error('Conexão com autenticação indisponível.');
         const { error } = await withTimeout(
           client.auth.updateUser({ password: newPassword }),
           20000,
-          'Tempo limite ao atualizar senha. Verifique sua conexÃ£o e tente novamente.'
+          'Tempo limite ao atualizar senha. Verifique sua conexão e tente novamente.'
         );
         if (error) throw error;
         if (currentSessionUser?.email) {
@@ -4654,7 +4698,7 @@
                 updated_at: new Date().toISOString()
               }).eq('email', normalizeEmail(currentSessionUser.email)),
               20000,
-              'Tempo limite ao limpar senha temporÃ¡ria.'
+              'Tempo limite ao limpar senha temporária.'
             );
           }
           currentAllowedAccess = currentAllowedAccess ? { ...currentAllowedAccess, must_change_password: false, temp_password: null } : currentAllowedAccess;
@@ -4666,7 +4710,7 @@
         document.getElementById('force-confirm-password').value = '';
         setAccessNote(getAccessNoteText(currentAllowedAccess));
         renderAccessSummary(currentAllowedAccess);
-        if (statusId) safeSetText(statusId, 'Senha atualizada. VocÃª serÃ¡ desconectado para entrar novamente.');
+        if (statusId) safeSetText(statusId, 'Senha atualizada. Você será desconectado para entrar novamente.');
         showToast('Senha atualizada com sucesso. Entre novamente com a nova senha.');
         if (submitBtn) submitBtn.textContent = 'Senha Atualizada';
         setTimeout(() => {
@@ -4682,7 +4726,7 @@
           submitBtn.style.opacity = '';
         }
         if (statusId) safeSetText(statusId, `Falha: ${error.message}`);
-        showToast(`NÃ£o foi possÃ­vel atualizar a senha: ${error.message}`, 'error');
+        showToast(`Não foi possível atualizar a senha: ${error.message}`, 'error');
       }
     }
 
@@ -4731,7 +4775,7 @@
         <div class="budget-row">
           <div class="budget-meta">
             <div class="budget-name">${item.name}</div>
-            <div class="budget-sub">Gasto no mÃªs: ${formatMoney(item.spent)}${item.budget > 0 ? ` de ${formatMoney(item.budget)}` : ''}</div>
+            <div class="budget-sub">Gasto no mês: ${formatMoney(item.spent)}${item.budget > 0 ? ` de ${formatMoney(item.budget)}` : ''}</div>
           </div>
           <input
             type="text"
@@ -4838,7 +4882,7 @@
       try {
         const client = await ensureSupabase();
         if (client && currentSessionUser?.id) {
-      const fullName = State.profile.name || currentSessionUser.email?.split('@')[0] || 'UsuÃ¡rio';
+      const fullName = State.profile.name || currentSessionUser.email?.split('@')[0] || 'Usuário';
           await client.from(SUPABASE_PROFILES_TABLE).update({
             full_name: fullName,
             updated_at: new Date().toISOString()
@@ -4865,7 +4909,7 @@
       a.download = 'controle_financeiro_backup_' + new Date().toISOString().split('T')[0] + '.json';
       a.click();
       URL.revokeObjectURL(url);
-      showToast('CÃ³pia de seguranÃ§a exportada!');
+      showToast('Cópia de segurança exportada!');
     }
 
     function importData(event) {
