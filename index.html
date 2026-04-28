@@ -2715,7 +2715,10 @@
 
     async function enforceAccessForSession(user) {
       try {
-        let profile = await bootstrapAdminIfNeeded(user);
+        let profile = await fetchProfileByUserId(user.id);
+        if (!profile) {
+          profile = await bootstrapAdminIfNeeded(user);
+        }
         let access = await fetchCurrentAccessSnapshot(user.email);
         let accessStatus = resolveAccessStatus(access);
         if (accessStatus === 'missing' && profile?.role === 'admin') {
@@ -2778,28 +2781,15 @@
       event.preventDefault();
       const client = await ensureSupabase();
       if (!client) return;
-      const email = document.getElementById('auth-email').value.trim();
+      const email = normalizeEmail(document.getElementById('auth-email').value.trim());
       const password = document.getElementById('auth-password').value;
       safeSetText('auth-status', authMode === 'login' ? 'Entrando...' : 'Criando conta...');
 
       try {
-        const normalizedEmail = normalizeEmail(email);
-        const allowedAccess = await fetchAllowedAccessByEmail(normalizedEmail);
-        if (!allowedAccess) throw new Error('Este e-mail ainda não foi liberado. Entre em contato com o Suporte.');
-        if (getAccessStatus(allowedAccess) === 'expired') throw new Error('A validade deste acesso venceu. Entre em contato com o Suporte para regularizar.');
-        if (getAccessStatus(allowedAccess) === 'blocked') throw new Error('Este acesso foi bloqueado. Entre em contato com o Suporte para regularizar.');
-
-        if (authMode === 'signup' && allowedAccess.temp_password && password !== allowedAccess.temp_password) {
-          throw new Error('Use a senha temporária definida pelo administrador para concluir o primeiro cadastro.');
-        }
-
         const action = authMode === 'login'
           ? client.auth.signInWithPassword({ email, password })
           : client.auth.signUp({ email, password });
-        let { data, error } = await action;
-        if (error && authMode === 'login' && /Invalid login credentials/i.test(error.message) && allowedAccess.temp_password && password === allowedAccess.temp_password) {
-          ({ data, error } = await client.auth.signUp({ email, password }));
-        }
+        const { data, error } = await action;
         if (error) throw error;
         if (authMode === 'signup' && !data.session) {
           switchAuthMode('login');
@@ -2813,7 +2803,18 @@
         }
         safeSetText('auth-status', 'Conta conectada com sucesso.');
       } catch (error) {
-        safeSetText('auth-status', `Falha: ${error.message}`);
+        const rawMessage = String(error?.message || 'Falha ao autenticar.');
+        if (/Invalid login credentials/i.test(rawMessage)) {
+          safeSetText('auth-status', authMode === 'login'
+            ? 'Falha: e-mail ou senha incorretos.'
+            : 'Falha: não foi possível concluir o primeiro acesso com esses dados.');
+          return;
+        }
+        if (/Email not confirmed/i.test(rawMessage)) {
+          safeSetText('auth-status', 'Falha: o e-mail ainda não foi confirmado. Verifique sua caixa de entrada e também a pasta de spam.');
+          return;
+        }
+        safeSetText('auth-status', `Falha: ${rawMessage}`);
       }
     }
 
@@ -2904,8 +2905,22 @@
           }
         }
 
-        const access = await fetchCurrentAccessSnapshot(currentSessionUser.email);
-        const accessStatus = resolveAccessStatus(access);
+        let access = await fetchCurrentAccessSnapshot(currentSessionUser.email);
+        let accessStatus = resolveAccessStatus(access);
+        if (accessStatus === 'missing' && isAdminRole(currentAccessProfile?.role)) {
+          access = {
+            email: normalizeEmail(currentSessionUser.email),
+            full_name: currentAccessProfile.full_name || State.profile.name || '',
+            role: 'admin',
+            status: 'active',
+            valid_until: currentAccessProfile.valid_until || null,
+            valid_until_at: currentAccessProfile.valid_until_at || null,
+            must_change_password: false,
+            is_trial: false,
+            effective_status: 'active'
+          };
+          accessStatus = 'active';
+        }
         if (accessStatus === 'missing') {
           await blockCurrentAccess('unauthorized', 'Este e-mail nÃ£o estÃ¡ liberado para uso. Entre em contato com o Suporte para regularizar.');
           return false;
