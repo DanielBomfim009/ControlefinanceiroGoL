@@ -1896,15 +1896,11 @@
     const SUPABASE_ALLOWED_EMAILS_TABLE = 'allowed_emails';
     const DEFAULT_ACCESS_DAYS = 30;
     const DEFAULT_TRIAL_MINUTES = 30;
-    const ACCESS_CHECK_INTERVAL_MS = 15000;
     const LOCAL_STATE_PREFIX = 'golbuy_v7';
     let supabaseClient = null;
     let authMode = 'login';
     let currentSessionUser = null;
     let cloudSyncTimer = null;
-    let cloudAutoSyncInterval = null;
-    let accessWatchInterval = null;
-    let adminAutoRefreshInterval = null;
     let isAccessValidationRunning = false;
     let isApplyingRemoteState = false;
     let currentAccessProfile = null;
@@ -1915,7 +1911,10 @@
     let isChangingPassword = false;
     let accessLockActive = false;
     let isCloudSyncRunning = false;
+    let pendingCloudSync = false;
     let isAdminRefreshRunning = false;
+    let pendingAdminRefresh = false;
+    let isAdminActionRunning = false;
 
     const DEFAULT_STATE_TEMPLATE = {
       transactions: [],
@@ -2558,6 +2557,51 @@
       return data;
     }
 
+    function isInvalidLoginError(error) {
+      return /Invalid login credentials/i.test(String(error?.message || error || ''));
+    }
+
+    async function checkFirstAccessCredential(client, email, password) {
+      if (!client || !email || !password) return null;
+      try {
+        const { data, error } = await withTimeout(
+          client.rpc('can_start_first_access', {
+            user_email: normalizeEmail(email),
+            temp_password_value: password
+          }),
+          10000,
+          'Tempo limite ao validar primeiro acesso.'
+        );
+        if (error) {
+          console.warn('Validação de primeiro acesso indisponível:', error);
+          return null;
+        }
+        const row = Array.isArray(data) ? data[0] : data;
+        if (!row || row.effective_status !== 'active') return null;
+        return row;
+      } catch (error) {
+        console.warn('Falha ao validar primeiro acesso:', error);
+        return null;
+      }
+    }
+
+    async function createFirstAccessSession(client, email, password) {
+      const firstAccess = await checkFirstAccessCredential(client, email, password);
+      if (!firstAccess) return null;
+      const fullName = firstAccess.full_name || email.split('@')[0] || '';
+      const { data, error } = await withTimeout(
+        client.auth.signUp({
+          email,
+          password,
+          options: { data: { name: fullName } }
+        }),
+        15000,
+        'Tempo limite ao criar primeiro acesso.'
+      );
+      if (error) throw error;
+      return { data, access: firstAccess };
+    }
+
     async function fetchCurrentAccessSnapshot(email) {
       const client = await ensureSupabase();
       const normalizedEmail = normalizeEmail(email);
@@ -2786,10 +2830,35 @@
       safeSetText('auth-status', authMode === 'login' ? 'Entrando...' : 'Criando conta...');
 
       try {
-        const action = authMode === 'login'
-          ? client.auth.signInWithPassword({ email, password })
-          : client.auth.signUp({ email, password });
-        const { data, error } = await action;
+        let data;
+        let error;
+        if (authMode === 'login') {
+          const loginResult = await withTimeout(
+            client.auth.signInWithPassword({ email, password }),
+            15000,
+            'Tempo limite ao entrar.'
+          );
+          data = loginResult.data;
+          error = loginResult.error;
+          if (error && isInvalidLoginError(error)) {
+            const firstAccessResult = await createFirstAccessSession(client, email, password);
+            if (firstAccessResult?.data) {
+              data = firstAccessResult.data;
+              error = null;
+              if (data.session) {
+                safeSetText('auth-status', 'Primeiro acesso criado. Entrando...');
+              }
+            }
+          }
+        } else {
+          const signupResult = await withTimeout(
+            client.auth.signUp({ email, password }),
+            15000,
+            'Tempo limite ao criar conta.'
+          );
+          data = signupResult.data;
+          error = signupResult.error;
+        }
         if (error) throw error;
         if (authMode === 'signup' && !data.session) {
           switchAuthMode('login');
@@ -2797,14 +2866,18 @@
           safeSetText('auth-status', 'Conta criada. Antes do primeiro acesso, confirme o cadastro pelo e-mail enviado e verifique tambÃ©m a pasta de spam.');
           return;
         }
-        if (authMode === 'login' && !data.session && data.user) {
-          safeSetText('auth-status', 'Conta criada. Agora confirme o e-mail para concluir o primeiro acesso.');
+        if (authMode === 'login' && !data?.session) {
+          if (data?.user) {
+            safeSetText('auth-status', 'Conta criada. Confirme o e-mail ou desative a confirmação de e-mail no Supabase para liberar o primeiro acesso automático.');
+            return;
+          }
+          safeSetText('auth-status', 'Falha: e-mail ou senha incorretos.');
           return;
         }
         safeSetText('auth-status', 'Conta conectada com sucesso.');
       } catch (error) {
         const rawMessage = String(error?.message || 'Falha ao autenticar.');
-        if (/Invalid login credentials/i.test(rawMessage)) {
+        if (isInvalidLoginError(error)) {
           safeSetText('auth-status', authMode === 'login'
             ? 'Falha: e-mail ou senha incorretos.'
             : 'Falha: não foi possível concluir o primeiro acesso com esses dados.');
@@ -2812,6 +2885,12 @@
         }
         if (/Email not confirmed/i.test(rawMessage)) {
           safeSetText('auth-status', 'Falha: o e-mail ainda não foi confirmado. Verifique sua caixa de entrada e também a pasta de spam.');
+          return;
+        }
+        if (/User already registered|already registered/i.test(rawMessage)) {
+          switchAuthMode('login');
+          document.getElementById('auth-email').value = email;
+          safeSetText('auth-status', 'Este e-mail já tem conta. Use Entrar e confira a senha.');
           return;
         }
         safeSetText('auth-status', `Falha: ${rawMessage}`);
@@ -2855,23 +2934,9 @@
       stopAutoSync();
       if (!currentSessionUser) return;
       validateCurrentAccessStatus().catch(error => console.warn('Falha ao validar acesso automaticamente:', error));
-      accessWatchInterval = setInterval(() => {
-        validateCurrentAccessStatus().catch(error => console.warn('Falha ao validar acesso automaticamente:', error));
-      }, ACCESS_CHECK_INTERVAL_MS);
-      cloudAutoSyncInterval = setInterval(() => {
-        syncCloudNow(true);
-      }, 60000);
     }
 
     function stopAutoSync() {
-      if (cloudAutoSyncInterval) {
-        clearInterval(cloudAutoSyncInterval);
-        cloudAutoSyncInterval = null;
-      }
-      if (accessWatchInterval) {
-        clearInterval(accessWatchInterval);
-        accessWatchInterval = null;
-      }
       clearTimeout(cloudSyncTimer);
     }
 
@@ -2879,16 +2944,10 @@
       stopAdminAutoRefresh();
       if (!currentSessionUser || !isAdminRole(currentAccessProfile?.role)) return;
       loadAdminData(true);
-      adminAutoRefreshInterval = setInterval(() => {
-        loadAdminData(true);
-      }, 60000);
     }
 
     function stopAdminAutoRefresh() {
-      if (adminAutoRefreshInterval) {
-        clearInterval(adminAutoRefreshInterval);
-        adminAutoRefreshInterval = null;
-      }
+      pendingAdminRefresh = false;
     }
 
     async function validateCurrentAccessStatus() {
@@ -2948,7 +3007,10 @@
     async function syncCloudNow(silent = false) {
       const client = await ensureSupabase();
       if (!client || !currentSessionUser) return;
-      if (isCloudSyncRunning) return;
+      if (isCloudSyncRunning) {
+        pendingCloudSync = true;
+        return;
+      }
       isCloudSyncRunning = true;
       try {
         const accessOk = await validateCurrentAccessStatus();
@@ -2959,7 +3021,11 @@
           app_state: sanitizeStateForCloud(),
           updated_at: new Date().toISOString()
         };
-        const { error } = await client.from(SUPABASE_STATE_TABLE).upsert(payload);
+        const { error } = await withTimeout(
+          client.from(SUPABASE_STATE_TABLE).upsert(payload),
+          15000,
+          'Tempo limite ao salvar na nuvem.'
+        );
         if (error) throw error;
         setSyncStatus('Dados salvos na nuvem.', 'ok');
         if (!silent) showToast('Dados sincronizados com sucesso!');
@@ -2970,6 +3036,10 @@
         if (!silent) showToast(`NÃ£o foi possÃ­vel sincronizar: ${message}`, 'error');
       } finally {
         isCloudSyncRunning = false;
+        if (pendingCloudSync && currentSessionUser) {
+          pendingCloudSync = false;
+          setTimeout(() => syncCloudNow(true), 300);
+        }
       }
     }
 
@@ -4060,11 +4130,18 @@
       });
     }
 
-    async function provisionManagedAccount(email, password, fullName) {
-      return {
-        email: normalizeEmail(email),
-        user_metadata: { name: fullName || '' }
-      };
+    function beginAdminAction(label = 'Processando...') {
+      if (isAdminActionRunning) {
+        showToast('Aguarde a ação atual terminar.', 'error');
+        return false;
+      }
+      isAdminActionRunning = true;
+      safeSetText('admin-refresh-status', label);
+      return true;
+    }
+
+    function endAdminAction() {
+      isAdminActionRunning = false;
     }
 
     async function createManagedAccess() {
@@ -4094,6 +4171,7 @@
         return;
       }
 
+      if (!beginAdminAction('Criando acesso...')) return;
       try {
         const client = await ensureSupabase();
         const nowIso = new Date().toISOString();
@@ -4112,13 +4190,17 @@
           updated_at: nowIso
         };
 
-        const { error } = await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).upsert(payload, { onConflict: 'email' });
+        const { error } = await withTimeout(
+          client.from(SUPABASE_ALLOWED_EMAILS_TABLE).upsert(payload, { onConflict: 'email' }),
+          15000,
+          'Tempo limite ao criar acesso.'
+        );
         if (error) throw error;
 
-        await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+        await withTimeout(client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
           account_created_at: existingRow?.account_created_at || null,
           updated_at: new Date().toISOString()
-        }).eq('email', email);
+        }).eq('email', email), 15000, 'Tempo limite ao finalizar acesso.');
 
         document.getElementById('admin-access-email').value = '';
         document.getElementById('admin-access-name').value = '';
@@ -4129,6 +4211,8 @@
       } catch (error) {
         console.error('Falha ao criar acesso:', error);
         showToast(`Falha ao criar acesso: ${error.message}`, 'error');
+      } finally {
+        endAdminAction();
       }
     }
 
@@ -4159,8 +4243,9 @@
       const validUntil = deriveValidUntilDate(expiresAtIso);
       const nowIso = new Date().toISOString();
 
+      if (!beginAdminAction('Gerando perfil teste...')) return;
       try {
-        await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).upsert({
+        await withTimeout(client.from(SUPABASE_ALLOWED_EMAILS_TABLE).upsert({
           email,
           full_name: clientName,
           role: 'user',
@@ -4174,15 +4259,7 @@
           claimed_at: null,
           created_by: currentSessionUser.id,
           updated_at: nowIso
-        }, { onConflict: 'email' });
-
-        const createdUser = await provisionManagedAccount(email, tempPassword, clientName);
-        if (createdUser?.id) {
-          await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
-            account_created_at: nowIso,
-            updated_at: nowIso
-          }).eq('email', email);
-        }
+        }, { onConflict: 'email' }), 15000, 'Tempo limite ao gerar perfil teste.');
 
         lastTrialCredentials = {
           email,
@@ -4200,26 +4277,33 @@
         const input = document.getElementById('admin-trial-name');
         if (input) input.value = '';
         await loadAdminData(false);
-        showToast(createdUser
-          ? 'Perfil teste gerado com validade de 30 minutos.'
-          : 'Perfil teste salvo, mas a conta de autenticação não foi criada. Verifique a configuração de Auth do Supabase.');
+        showToast('Perfil teste gerado com validade de 30 minutos.');
       } catch (error) {
         console.error('Falha ao criar perfil teste:', error);
         showToast(`Falha ao criar perfil teste: ${error.message}`, 'error');
+      } finally {
+        endAdminAction();
       }
     }
 
     async function loadAdminData(silent = true) {
       if (!currentSessionUser || !isAdminRole(currentAccessProfile?.role)) return;
-      if (isAdminRefreshRunning) return;
+      if (isAdminRefreshRunning) {
+        pendingAdminRefresh = true;
+        return;
+      }
       isAdminRefreshRunning = true;
       try {
         safeSetText('admin-refresh-status', 'Atualizando...');
         const client = await ensureSupabase();
-        const [{ data: accessRows, error: accessError }, { data: profileRows, error: profileError }] = await Promise.all([
-          client.from(SUPABASE_ALLOWED_EMAILS_TABLE).select('*').order('created_at', { ascending: false }),
-          client.from(SUPABASE_PROFILES_TABLE).select('*').order('created_at', { ascending: false })
-        ]);
+        const [{ data: accessRows, error: accessError }, { data: profileRows, error: profileError }] = await withTimeout(
+          Promise.all([
+            client.from(SUPABASE_ALLOWED_EMAILS_TABLE).select('*').order('created_at', { ascending: false }),
+            client.from(SUPABASE_PROFILES_TABLE).select('*').order('created_at', { ascending: false })
+          ]),
+          15000,
+          'Tempo limite ao atualizar o painel.'
+        );
         if (accessError) throw accessError;
         if (profileError) throw profileError;
 
@@ -4241,6 +4325,10 @@
         showToast('NÃ£o foi possÃ­vel carregar o painel administrativo.', 'error');
       } finally {
         isAdminRefreshRunning = false;
+        if (pendingAdminRefresh && currentSessionUser && isAdminRole(currentAccessProfile?.role)) {
+          pendingAdminRefresh = false;
+          setTimeout(() => loadAdminData(true), 300);
+        }
       }
     }
 
@@ -4319,6 +4407,7 @@
     }
 
     async function renewManagedAccess(email, days = 30) {
+      if (!beginAdminAction('Renovando validade...')) return;
       try {
         const client = await ensureSupabase();
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
@@ -4344,10 +4433,13 @@
         showToast('Validade renovada com sucesso!');
       } catch (error) {
         showToast(`NÃ£o foi possÃ­vel renovar: ${error.message}`, 'error');
+      } finally {
+        endAdminAction();
       }
     }
 
     async function updateManagedAccessValidity(email) {
+      if (!beginAdminAction('Atualizando validade...')) return;
       try {
         const client = await ensureSupabase();
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
@@ -4377,16 +4469,20 @@
         showToast('Validade atualizada com sucesso.');
       } catch (error) {
         showToast(`NÃ£o foi possÃ­vel atualizar a validade: ${error.message}`, 'error');
+      } finally {
+        endAdminAction();
       }
     }
 
     async function toggleManagedAccessStatus(email) {
+      if (!beginAdminAction('Atualizando status...')) return;
       try {
         const client = await ensureSupabase();
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
         if (!current) return;
         if (normalizeEmail(current.email) === normalizeEmail(currentSessionUser?.email) && current.role === 'admin') {
           showToast('NÃ£o bloqueie a prÃ³pria conta administradora por aqui.', 'error');
+          endAdminAction();
           return;
         }
         const nextStatus = current.effectiveStatus === 'blocked' ? 'active' : 'blocked';
@@ -4402,14 +4498,18 @@
         showToast(nextStatus === 'blocked' ? 'Conta bloqueada.' : 'Conta reativada.');
       } catch (error) {
         showToast(`NÃ£o foi possÃ­vel atualizar o status: ${error.message}`, 'error');
+      } finally {
+        endAdminAction();
       }
     }
 
     async function regenerateManagedPassword(email) {
+      if (!beginAdminAction('Gerando senha...')) return;
       try {
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
         if (current?.profile?.last_login_at) {
           showToast('Essa conta jÃ¡ foi usada. Para alterar a senha de outra pessoa, use uma recuperaÃ§Ã£o de senha ou uma funÃ§Ã£o segura do servidor.', 'error');
+          endAdminAction();
           return;
         }
         const client = await ensureSupabase();
@@ -4423,16 +4523,20 @@
         showToast(`Nova senha inicial gerada para ${email}.`);
       } catch (error) {
         showToast(`NÃ£o foi possÃ­vel gerar a nova senha: ${error.message}`, 'error');
+      } finally {
+        endAdminAction();
       }
     }
 
     async function deleteManagedAccess(email) {
       if (!confirm(`Excluir o acesso de ${email}? Isso bloqueia novas entradas e remove os dados sincronizados deste usuÃ¡rio.`)) return;
+      if (!beginAdminAction('Excluindo acesso...')) return;
       try {
         const client = await ensureSupabase();
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
         if (normalizeEmail(current?.email) === normalizeEmail(currentSessionUser?.email) && current?.role === 'admin') {
           showToast('NÃ£o exclua a prÃ³pria conta administradora por aqui.', 'error');
+          endAdminAction();
           return;
         }
         if (current?.profile?.user_id) {
@@ -4444,6 +4548,8 @@
         showToast('Acesso excluÃ­do com sucesso.');
       } catch (error) {
         showToast(`NÃ£o foi possÃ­vel excluir o acesso: ${error.message}`, 'error');
+      } finally {
+        endAdminAction();
       }
     }
 
