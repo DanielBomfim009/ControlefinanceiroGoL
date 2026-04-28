@@ -1415,7 +1415,7 @@
             <input type="password" id="settings-new-password" class="input-styled" placeholder="Nova senha" minlength="6">
             <input type="password" id="settings-confirm-password" class="input-styled" placeholder="Confirmar nova senha" minlength="6">
           </div>
-          <button onclick="changeCurrentPassword()" class="settings-action-btn">Atualizar Senha</button>
+          <button id="settings-password-submit" onclick="changeCurrentPassword()" class="settings-action-btn">Atualizar Senha</button>
         </div>
       </div>
 
@@ -1841,6 +1841,7 @@
     let currentAllowedAccess = null;
     let adminAccessRows = [];
     let passwordChangeRequired = false;
+    let isChangingPassword = false;
 
     // ESTADO
     const State = {
@@ -2043,6 +2044,14 @@
       if (!enabled && !document.getElementById('page-admin')?.classList.contains('hidden')) {
         openPage('dashboard');
       }
+    }
+
+    function withTimeout(promise, ms, message) {
+      let timerId;
+      const timeout = new Promise((_, reject) => {
+        timerId = setTimeout(() => reject(new Error(message)), ms);
+      });
+      return Promise.race([promise, timeout]).finally(() => clearTimeout(timerId));
     }
 
     function openPasswordChangeModal() {
@@ -2442,12 +2451,17 @@
       if (!client) return;
       stopAutoSync();
       closePasswordChangeModal();
-      await client.auth.signOut();
+      try {
+        await withTimeout(client.auth.signOut(), 10000, 'Tempo limite ao encerrar sessao.');
+      } catch (error) {
+        console.warn('Falha ao encerrar sessao remota:', error);
+      }
       currentSessionUser = null;
       currentAccessProfile = null;
       currentAllowedAccess = null;
       adminAccessRows = [];
       passwordChangeRequired = false;
+      isChangingPassword = false;
       toggleAdminUi(false);
       setAccessNote('');
       setSyncStatus('Sessao encerrada.', 'warn');
@@ -2561,6 +2575,7 @@
       }
 
       client.auth.onAuthStateChange(async (event, session) => {
+        if (isChangingPassword && event === 'USER_UPDATED') return;
         if (session?.user) {
           currentSessionUser = session.user;
           showAuthShell(false);
@@ -3838,10 +3853,13 @@
 
     async function changeCurrentPassword(event = null, source = 'settings') {
       event?.preventDefault?.();
+      if (isChangingPassword) return;
       const isForced = source === 'forced';
       const newPassword = document.getElementById(isForced ? 'force-new-password' : 'settings-new-password')?.value || '';
       const confirmPassword = document.getElementById(isForced ? 'force-confirm-password' : 'settings-confirm-password')?.value || '';
       const statusId = isForced ? 'force-password-status' : null;
+      const submitBtn = document.getElementById(isForced ? 'force-password-submit' : 'settings-password-submit');
+      const originalLabel = submitBtn?.textContent || 'Atualizar Senha';
       if (newPassword.length < 6) {
         if (statusId) safeSetText(statusId, 'Use pelo menos 6 caracteres.');
         showToast('Use pelo menos 6 caracteres na nova senha.', 'error');
@@ -3853,20 +3871,40 @@
         return;
       }
       try {
+        isChangingPassword = true;
+        stopAutoSync();
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Atualizando...';
+          submitBtn.style.opacity = '0.72';
+        }
         if (statusId) safeSetText(statusId, 'Atualizando senha...');
         const client = await ensureSupabase();
-        const { error } = await client.auth.updateUser({ password: newPassword });
+        if (!client) throw new Error('Conexao com autenticacao indisponivel.');
+        const { error } = await withTimeout(
+          client.auth.updateUser({ password: newPassword }),
+          20000,
+          'Tempo limite ao atualizar senha. Verifique sua conexao e tente novamente.'
+        );
         if (error) throw error;
         if (currentSessionUser?.email) {
-          const { error: markerError } = await client.rpc('mark_password_changed');
+          const { error: markerError } = await withTimeout(
+            client.rpc('mark_password_changed'),
+            20000,
+            'Tempo limite ao finalizar troca de senha no banco.'
+          );
           if (markerError) {
             const isAdmin = isAdminRole(currentAccessProfile?.role);
             if (!isAdmin) throw markerError;
-            await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
-              must_change_password: false,
-              temp_password: null,
-              updated_at: new Date().toISOString()
-            }).eq('email', normalizeEmail(currentSessionUser.email));
+            await withTimeout(
+              client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+                must_change_password: false,
+                temp_password: null,
+                updated_at: new Date().toISOString()
+              }).eq('email', normalizeEmail(currentSessionUser.email)),
+              20000,
+              'Tempo limite ao limpar senha temporaria.'
+            );
           }
           currentAllowedAccess = currentAllowedAccess ? { ...currentAllowedAccess, must_change_password: false, temp_password: null } : currentAllowedAccess;
         }
@@ -3880,10 +3918,18 @@
           : 'Acesso liberado.');
         if (statusId) safeSetText(statusId, 'Senha atualizada. Voce sera desconectado para entrar novamente.');
         showToast('Senha atualizada com sucesso. Entre novamente com a nova senha.');
+        if (submitBtn) submitBtn.textContent = 'Senha Atualizada';
         setTimeout(() => {
           logoutCloud();
         }, 1400);
       } catch (error) {
+        isChangingPassword = false;
+        startAutoSync();
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalLabel;
+          submitBtn.style.opacity = '';
+        }
         if (statusId) safeSetText(statusId, `Falha: ${error.message}`);
         showToast(`Nao foi possivel atualizar a senha: ${error.message}`, 'error');
       }
