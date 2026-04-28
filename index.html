@@ -1491,6 +1491,13 @@
               <span class="text-sm text-[#e8f4f8]">Exportar cÃ³pia de seguranÃ§a</span>
             </div>
           </button>
+          <button onclick="document.getElementById('backup-import-input').click()" class="w-full flex items-center justify-between gap-3 p-3 rounded-xl bg-[#0d1f2d] hover:bg-[#1a3649] transition-colors">
+            <div class="flex items-center gap-3 min-w-0">
+              <svg class="w-5 h-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9M4 9H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2M15 15h5"/></svg>
+              <span class="text-sm text-[#e8f4f8]">Importar cÃ³pia de seguranÃ§a</span>
+            </div>
+          </button>
+          <input type="file" id="backup-import-input" accept=".json,application/json" class="hidden" onchange="importData(event)">
           <button onclick="clearAllData()" class="w-full flex items-center justify-between gap-3 p-3 rounded-xl bg-expense/10 hover:bg-expense/20 transition-colors">
             <div class="flex items-center gap-3 min-w-0">
               <svg class="w-5 h-5 text-expense" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
@@ -1913,21 +1920,21 @@
     const DEFAULT_STATE_TEMPLATE = {
       transactions: [],
       goals: [],
-      profile: { name: 'Daniel Neves', email: '', photo: null },
+      profile: { name: '', email: '', photo: null },
       accounts: [
         { id: 'checking', name: 'Conta Principal', type: 'Conta corrente', color: '#00b4a0' },
         { id: 'cash_wallet', name: 'Carteira', type: 'Dinheiro', color: '#ffb300' },
         { id: 'reserve', name: 'Reserva', type: 'Investimentos', color: '#9c7cfa' }
       ],
       budgets: {
-        credit_card: 1200,
-        home: 1800,
-        food: 900,
-        transport: 450,
-        health: 300,
-        education: 250,
-        leisure: 350,
-        other: 300
+        credit_card: 0,
+        home: 0,
+        food: 0,
+        transport: 0,
+        health: 0,
+        education: 0,
+        leisure: 0,
+        other: 0
       },
       selectedPaymentMethod: 'credit',
       selectedAccountId: 'checking',
@@ -2070,7 +2077,7 @@
       txCustomDate: new Date(),
       reportCustomDate: new Date()
     });
-    const resetStateToDefaults = ({ email = '', name = 'Daniel Neves', photo = null } = {}) => {
+    const resetStateToDefaults = ({ email = '', name = '', photo = null } = {}) => {
       const fresh = cloneDefaultState();
       fresh.profile = { ...fresh.profile, email, name, photo };
       Object.keys(State).forEach(key => delete State[key]);
@@ -2084,6 +2091,16 @@
         return value;
       }
     };
+    const escapeHtml = (value) => String(repairTextEncoding(value ?? ''))
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+    const escapeJsString = (value) => String(value ?? '')
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/\r?\n/g, ' ');
     const repairMojibakeInDom = (root = document.body) => {
       if (!root) return;
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -2476,14 +2493,14 @@
             }
 
             State.budgets = {
-              credit_card: 1200,
-              home: 1800,
-              food: 900,
-              transport: 450,
-              health: 300,
-              education: 250,
-              leisure: 350,
-              other: 300,
+              credit_card: 0,
+              home: 0,
+              food: 0,
+              transport: 0,
+              health: 0,
+              education: 0,
+              leisure: 0,
+              other: 0,
               ...(State.budgets || {})
             };
 
@@ -2741,7 +2758,7 @@
         currentAllowedAccess = access;
         passwordChangeRequired = Boolean(access.must_change_password);
         State.profile.email = user.email;
-        if (profile?.full_name && (!State.profile.name || State.profile.name === 'Daniel Neves')) {
+        if (profile?.full_name && !State.profile.name) {
           State.profile.name = profile.full_name;
         }
         toggleAdminUi(isAdminRole(profile.role));
@@ -2766,15 +2783,32 @@
       safeSetText('auth-status', authMode === 'login' ? 'Entrando...' : 'Criando conta...');
 
       try {
+        const normalizedEmail = normalizeEmail(email);
+        const allowedAccess = await fetchAllowedAccessByEmail(normalizedEmail);
+        if (!allowedAccess) throw new Error('Este e-mail ainda não foi liberado. Entre em contato com o Suporte.');
+        if (getAccessStatus(allowedAccess) === 'expired') throw new Error('A validade deste acesso venceu. Entre em contato com o Suporte para regularizar.');
+        if (getAccessStatus(allowedAccess) === 'blocked') throw new Error('Este acesso foi bloqueado. Entre em contato com o Suporte para regularizar.');
+
+        if (authMode === 'signup' && allowedAccess.temp_password && password !== allowedAccess.temp_password) {
+          throw new Error('Use a senha temporária definida pelo administrador para concluir o primeiro cadastro.');
+        }
+
         const action = authMode === 'login'
           ? client.auth.signInWithPassword({ email, password })
           : client.auth.signUp({ email, password });
-        const { data, error } = await action;
+        let { data, error } = await action;
+        if (error && authMode === 'login' && /Invalid login credentials/i.test(error.message) && allowedAccess.temp_password && password === allowedAccess.temp_password) {
+          ({ data, error } = await client.auth.signUp({ email, password }));
+        }
         if (error) throw error;
         if (authMode === 'signup' && !data.session) {
           switchAuthMode('login');
           document.getElementById('auth-email').value = email;
           safeSetText('auth-status', 'Conta criada. Antes do primeiro acesso, confirme o cadastro pelo e-mail enviado e verifique tambÃ©m a pasta de spam.');
+          return;
+        }
+        if (authMode === 'login' && !data.session && data.user) {
+          safeSetText('auth-status', 'Conta criada. Agora confirme o e-mail para concluir o primeiro acesso.');
           return;
         }
         safeSetText('auth-status', 'Conta conectada com sucesso.');
@@ -3281,7 +3315,7 @@
     function populateAccountOptions() {
       const select = document.getElementById('tx-account');
       if(!select) return;
-      select.innerHTML = State.accounts.map(account => `<option value="${account.id}">${account.name} - ${account.type}</option>`).join('');
+      select.innerHTML = State.accounts.map(account => `<option value="${escapeHtml(account.id)}">${escapeHtml(account.name)} - ${escapeHtml(account.type)}</option>`).join('');
       select.value = State.selectedAccountId || State.accounts[0]?.id || '';
     }
 
@@ -3586,8 +3620,8 @@
                 </svg>
               </div>
               <div class="tx-content">
-                <p class="tx-title">${t.description} ${isPending ? '<span style="color:#ff8a50;font-size:9px;margin-left:4px;">Pendente</span>' : ''}${isRecurring ? '<span class="recurring-badge"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></span>' : ''}</p>
-                <p class="tx-sub">${cat.name} - ${account.name}</p>
+                <p class="tx-title">${escapeHtml(t.description)} ${isPending ? '<span style="color:#ff8a50;font-size:9px;margin-left:4px;">Pendente</span>' : ''}${isRecurring ? '<span class="recurring-badge"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></span>' : ''}</p>
+                <p class="tx-sub">${escapeHtml(cat.name)} - ${escapeHtml(account.name)}</p>
               </div>
               <div class="tx-right">
                 <p class="tx-amount ${t.type === 'income' ? 'text-income' : 'text-expense'}">${t.type === 'income' ? '+' : '-'}${formatMoney(t.amount)}</p>
@@ -3659,8 +3693,8 @@
                 </svg>
               </div>
               <div class="tx-content">
-                <p class="tx-title">${t.description} ${isRecurring ? '<span class="recurring-badge"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Rec</span>' : ''}</p>
-                <p class="tx-sub">${formatDate(t.date)} - ${account.name}</p>
+                <p class="tx-title">${escapeHtml(t.description)} ${isRecurring ? '<span class="recurring-badge"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Rec</span>' : ''}</p>
+                <p class="tx-sub">${formatDate(t.date)} - ${escapeHtml(account.name)}</p>
               </div>
               <div class="flex items-center gap-2 flex-shrink-0">
                 <span class="text-sm font-semibold ${type === 'income' ? 'text-income' : 'text-expense'}">${type === 'income' ? '+' : '-'}${formatMoney(t.amount)}</span>
@@ -3715,8 +3749,8 @@
                 </svg>
               </div>
               <div class="tx-content">
-                <p class="tx-title">${t.description} ${isRecurring ? '<span class="recurring-badge"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Recorrente</span>' : ''}</p>
-                <p class="tx-sub">${cat.name} - ${formatDate(t.date)} - ${account.name}</p>
+                <p class="tx-title">${escapeHtml(t.description)} ${isRecurring ? '<span class="recurring-badge"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Recorrente</span>' : ''}</p>
+                <p class="tx-sub">${escapeHtml(cat.name)} - ${formatDate(t.date)} - ${escapeHtml(account.name)}</p>
               </div>
               <div class="flex items-center gap-2 flex-shrink-0">
                 <span class="tx-amount ${t.type === 'income' ? 'text-income' : 'text-expense'}">${t.type === 'income' ? '+' : '-'}${formatMoney(t.amount)}</span>
@@ -3746,7 +3780,7 @@
           return `
             <div class="card p-4">
               <div class="flex justify-between items-start mb-3">
-                <h3 class="font-semibold text-white">${g.title}</h3>
+                <h3 class="font-semibold text-white">${escapeHtml(g.title)}</h3>
                 <span class="text-xs text-[#6b8a99]">${pct}%</span>
               </div>
               <div class="h-2 rounded-full overflow-hidden mb-3" style="background: rgba(19, 42, 60, 0.8)">
@@ -3757,8 +3791,8 @@
                 <span class="text-[#6b8a99]">Meta: <span class="text-brand font-semibold">${formatMoney(g.target)}</span></span>
               </div>
               <div class="button-row">
-                <button onclick="openModalGoalAdd('${g.id}')" class="goal-add-btn flex-1">Adicionar Valor</button>
-                <button onclick="deleteGoal('${g.id}')" class="goal-add-btn" style="background: rgba(255, 82, 82, 0.15); color: #ff5252;">Excluir</button>
+                <button onclick="openModalGoalAdd('${escapeJsString(g.id)}')" class="goal-add-btn flex-1">Adicionar Valor</button>
+                <button onclick="deleteGoal('${escapeJsString(g.id)}')" class="goal-add-btn" style="background: rgba(255, 82, 82, 0.15); color: #ff5252;">Excluir</button>
               </div>
             </div>
           `;
@@ -3953,7 +3987,7 @@
                 <svg class="w-4 h-4 ${t.type === 'income' ? 'text-income' : 'text-expense'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               </div>
               <div class="tx-content">
-                <p class="tx-title text-xs">${t.description}</p>
+                <p class="tx-title text-xs">${escapeHtml(t.description)}</p>
                 <p class="tx-sub text-[10px]">${cat.name}</p>
               </div>
               <span class="text-xs font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'}">${formatMoney(t.amount)}</span>
@@ -4012,17 +4046,10 @@
     }
 
     async function provisionManagedAccount(email, password, fullName) {
-      const isolatedClient = createIsolatedSupabaseClient();
-      if (!isolatedClient) throw new Error('ConexÃ£o com a nuvem indisponÃ­vel para criar a conta.');
-      const { data, error } = await isolatedClient.auth.signUp({
+      return {
         email: normalizeEmail(email),
-        password,
-        options: {
-          data: { name: fullName || '' }
-        }
-      });
-      if (error && !/already registered|already been registered|already exists/i.test(error.message)) throw error;
-      return data?.user || null;
+        user_metadata: { name: fullName || '' }
+      };
     }
 
     async function createManagedAccess() {
@@ -4073,15 +4100,8 @@
         const { error } = await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).upsert(payload, { onConflict: 'email' });
         if (error) throw error;
 
-        let createdUser = null;
-        try {
-          createdUser = await provisionManagedAccount(email, tempPassword, fullName);
-        } catch (accountError) {
-          console.error('Conta de autenticaÃ§Ã£o nÃ£o criada automaticamente:', accountError);
-        }
-
         await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
-          account_created_at: createdUser ? nowIso : (existingRow?.account_created_at || null),
+          account_created_at: existingRow?.account_created_at || null,
           updated_at: new Date().toISOString()
         }).eq('email', email);
 
@@ -4090,9 +4110,7 @@
         document.getElementById('admin-access-role').value = 'user';
         prefillAdminAccessForm();
         await loadAdminData(false);
-        showToast(createdUser
-          ? 'Acesso criado com conta pronta para uso.'
-          : 'Acesso salvo. Se a conta de autenticaÃ§Ã£o jÃ¡ existir, entregue a senha temporÃ¡ria e peÃ§a para entrar.');
+        showToast('Acesso criado. Entregue o e-mail e a senha temporária para o primeiro acesso.');
       } catch (error) {
         console.error('Falha ao criar acesso:', error);
         showToast(`Falha ao criar acesso: ${error.message}`, 'error');
@@ -4159,9 +4177,9 @@
         const box = document.getElementById('admin-trial-credentials');
         if (box) {
           box.innerHTML = `
-            <div><strong>E-mail:</strong> ${lastTrialCredentials.email}</div>
-            <div><strong>Senha:</strong> ${lastTrialCredentials.password}</div>
-            <div><strong>Validade:</strong> ${lastTrialCredentials.expiresAt}</div>
+            <div><strong>E-mail:</strong> ${escapeHtml(lastTrialCredentials.email)}</div>
+            <div><strong>Senha:</strong> ${escapeHtml(lastTrialCredentials.password)}</div>
+            <div><strong>Validade:</strong> ${escapeHtml(lastTrialCredentials.expiresAt)}</div>
           `;
         }
         const input = document.getElementById('admin-trial-name');
@@ -4248,15 +4266,15 @@
           ? new Date(row.profile.last_login_at).toLocaleString('pt-BR')
           : 'Ainda nÃ£o acessou';
         const tempPasswordInfo = row.temp_password
-          ? `<div>Senha temporÃ¡ria atual: <strong>${row.temp_password}</strong></div>`
+          ? `<div>Senha temporÃ¡ria atual: <strong>${escapeHtml(row.temp_password)}</strong></div>`
           : '<div>Senha temporÃ¡ria nÃ£o disponÃ­vel.</div>';
 
         return `
           <div class="admin-access-card">
             <div class="admin-access-head">
               <div class="min-w-0">
-                <div class="admin-access-title">${row.full_name || 'Sem nome definido'}</div>
-                <div class="admin-access-email">${row.email}</div>
+                <div class="admin-access-title">${escapeHtml(row.full_name || 'Sem nome definido')}</div>
+                <div class="admin-access-email">${escapeHtml(row.email)}</div>
               </div>
             </div>
             <div class="admin-badges">
@@ -4274,11 +4292,11 @@
               </div>
             </div>
             <div class="admin-access-actions">
-              <button class="admin-secondary-btn" onclick="renewManagedAccess('${row.email}', 30)">Renovar +30 dias</button>
-              <button class="admin-secondary-btn" onclick="updateManagedAccessValidity('${row.email}')">Salvar validade</button>
-              <button class="admin-secondary-btn warn" onclick="toggleManagedAccessStatus('${row.email}')">${row.effectiveStatus === 'blocked' ? 'Reativar' : 'Bloquear'}</button>
-              <button class="admin-secondary-btn" onclick="regenerateManagedPassword('${row.email}')">Gerar senha inicial</button>
-              <button class="admin-secondary-btn danger" onclick="deleteManagedAccess('${row.email}')">Excluir acesso</button>
+              <button class="admin-secondary-btn" onclick="renewManagedAccess('${escapeJsString(row.email)}', 30)">Renovar +30 dias</button>
+              <button class="admin-secondary-btn" onclick="updateManagedAccessValidity('${escapeJsString(row.email)}')">Salvar validade</button>
+              <button class="admin-secondary-btn warn" onclick="toggleManagedAccessStatus('${escapeJsString(row.email)}')">${row.effectiveStatus === 'blocked' ? 'Reativar' : 'Bloquear'}</button>
+              <button class="admin-secondary-btn" onclick="regenerateManagedPassword('${escapeJsString(row.email)}')">Gerar senha inicial</button>
+              <button class="admin-secondary-btn danger" onclick="deleteManagedAccess('${escapeJsString(row.email)}')">Excluir acesso</button>
             </div>
           </div>
         `;
@@ -4533,10 +4551,10 @@
       container.innerHTML = balances.map(account => `
         <div class="account-summary-item">
           <div class="account-summary-name">
-            <span class="account-dot" style="background:${account.color}"></span>
+            <span class="account-dot" style="background:${escapeHtml(account.color)}"></span>
             <div class="min-w-0">
-              <div class="account-summary-title">${account.name}</div>
-              <div class="account-summary-type">${account.type}</div>
+              <div class="account-summary-title">${escapeHtml(account.name)}</div>
+              <div class="account-summary-type">${escapeHtml(account.type)}</div>
             </div>
           </div>
           <div class="account-summary-balance">${formatMoney(account.balance)}</div>
@@ -4624,7 +4642,7 @@
     }
 
     function updateAllAvatars() {
-      const name = State.profile.name || 'Daniel Neves';
+      const name = State.profile.name || currentSessionUser?.email?.split('@')[0] || 'Usuario';
       const initials = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
       const photoSrc = State.profile.photo ? `<img src="${State.profile.photo}" alt="Perfil">` : `<span>${initials}</span>`;
       
@@ -4690,11 +4708,45 @@
       showToast('CÃ³pia de seguranÃ§a exportada!');
     }
 
+    function importData(event) {
+      const file = event?.target?.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (loadEvent) => {
+        try {
+          const parsed = JSON.parse(String(loadEvent.target?.result || '{}'));
+          resetStateToDefaults({
+            email: currentSessionUser?.email || '',
+            name: currentAccessProfile?.full_name || currentSessionUser?.email?.split('@')[0] || '',
+            photo: null
+          });
+          applyHydratedState(parsed);
+          DB.save();
+          updateDashboard();
+          renderTransactions();
+          renderGoals();
+          renderCalendar();
+          renderControlPage();
+          renderReports();
+          populateAccountOptions();
+          updateAllAvatars();
+          await syncCloudNow(true);
+          showToast('Cópia de segurança importada com sucesso!');
+        } catch (error) {
+          console.error('Falha ao importar backup:', error);
+          showToast('Não foi possível importar este arquivo.', 'error');
+        } finally {
+          event.target.value = '';
+        }
+      };
+      reader.readAsText(file);
+    }
+
     function clearAllData() {
       if(confirm('Tem certeza que deseja apagar todos os dados?')) {
         resetStateToDefaults({
           email: currentSessionUser?.email || '',
-          name: currentAccessProfile?.full_name || currentSessionUser?.email?.split('@')[0] || 'Daniel Neves',
+          name: currentAccessProfile?.full_name || currentSessionUser?.email?.split('@')[0] || '',
           photo: null
         });
         DB.save();
