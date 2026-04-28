@@ -1907,6 +1907,8 @@
     let passwordChangeRequired = false;
     let isChangingPassword = false;
     let accessLockActive = false;
+    let isCloudSyncRunning = false;
+    let isAdminRefreshRunning = false;
 
     const DEFAULT_STATE_TEMPLATE = {
       transactions: [],
@@ -2764,22 +2766,6 @@
       safeSetText('auth-status', authMode === 'login' ? 'Entrando...' : 'Criando conta...');
 
       try {
-        const normalizedEmail = normalizeEmail(email);
-        if (authMode === 'login') {
-          const allowedAccess = await fetchAllowedAccessByEmail(normalizedEmail);
-          if (!allowedAccess) throw new Error('Este e-mail ainda não foi liberado. Entre em contato com o Suporte.');
-          if (getAccessStatus(allowedAccess) === 'expired') throw new Error('A validade deste acesso venceu. Entre em contato com o Suporte para regularizar.');
-          if (getAccessStatus(allowedAccess) === 'blocked') throw new Error('Este acesso foi bloqueado. Entre em contato com o Suporte para regularizar.');
-        }
-        if (authMode === 'signup') {
-          const allowedAccess = await fetchAllowedAccessByEmail(normalizedEmail);
-          if (!allowedAccess) throw new Error('Este e-mail ainda nÃ£o foi liberado. Entre em contato com o Suporte.');
-          if (getAccessStatus(allowedAccess) === 'expired') throw new Error('A validade deste acesso venceu. Entre em contato com o Suporte para regularizar.');
-          if (getAccessStatus(allowedAccess) === 'blocked') throw new Error('Este acesso foi bloqueado. Entre em contato com o Suporte para regularizar.');
-          if (allowedAccess.temp_password && password !== allowedAccess.temp_password) {
-            throw new Error('Use a senha temporÃ¡ria definida pelo administrador para concluir o primeiro cadastro.');
-          }
-        }
         const action = authMode === 'login'
           ? client.auth.signInWithPassword({ email, password })
           : client.auth.signUp({ email, password });
@@ -2913,6 +2899,8 @@
     async function syncCloudNow(silent = false) {
       const client = await ensureSupabase();
       if (!client || !currentSessionUser) return;
+      if (isCloudSyncRunning) return;
+      isCloudSyncRunning = true;
       try {
         const accessOk = await validateCurrentAccessStatus();
         if (!accessOk) return;
@@ -2931,6 +2919,8 @@
         const message = error?.message || 'erro desconhecido';
         setSyncStatus(`Falha ao sincronizar: ${message}`, 'off');
         if (!silent) showToast(`NÃ£o foi possÃ­vel sincronizar: ${message}`, 'error');
+      } finally {
+        isCloudSyncRunning = false;
       }
     }
 
@@ -4115,6 +4105,11 @@
         return;
       }
 
+      const client = await ensureSupabase();
+      if (!client) {
+        showToast('Conexão com a nuvem indisponível para criar o perfil teste.', 'error');
+        return;
+      }
       const clientName = document.getElementById('admin-trial-name')?.value?.trim() || 'Perfil Teste';
       const tempPassword = generateTempPassword();
       const usedNumbers = adminAccessRows
@@ -4172,7 +4167,9 @@
         const input = document.getElementById('admin-trial-name');
         if (input) input.value = '';
         await loadAdminData(false);
-        showToast('Perfil teste gerado com validade de 30 minutos.');
+        showToast(createdUser
+          ? 'Perfil teste gerado com validade de 30 minutos.'
+          : 'Perfil teste salvo, mas a conta de autenticação não foi criada. Verifique a configuração de Auth do Supabase.');
       } catch (error) {
         console.error('Falha ao criar perfil teste:', error);
         showToast(`Falha ao criar perfil teste: ${error.message}`, 'error');
@@ -4181,6 +4178,8 @@
 
     async function loadAdminData(silent = true) {
       if (!currentSessionUser || !isAdminRole(currentAccessProfile?.role)) return;
+      if (isAdminRefreshRunning) return;
+      isAdminRefreshRunning = true;
       try {
         safeSetText('admin-refresh-status', 'Atualizando...');
         const client = await ensureSupabase();
@@ -4207,6 +4206,8 @@
         console.error('Falha ao carregar painel admin:', error);
         safeSetText('admin-refresh-status', 'Falha ao atualizar');
         showToast('NÃ£o foi possÃ­vel carregar o painel administrativo.', 'error');
+      } finally {
+        isAdminRefreshRunning = false;
       }
     }
 
