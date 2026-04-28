@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Controle Financeiro - Painel</title>
   
   <!-- PWA / Instalação -->
@@ -208,7 +208,7 @@
       --safe-left: env(safe-area-inset-left, 0px);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+    html, body { width: 100%; height: 100%; overflow-x: hidden; -webkit-text-size-adjust: 100%; touch-action: manipulation; }
     body { 
       font-family: 'Inter', sans-serif; 
       background: linear-gradient(180deg, #0d1f2d 0%, #0a1822 50%, #0d1f2d 100%); 
@@ -391,7 +391,7 @@
     .password-modal .modal-content { border-radius: 24px; padding: 24px 20px; transform: scale(0.96); max-height: min(90vh, 90dvh); }
     .password-modal.active .modal-content { transform: scale(1); }
     
-    .input-styled { background: #0d1f2d; border: 1px solid rgba(0, 180, 160, 0.15); border-radius: 12px; padding: 14px 16px; font-size: 14px; color: #e8f4f8; width: 100%; min-width: 0; max-width: 100%; transition: all 0.2s; }
+    .input-styled { background: #0d1f2d; border: 1px solid rgba(0, 180, 160, 0.15); border-radius: 12px; padding: 14px 16px; font-size: 16px; color: #e8f4f8; width: 100%; min-width: 0; max-width: 100%; transition: all 0.2s; }
     .input-styled:focus { outline: none; border-color: #00b4a0; }
     .input-styled::placeholder { color: #4a6b7a; }
     
@@ -742,14 +742,13 @@
         </div>
         <div>
           <h2 class="font-display auth-heading">Entrar na sua conta</h2>
-          <p class="auth-subtitle">Crie sua conta ou acesse seus dados com e-mail e senha.</p>
+          <p class="auth-subtitle">Acesse com o e-mail liberado pelo suporte e a senha temporária recebida.</p>
         </div>
       </div>
 
       <div class="auth-panel">
-        <div class="auth-tabs">
+        <div class="auth-tabs hidden">
           <button id="auth-tab-login" class="auth-tab active" onclick="switchAuthMode('login')">Entrar</button>
-          <button id="auth-tab-signup" class="auth-tab" onclick="switchAuthMode('signup')">Criar conta</button>
         </div>
 
         <form id="auth-form" class="space-y-4" onsubmit="submitAuth(event)">
@@ -2377,13 +2376,10 @@
     }
 
     function switchAuthMode(mode) {
-      authMode = mode;
+      authMode = 'login';
       document.getElementById('auth-tab-login')?.classList.toggle('active', mode === 'login');
-      document.getElementById('auth-tab-signup')?.classList.toggle('active', mode === 'signup');
-      safeSetText('auth-submit-btn', mode === 'login' ? 'Entrar' : 'Criar Conta');
-      safeSetText('auth-status', mode === 'login'
-        ? 'Entre com seu e-mail e senha para acessar sua base financeira.'
-        : 'Use apenas um e-mail previamente liberado pelo administrador.');
+      safeSetText('auth-submit-btn', 'Entrar');
+      safeSetText('auth-status', 'Entre com o e-mail liberado pelo suporte e a senha temporária recebida.');
     }
 
     function sanitizeStateForCloud() {
@@ -2871,7 +2867,7 @@
       if (!client) return;
       const email = normalizeEmail(document.getElementById('auth-email').value.trim());
       const password = document.getElementById('auth-password').value;
-      safeSetText('auth-status', authMode === 'login' ? 'Entrando...' : 'Criando conta...');
+      safeSetText('auth-status', 'Entrando...');
 
       try {
         let data;
@@ -2898,7 +2894,7 @@
           const signupResult = await withTimeout(
             client.auth.signUp({ email, password }),
             15000,
-            'Tempo limite ao criar conta.'
+            'Tempo limite ao criar primeiro acesso.'
           );
           data = signupResult.data;
           error = signupResult.error;
@@ -3006,6 +3002,25 @@
 
     function stopAdminAutoRefresh() {
       pendingAdminRefresh = false;
+    }
+
+    function pauseBackgroundWork() {
+      clearTimeout(cloudSyncTimer);
+      pendingCloudSync = false;
+    }
+
+    function resumeForegroundWork() {
+      repairMojibakeInDom();
+      syncBodyLock();
+      if (!currentSessionUser || accessLockActive) return;
+      isAccessValidationRunning = false;
+      isSessionLoadRunning = false;
+      isCloudSyncRunning = false;
+      isAdminRefreshRunning = false;
+      isAdminActionRunning = false;
+      pendingAdminRefresh = false;
+      pendingCloudSync = false;
+      setSyncStatus('Pronto para continuar.', 'ok');
     }
 
     async function validateCurrentAccessStatus() {
@@ -3236,6 +3251,9 @@
 
     // NAVEGACAO
     function openPage(page) {
+      if (document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+        document.activeElement.blur();
+      }
       document.querySelectorAll('section[id^="page-"]').forEach(s => s.classList.add('hidden'));
       document.getElementById('page-' + page)?.classList.remove('hidden');
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -5016,14 +5034,14 @@
       initCloudAuth();
       
       window.addEventListener('focus', () => {
-        if (currentSessionUser) {
-          validateCurrentAccessStatus().catch(error => console.warn('Falha ao validar acesso ao voltar para o app:', error));
-        }
+        resumeForegroundWork();
       });
 
       document.addEventListener('visibilitychange', () => {
-        if (!document.hidden && currentSessionUser) {
-          validateCurrentAccessStatus().catch(error => console.warn('Falha ao validar acesso ao reabrir o app:', error));
+        if (document.hidden) {
+          pauseBackgroundWork();
+        } else {
+          resumeForegroundWork();
         }
       });
 
