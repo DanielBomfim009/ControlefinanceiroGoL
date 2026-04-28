@@ -1562,7 +1562,10 @@
         <div class="card">
           <div class="section-header">
             <h2 class="section-title">Contas Liberadas</h2>
-            <button onclick="loadAdminData(false)" class="text-xs font-semibold text-brand hover:text-brand-light transition-colors">Atualizar</button>
+            <div class="flex flex-col items-end gap-1">
+              <button onclick="loadAdminData(false)" class="text-xs font-semibold text-brand hover:text-brand-light transition-colors">Atualizar Agora</button>
+              <span id="admin-refresh-status" class="text-[10px] text-[#6b8a99]">Atualiza a cada 1 min</span>
+            </div>
           </div>
           <div class="p-4">
             <div id="admin-access-list" class="admin-list"></div>
@@ -1836,6 +1839,7 @@
     let currentSessionUser = null;
     let cloudSyncTimer = null;
     let cloudAutoSyncInterval = null;
+    let adminAutoRefreshInterval = null;
     let isApplyingRemoteState = false;
     let currentAccessProfile = null;
     let currentAllowedAccess = null;
@@ -2041,6 +2045,7 @@
     function toggleAdminUi(enabled) {
       document.getElementById('sidebar-admin-item')?.classList.toggle('hidden', !enabled);
       document.getElementById('settings-admin-card')?.classList.toggle('hidden', !enabled);
+      if (!enabled) stopAdminAutoRefresh();
       if (!enabled && !document.getElementById('page-admin')?.classList.contains('hidden')) {
         openPage('dashboard');
       }
@@ -2391,7 +2396,17 @@
           return false;
         }
 
+        const hadProfile = Boolean(profile);
         profile = profile || await upsertManagedProfile(user, access);
+        if (hadProfile) {
+          const client = await ensureSupabase();
+          const lastLoginAt = new Date().toISOString();
+          await client.from(SUPABASE_PROFILES_TABLE).update({
+            last_login_at: lastLoginAt,
+            updated_at: lastLoginAt
+          }).eq('user_id', user.id);
+          profile = { ...profile, last_login_at: lastLoginAt, updated_at: lastLoginAt };
+        }
         currentAccessProfile = profile;
         currentAllowedAccess = access;
         passwordChangeRequired = Boolean(access.must_change_password);
@@ -2450,6 +2465,7 @@
       const client = await ensureSupabase();
       if (!client) return;
       stopAutoSync();
+      stopAdminAutoRefresh();
       closePasswordChangeModal();
       try {
         await withTimeout(client.auth.signOut(), 10000, 'Tempo limite ao encerrar sessao.');
@@ -2490,6 +2506,22 @@
         cloudAutoSyncInterval = null;
       }
       clearTimeout(cloudSyncTimer);
+    }
+
+    function startAdminAutoRefresh() {
+      stopAdminAutoRefresh();
+      if (!currentSessionUser || !isAdminRole(currentAccessProfile?.role)) return;
+      loadAdminData(true);
+      adminAutoRefreshInterval = setInterval(() => {
+        loadAdminData(true);
+      }, 60000);
+    }
+
+    function stopAdminAutoRefresh() {
+      if (adminAutoRefreshInterval) {
+        clearInterval(adminAutoRefreshInterval);
+        adminAutoRefreshInterval = null;
+      }
     }
 
     async function syncCloudNow(silent = false) {
@@ -2547,6 +2579,11 @@
           setSyncStatus('Conta pronta. Dados iniciais enviados.', 'ok');
         }
         startAutoSync();
+        if (isAdminRole(currentAccessProfile?.role)) {
+          startAdminAutoRefresh();
+        } else {
+          stopAdminAutoRefresh();
+        }
         if (passwordChangeRequired) {
           openPasswordChangeModal();
         }
@@ -2582,6 +2619,7 @@
           await loadCloudStateForUser(session.user);
         } else if (event === 'SIGNED_OUT') {
           stopAutoSync();
+          stopAdminAutoRefresh();
           closePasswordChangeModal();
           currentSessionUser = null;
           currentAccessProfile = null;
@@ -3658,6 +3696,7 @@
     async function loadAdminData(silent = true) {
       if (!currentSessionUser || !isAdminRole(currentAccessProfile?.role)) return;
       try {
+        safeSetText('admin-refresh-status', 'Atualizando...');
         const client = await ensureSupabase();
         const [{ data: accessRows, error: accessError }, { data: profileRows, error: profileError }] = await Promise.all([
           client.from(SUPABASE_ALLOWED_EMAILS_TABLE).select('*').order('created_at', { ascending: false }),
@@ -3674,9 +3713,11 @@
         }));
         renderAdminOverview();
         renderAdminAccessList();
+        safeSetText('admin-refresh-status', `Atualizado ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`);
         if (!silent) showToast('Painel administrativo atualizado.');
       } catch (error) {
         console.error('Falha ao carregar painel admin:', error);
+        safeSetText('admin-refresh-status', 'Falha ao atualizar');
         showToast('Nao foi possivel carregar o painel administrativo.', 'error');
       }
     }
@@ -3848,7 +3889,7 @@
       document.getElementById('admin-content')?.classList.toggle('hidden', !isAdmin);
       if (!isAdmin) return;
       prefillAdminAccessForm();
-      loadAdminData(true);
+      startAdminAutoRefresh();
     }
 
     async function changeCurrentPassword(event = null, source = 'settings') {
@@ -3873,6 +3914,7 @@
       try {
         isChangingPassword = true;
         stopAutoSync();
+        stopAdminAutoRefresh();
         if (submitBtn) {
           submitBtn.disabled = true;
           submitBtn.textContent = 'Atualizando...';
@@ -3925,6 +3967,7 @@
       } catch (error) {
         isChangingPassword = false;
         startAutoSync();
+        if (isAdminRole(currentAccessProfile?.role)) startAdminAutoRefresh();
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.textContent = originalLabel;
