@@ -471,7 +471,8 @@
     
     select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b8a99'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 40px !important; }
     input[type="date"],
-    input[type="month"] {
+    input[type="month"],
+    input[type="datetime-local"] {
       appearance: none;
       -webkit-appearance: none;
       display: block;
@@ -482,6 +483,7 @@
     }
     input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.7; }
     input[type="month"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.7; }
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.7; }
 
     /* Toast Notification */
     .toast-container { position: fixed; top: calc(20px + var(--safe-top)); left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: min(calc(100% - 24px), 420px); }
@@ -525,7 +527,7 @@
     .admin-stat-note { color: #86a8b7; font-size: 11px; margin-top: 6px; }
     .admin-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .admin-inline-row { display: flex; align-items: center; gap: 10px; min-width: 0; }
-    .admin-password-box { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-radius: 12px; background: rgba(13, 31, 45, 0.82); border: 1px solid rgba(0, 180, 160, 0.08); }
+    .admin-password-box { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-radius: 12px; background: rgba(13, 31, 45, 0.82); border: 1px solid rgba(0, 180, 160, 0.08); min-width: 0; }
     .admin-password-value { color: #e8f4f8; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; font-weight: 700; word-break: break-all; }
     .admin-list { display: grid; gap: 12px; }
     .admin-access-card { padding: 14px; border-radius: 16px; background: rgba(13, 31, 45, 0.82); border: 1px solid rgba(0, 180, 160, 0.08); }
@@ -576,6 +578,8 @@
     .sync-status-dot { width: 8px; height: 8px; border-radius: 999px; background: #00c853; }
     .sync-status-dot.warn { background: #ffb300; }
     .sync-status-dot.off { background: #ff5252; }
+    .access-summary-box { margin-top: 10px; padding: 12px 14px; border-radius: 12px; background: rgba(13, 31, 45, 0.82); border: 1px solid rgba(0, 180, 160, 0.10); color: #cfe9ef; font-size: 12px; line-height: 1.55; }
+    .access-summary-box strong { color: #ffffff; }
 
     #app,
     section,
@@ -688,22 +692,32 @@
         flex-direction: column;
       }
       .auth-brand {
-        align-items: center;
+        flex-direction: column;
+        align-items: flex-start;
       }
       .auth-heading {
         font-size: 24px;
+      }
+      .auth-subtitle {
+        max-width: none;
       }
       .modal-content {
         padding-inline: 16px;
       }
       input[type="date"],
       input[type="month"],
+      input[type="datetime-local"],
       select {
         min-height: 52px;
       }
-      input[type="date"] {
+      input[type="date"],
+      input[type="datetime-local"] {
         padding-right: 42px;
         font-size: 13px;
+      }
+      .admin-password-box {
+        flex-direction: column;
+        align-items: stretch;
       }
       .bottom-nav-inner {
         padding: 6px;
@@ -721,7 +735,7 @@
 
   <div id="auth-shell" class="auth-shell hidden">
     <div class="auth-card">
-      <div class="auth-kicker">Controle Financeiro na Nuvem</div>
+      <div class="auth-kicker">Controle Financeiro</div>
       <div class="auth-brand">
         <div class="auth-logo-wrap">
           <img class="auth-logo" src="logo-192.png" alt="Logomarca do aplicativo">
@@ -1419,6 +1433,7 @@
           </div>
           <div class="text-xs text-[#6b8a99] leading-5">SincronizaÃ§Ã£o automÃ¡tica a cada 1 minuto. O botÃ£o manual continua disponÃ­vel.</div>
           <div id="settings-access-note" class="text-xs text-[#86a8b7] leading-5"></div>
+          <div id="settings-access-summary" class="access-summary-box hidden"></div>
           <div class="space-y-2">
             <button onclick="syncCloudNow()" class="settings-action-btn">Sincronizar Agora</button>
             <button onclick="logoutCloud()" class="w-full p-3 rounded-xl bg-expense/10 hover:bg-expense/20 transition-colors text-expense font-semibold">Sair da Conta</button>
@@ -1581,18 +1596,20 @@
         <div class="card">
           <div class="section-header">
             <h2 class="section-title">Perfil Teste</h2>
-            <span class="text-xs text-[#6b8a99]">30 min automatico</span>
+            <span class="text-xs text-[#6b8a99]">Validade automatica de 30 min</span>
           </div>
           <div class="p-4 space-y-3">
             <div>
-              <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Nome do interessado</label>
-              <input type="text" id="admin-trial-name" class="input-styled" placeholder="Opcional">
+              <label class="text-xs text-[#6b8a99] font-medium mb-2 block">Nome do cliente</label>
+              <input type="text" id="admin-trial-name" class="input-styled" placeholder="Nome para identificar o teste">
             </div>
-            <div class="admin-password-box">
-              <div id="admin-trial-credentials" class="admin-password-value">Nenhum perfil teste gerado.</div>
-              <button onclick="copyTrialCredentials()" class="admin-secondary-btn" type="button">Copiar</button>
+            <div id="admin-trial-credentials" class="admin-password-box" style="display:block;">
+              <div class="text-xs text-[#6b8a99]">Gere um perfil teste para exibir aqui o e-mail e a senha temporaria.</div>
             </div>
-            <button onclick="createTrialAccess()" class="w-full py-3.5 bg-[#ffb300] text-[#0d1f2d] font-semibold rounded-xl hover:brightness-110 transition-colors">Gerar Perfil Teste 30 Min</button>
+            <div class="admin-access-actions">
+              <button onclick="copyTrialCredentials()" class="admin-secondary-btn" type="button">Copiar teste</button>
+              <button onclick="createTrialAccess()" class="admin-secondary-btn warn" type="button">Gerar perfil teste</button>
+            </div>
           </div>
         </div>
 
@@ -1873,6 +1890,7 @@
     const DEFAULT_ACCESS_DAYS = 30;
     const DEFAULT_TRIAL_MINUTES = 30;
     const ACCESS_CHECK_INTERVAL_MS = 15000;
+    const LOCAL_STATE_PREFIX = 'golbuy_v7';
     let supabaseClient = null;
     let authMode = 'login';
     let currentSessionUser = null;
@@ -1885,13 +1903,12 @@
     let currentAccessProfile = null;
     let currentAllowedAccess = null;
     let adminAccessRows = [];
+    let lastTrialCredentials = null;
     let passwordChangeRequired = false;
     let isChangingPassword = false;
     let accessLockActive = false;
-    let lastTrialCredentials = null;
 
-    // ESTADO
-    const State = {
+    const DEFAULT_STATE_TEMPLATE = {
       transactions: [],
       goals: [],
       profile: { name: 'Daniel Neves', email: '', photo: null },
@@ -1917,11 +1934,10 @@
       controlFilter: 'all',
       controlPeriod: 'month',
       dashboardPeriod: 'month',
-      // Novos estados para filtros de mÃªs especÃ­fico
       dashboardCustomDate: new Date(),
       txCustomDate: new Date(),
       reportCustomDate: new Date(),
-      calendarSelectedDate: null, // Para filtro de dia especÃ­fico no calendÃ¡rio
+      calendarSelectedDate: null,
       categories: {
         expense: [
           { id: 'credit_card', name: 'Cartao', color: '#ffb300' },
@@ -1941,6 +1957,15 @@
         ]
       }
     };
+
+    // ESTADO
+    const State = (() => {
+      const fresh = JSON.parse(JSON.stringify(DEFAULT_STATE_TEMPLATE));
+      fresh.dashboardCustomDate = new Date();
+      fresh.txCustomDate = new Date();
+      fresh.reportCustomDate = new Date();
+      return fresh;
+    })();
 
     let currentFilter = { type: 'all', period: 'month' };
     let currentTxType = 'expense';
@@ -1964,30 +1989,24 @@
     const getMonthLabel = (date) => date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
     const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
     const toDateInputValue = (date) => new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    const toDateTimeLocalValue = (dateLike) => {
+      if (!dateLike) return '';
+      const date = new Date(dateLike);
+      if (Number.isNaN(date.getTime())) return '';
+      return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    };
     const buildFutureDate = (days = DEFAULT_ACCESS_DAYS) => {
       const date = new Date();
       date.setDate(date.getDate() + days);
       return toDateInputValue(date);
     };
-    const toDateTimeLocalValue = (dateLike) => {
-      if (!dateLike) return '';
-      const date = new Date(dateLike);
-      if (Number.isNaN(date.getTime())) return '';
-      const yyyy = date.getFullYear();
-      const mm = String(date.getMonth() + 1).padStart(2, '0');
-      const dd = String(date.getDate()).padStart(2, '0');
-      const hh = String(date.getHours()).padStart(2, '0');
-      const min = String(date.getMinutes()).padStart(2, '0');
-      return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-    };
     const buildFutureDateTime = ({ days = DEFAULT_ACCESS_DAYS, minutes = 0, endOfDay = true } = {}) => {
       const date = new Date();
-      date.setSeconds(0, 0);
+      if (days) date.setDate(date.getDate() + days);
+      if (minutes) date.setMinutes(date.getMinutes() + minutes);
       if (endOfDay) {
         date.setHours(23, 59, 0, 0);
       }
-      date.setDate(date.getDate() + days);
-      date.setMinutes(date.getMinutes() + minutes);
       return date;
     };
     const toIsoFromDateTimeLocal = (value) => {
@@ -1997,7 +2016,7 @@
     };
     const deriveValidUntilDate = (isoValue) => {
       if (!isoValue) return null;
-      return isoValue.slice(0, 10);
+      return new Date(isoValue).toISOString().slice(0, 10);
     };
     const generateTempPassword = () => {
       const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@#%';
@@ -2008,35 +2027,18 @@
     const getAccessExpiryDate = (record) => {
       if (!record) return null;
       if (record.valid_until_at) {
-        const dateTimeExpiry = new Date(record.valid_until_at);
-        if (!Number.isNaN(dateTimeExpiry.getTime())) return dateTimeExpiry;
+        const precise = new Date(record.valid_until_at);
+        return Number.isNaN(precise.getTime()) ? null : precise;
       }
       if (record.valid_until) {
-        const dateExpiry = new Date(`${record.valid_until}T23:59:59`);
-        if (!Number.isNaN(dateExpiry.getTime())) return dateExpiry;
+        const fallback = new Date(`${record.valid_until}T23:59:59`);
+        return Number.isNaN(fallback.getTime()) ? null : fallback;
       }
       return null;
     };
     const isExpiredDate = (record) => {
       const expiry = getAccessExpiryDate(record);
       return expiry ? expiry.getTime() < Date.now() : false;
-    };
-    const formatAccessExpiry = (record, { withTime = true } = {}) => {
-      const expiry = getAccessExpiryDate(record);
-      if (!expiry) return 'Sem data limite';
-      return expiry.toLocaleString('pt-BR', withTime
-        ? { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }
-        : { day: '2-digit', month: '2-digit', year: 'numeric' }
-      );
-    };
-    const getAccessNoteText = (access) => {
-      if (!access) return '';
-      if (access.must_change_password) {
-        return 'Sua conta ainda usa uma senha temporaria. Atualize a senha nesta tela.';
-      }
-      return getAccessExpiryDate(access)
-        ? `Acesso liberado ate ${formatAccessExpiry(access)}.`
-        : 'Acesso liberado sem data limite.';
     };
     const getAccessStatus = (record) => {
       if (!record) return 'missing';
@@ -2045,8 +2047,66 @@
       return 'active';
     };
     const isAdminRole = (role) => role === 'admin';
+    const formatAccessExpiry = (record, { withTime = true } = {}) => {
+      const expiry = getAccessExpiryDate(record);
+      if (!expiry) return 'sem data limite';
+      return expiry.toLocaleString('pt-BR', withTime
+        ? { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }
+        : { day: '2-digit', month: '2-digit', year: 'numeric' });
+    };
+    const getAccessNoteText = (access) => {
+      if (!access) return '';
+      if (access.must_change_password) return 'Sua conta ainda usa uma senha temporaria. Atualize a senha nesta tela.';
+      return `Acesso liberado ate ${formatAccessExpiry(access)}.`;
+    };
     const makeAccessDomKey = (email) => normalizeEmail(email).replace(/[^a-z0-9]/g, '-');
     const getAccessValidityInputId = (email) => `admin-validity-${makeAccessDomKey(email)}`;
+    const getLocalStateKey = (email = currentSessionUser?.email || State.profile.email || 'guest') => `${LOCAL_STATE_PREFIX}:${normalizeEmail(email) || 'guest'}`;
+    const cloneDefaultState = () => ({
+      ...JSON.parse(JSON.stringify(DEFAULT_STATE_TEMPLATE)),
+      dashboardCustomDate: new Date(),
+      txCustomDate: new Date(),
+      reportCustomDate: new Date()
+    });
+    const resetStateToDefaults = ({ email = '', name = 'Daniel Neves', photo = null } = {}) => {
+      const fresh = cloneDefaultState();
+      fresh.profile = { ...fresh.profile, email, name, photo };
+      Object.keys(State).forEach(key => delete State[key]);
+      Object.assign(State, fresh);
+    };
+    const repairTextEncoding = (value) => {
+      if (typeof value !== 'string' || !/[ÃÂâ€]/.test(value)) return value;
+      try {
+        return decodeURIComponent(escape(value));
+      } catch (error) {
+        return value;
+      }
+    };
+    const repairMojibakeInDom = (root = document.body) => {
+      if (!root) return;
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      let node;
+      while ((node = walker.nextNode())) {
+        const fixed = repairTextEncoding(node.nodeValue);
+        if (fixed !== node.nodeValue) node.nodeValue = fixed;
+      }
+      root.querySelectorAll('input[placeholder], textarea[placeholder], [title]').forEach(el => {
+        if (el.hasAttribute('placeholder')) el.setAttribute('placeholder', repairTextEncoding(el.getAttribute('placeholder')));
+        if (el.hasAttribute('title')) el.setAttribute('title', repairTextEncoding(el.getAttribute('title')));
+      });
+    };
+    function installEncodingRepairObserver() {
+      const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+          mutation.addedNodes.forEach(node => {
+            if (node.nodeType === 1) repairMojibakeInDom(node);
+            if (node.nodeType === 3) node.nodeValue = repairTextEncoding(node.nodeValue);
+          });
+        });
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+      repairMojibakeInDom(document.body);
+    }
 
     function getMonthTransactions(date) {
       return filterByDateRange(State.transactions, date, 'month').filter(t => !t.isRecurringInstance);
@@ -2129,7 +2189,7 @@
 
     function safeSetText(id, value) {
       const el = document.getElementById(id);
-      if (el) el.textContent = value;
+      if (el) el.textContent = repairTextEncoding(value);
     }
 
     function setSyncStatus(text, mode = 'warn') {
@@ -2143,6 +2203,27 @@
 
     function setAccessNote(text = '') {
       safeSetText('settings-access-note', text);
+    }
+    function renderAccessSummary(access) {
+      const box = document.getElementById('settings-access-summary');
+      if (!box) return;
+      if (!access) {
+        box.classList.add('hidden');
+        box.innerHTML = '';
+        return;
+      }
+      const statusLabel = getAccessStatus(access) === 'blocked'
+        ? 'Bloqueado'
+        : getAccessStatus(access) === 'expired'
+          ? 'Expirado'
+          : 'Ativo';
+      box.innerHTML = `
+        <div><strong>Status:</strong> ${statusLabel}</div>
+        <div><strong>Validade:</strong> ${formatAccessExpiry(access)}</div>
+        <div><strong>Perfil:</strong> ${access.is_trial ? 'Teste 30 minutos' : (isAdminRole(access.role) ? 'Administrador' : 'Usuário')}</div>
+      `;
+      box.classList.remove('hidden');
+      repairMojibakeInDom(box);
     }
 
     function getAccessLockContent(reason, detail = '') {
@@ -2203,6 +2284,7 @@
       isChangingPassword = false;
       toggleAdminUi(false);
       setAccessNote('');
+      renderAccessSummary(null);
       setSyncStatus('Acesso indisponÃ­vel.', 'off');
       showAccessLock(reason, detail);
       try {
@@ -2362,7 +2444,7 @@
         ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>'
         : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
 
-      toast.innerHTML = `${icon}<span>${message}</span>`;
+      toast.innerHTML = `${icon}<span>${repairTextEncoding(message)}</span>`;
       container.appendChild(toast);
 
       requestAnimationFrame(() => toast.classList.add('show'));
@@ -2375,9 +2457,10 @@
 
     // STORAGE
     const DB = {
-      load: () => {
+      load: (email = null) => {
         try {
-          const d = localStorage.getItem('golbuy_v6');
+          const storageKey = getLocalStateKey(email || 'guest');
+          const d = localStorage.getItem(storageKey) || (!email ? localStorage.getItem('golbuy_v6') : null);
           if(d) {
             const parsed = JSON.parse(d);
             applyHydratedState(parsed);
@@ -2406,11 +2489,13 @@
           }
         } catch (error) {
           console.error('Falha ao carregar dados locais:', error);
-          localStorage.removeItem('golbuy_v6');
+          localStorage.removeItem(getLocalStateKey(email || 'guest'));
+          if (!email) localStorage.removeItem('golbuy_v6');
+          resetStateToDefaults({ email: email || '' });
         }
       },
       save: () => {
-        localStorage.setItem('golbuy_v6', JSON.stringify(sanitizeStateForCloud()));
+        localStorage.setItem(getLocalStateKey(), JSON.stringify(sanitizeStateForCloud()));
         if (!isApplyingRemoteState) queueCloudSave();
       }
     };
@@ -2473,10 +2558,10 @@
               valid_until_at: row.valid_until_at || null,
               temp_password: row.temp_password || null,
               must_change_password: Boolean(row.must_change_password),
+              is_trial: Boolean(row.is_trial),
               account_created_at: row.account_created_at || null,
               claimed_at: row.claimed_at || null,
-              effective_status: row.effective_status || null,
-              is_trial: Boolean(row.is_trial)
+              effective_status: row.effective_status || null
             };
           }
         }
@@ -2487,7 +2572,7 @@
 
       const access = await fetchAllowedAccessByEmail(normalizedEmail);
       return access
-        ? { ...access, effective_status: getAccessStatus(access), is_trial: Boolean(access.is_trial), valid_until_at: access.valid_until_at || null }
+        ? { ...access, effective_status: getAccessStatus(access), valid_until_at: access.valid_until_at || null, is_trial: Boolean(access.is_trial) }
         : { email: normalizedEmail, effective_status: 'missing', status: 'blocked', valid_until: null, valid_until_at: null, is_trial: false };
     }
 
@@ -2499,7 +2584,7 @@
 
     function buildAccessBlockDetail(accessStatus, access) {
       if (accessStatus === 'expired') {
-        return getAccessExpiryDate(access)
+        return access
           ? `Validade encerrada em ${formatAccessExpiry(access)}. Entre em contato com o Suporte para regularizar.`
           : 'A validade do seu acesso terminou. Entre em contato com o Suporte para regularizar.';
       }
@@ -2623,8 +2708,8 @@
             valid_until: profile.valid_until,
             valid_until_at: profile.valid_until_at || null,
             must_change_password: false,
-            effective_status: 'active',
-            is_trial: false
+            is_trial: false,
+            effective_status: 'active'
           };
           accessStatus = 'active';
         }
@@ -2659,6 +2744,7 @@
         }
         toggleAdminUi(isAdminRole(profile.role));
         setAccessNote(getAccessNoteText(access));
+        renderAccessSummary(access);
         return true;
       } catch (error) {
         console.error('Falha ao validar acesso:', error);
@@ -2678,8 +2764,15 @@
       safeSetText('auth-status', authMode === 'login' ? 'Entrando...' : 'Criando conta...');
 
       try {
+        const normalizedEmail = normalizeEmail(email);
+        if (authMode === 'login') {
+          const allowedAccess = await fetchAllowedAccessByEmail(normalizedEmail);
+          if (!allowedAccess) throw new Error('Este e-mail ainda não foi liberado. Entre em contato com o Suporte.');
+          if (getAccessStatus(allowedAccess) === 'expired') throw new Error('A validade deste acesso venceu. Entre em contato com o Suporte para regularizar.');
+          if (getAccessStatus(allowedAccess) === 'blocked') throw new Error('Este acesso foi bloqueado. Entre em contato com o Suporte para regularizar.');
+        }
         if (authMode === 'signup') {
-          const allowedAccess = await fetchAllowedAccessByEmail(email);
+          const allowedAccess = await fetchAllowedAccessByEmail(normalizedEmail);
           if (!allowedAccess) throw new Error('Este e-mail ainda nÃ£o foi liberado. Entre em contato com o Suporte.');
           if (getAccessStatus(allowedAccess) === 'expired') throw new Error('A validade deste acesso venceu. Entre em contato com o Suporte para regularizar.');
           if (getAccessStatus(allowedAccess) === 'blocked') throw new Error('Este acesso foi bloqueado. Entre em contato com o Suporte para regularizar.');
@@ -2724,6 +2817,7 @@
       accessLockActive = false;
       toggleAdminUi(false);
       setAccessNote('');
+      renderAccessSummary(null);
       setSyncStatus('SessÃ£o encerrada.', 'warn');
       showAuthShell(true);
     }
@@ -2847,6 +2941,11 @@
       try {
         const allowed = await enforceAccessForSession(user);
         if (!allowed) return;
+        resetStateToDefaults({
+          email: user.email || '',
+          name: currentAccessProfile?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Usuario'
+        });
+        DB.load(user.email);
         setSyncStatus('Carregando dados da nuvem...', 'warn');
         const { data, error } = await client
           .from(SUPABASE_STATE_TABLE)
@@ -2872,6 +2971,7 @@
           await syncCloudNow(true);
           setSyncStatus('Conta pronta. Dados iniciais enviados.', 'ok');
         }
+        DB.save();
         startAutoSync();
         if (isAdminRole(currentAccessProfile?.role)) {
           startAdminAutoRefresh();
@@ -3890,9 +3990,9 @@
     // ADMIN
     function prefillAdminAccessForm() {
       const password = generateTempPassword();
-      const validUntilAt = toDateTimeLocalValue(buildFutureDateTime());
+      const validUntil = toDateTimeLocalValue(buildFutureDateTime());
       if (document.getElementById('admin-access-password')) safeSetText('admin-access-password', password);
-      if (document.getElementById('admin-access-valid-until-at')) document.getElementById('admin-access-valid-until-at').value = validUntilAt;
+      if (document.getElementById('admin-access-valid-until-at')) document.getElementById('admin-access-valid-until-at').value = validUntil;
     }
 
     function copyAdminPassword() {
@@ -3913,9 +4013,9 @@
         showToast('Gere um perfil teste primeiro.', 'error');
         return;
       }
-      const payload = `Usuario: ${lastTrialCredentials.email}\nSenha: ${lastTrialCredentials.password}\nValidade: ${lastTrialCredentials.expiresAt}`;
-      navigator.clipboard?.writeText(payload).then(() => {
-        showToast('Credenciais de teste copiadas!');
+      const text = `E-mail: ${lastTrialCredentials.email}\nSenha: ${lastTrialCredentials.password}\nValidade: ${lastTrialCredentials.expiresAt}`;
+      navigator.clipboard?.writeText(text).then(() => {
+        showToast('Credenciais do teste copiadas.');
       }).catch(() => {
         showToast('NÃ£o foi possÃ­vel copiar agora.', 'error');
       });
@@ -3953,12 +4053,12 @@
         showToast('Informe um e-mail vÃ¡lido.', 'error');
         return;
       }
-      if (!validUntilAt) {
-        showToast('Defina uma validade com data e hora.', 'error');
-        return;
-      }
       if (!tempPassword || tempPassword === '-') {
         showToast('Gere a senha temporÃ¡ria antes de continuar.', 'error');
+        return;
+      }
+      if (!validUntilAt) {
+        showToast('Defina uma validade vÃ¡lida para a conta.', 'error');
         return;
       }
 
@@ -4011,23 +4111,30 @@
 
     async function createTrialAccess() {
       if (!currentSessionUser || !isAdminRole(currentAccessProfile?.role)) {
-        showToast('Somente administradores podem criar perfis teste.', 'error');
+        showToast('Somente administradores podem criar acessos.', 'error');
         return;
       }
 
-      const fullName = document.getElementById('admin-trial-name')?.value?.trim() || 'Perfil teste';
+      const clientName = document.getElementById('admin-trial-name')?.value?.trim() || 'Perfil Teste';
       const tempPassword = generateTempPassword();
-      const trialCode = `${Date.now()}${Math.floor(Math.random() * 900 + 100)}`;
-      const email = normalizeEmail(`teste.${trialCode}@trial.controlefinanceiro.app`);
+      const usedNumbers = adminAccessRows
+        .filter(row => Boolean(row.is_trial))
+        .map(row => {
+          const match = String(row.email || '').match(/^teste(\d+)@trial\.controlefinanceiro\.app$/i);
+          return match ? Number(match[1]) : 0;
+        })
+        .filter(Boolean);
+      let nextTrialNumber = 1;
+      while (usedNumbers.includes(nextTrialNumber)) nextTrialNumber += 1;
+      const email = normalizeEmail(`teste${String(nextTrialNumber).padStart(3, '0')}@trial.controlefinanceiro.app`);
       const expiresAtIso = new Date(Date.now() + DEFAULT_TRIAL_MINUTES * 60 * 1000).toISOString();
       const validUntil = deriveValidUntilDate(expiresAtIso);
+      const nowIso = new Date().toISOString();
 
       try {
-        const client = await ensureSupabase();
-        const nowIso = new Date().toISOString();
-        const payload = {
+        await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).upsert({
           email,
-          full_name: fullName,
+          full_name: clientName,
           role: 'user',
           status: 'active',
           valid_until: validUntil,
@@ -4035,38 +4142,37 @@
           temp_password: tempPassword,
           must_change_password: false,
           is_trial: true,
+          account_created_at: nowIso,
+          claimed_at: null,
           created_by: currentSessionUser.id,
           updated_at: nowIso
-        };
+        }, { onConflict: 'email' });
 
-        const { error } = await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).upsert(payload, { onConflict: 'email' });
-        if (error) throw error;
-
-        let createdUser = null;
-        try {
-          createdUser = await provisionManagedAccount(email, tempPassword, fullName);
-        } catch (accountError) {
-          console.error('Falha ao provisionar perfil teste:', accountError);
+        const createdUser = await provisionManagedAccount(email, tempPassword, clientName);
+        if (createdUser?.id) {
+          await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
+            account_created_at: nowIso,
+            updated_at: nowIso
+          }).eq('email', email);
         }
-
-        await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
-          account_created_at: createdUser ? nowIso : null,
-          updated_at: new Date().toISOString()
-        }).eq('email', email);
 
         lastTrialCredentials = {
           email,
           password: tempPassword,
           expiresAt: formatAccessExpiry({ valid_until_at: expiresAtIso })
         };
-        const credentialsEl = document.getElementById('admin-trial-credentials');
-        if (credentialsEl) {
-          credentialsEl.innerHTML = `Usuario: <strong>${email}</strong><br>Senha: <strong>${tempPassword}</strong><br>Validade: <strong>${lastTrialCredentials.expiresAt}</strong>`;
+        const box = document.getElementById('admin-trial-credentials');
+        if (box) {
+          box.innerHTML = `
+            <div><strong>E-mail:</strong> ${lastTrialCredentials.email}</div>
+            <div><strong>Senha:</strong> ${lastTrialCredentials.password}</div>
+            <div><strong>Validade:</strong> ${lastTrialCredentials.expiresAt}</div>
+          `;
         }
-
-        document.getElementById('admin-trial-name').value = '';
+        const input = document.getElementById('admin-trial-name');
+        if (input) input.value = '';
         await loadAdminData(false);
-        showToast('Perfil teste criado com validade de 30 minutos.');
+        showToast('Perfil teste gerado com validade de 30 minutos.');
       } catch (error) {
         console.error('Falha ao criar perfil teste:', error);
         showToast(`Falha ao criar perfil teste: ${error.message}`, 'error');
@@ -4089,6 +4195,8 @@
         adminAccessRows = (accessRows || []).map(row => ({
           ...row,
           profile: profilesByEmail.get(normalizeEmail(row.email)) || null,
+          valid_until_at: row.valid_until_at || null,
+          is_trial: Boolean(row.is_trial),
           effectiveStatus: getAccessStatus(row)
         }));
         renderAdminOverview();
@@ -4106,9 +4214,8 @@
       const active = adminAccessRows.filter(row => row.effectiveStatus === 'active').length;
       const blocked = adminAccessRows.filter(row => row.effectiveStatus === 'blocked').length;
       const expiring = adminAccessRows.filter(row => {
-        if (row.effectiveStatus !== 'active') return false;
         const expiry = getAccessExpiryDate(row);
-        if (!expiry) return false;
+        if (!expiry || row.effectiveStatus !== 'active') return false;
         const ms = expiry.getTime() - Date.now();
         return ms >= 0 && ms <= 7 * 24 * 60 * 60 * 1000;
       }).length;
@@ -4161,13 +4268,13 @@
               <div>Ãšltimo acesso: <strong>${lastAccess}</strong></div>
               <div>${tempPasswordInfo}</div>
               <div class="space-y-2">
-                <label class="text-[11px] text-[#86a8b7] block">Alterar validade</label>
+                <label class="text-xs text-[#6b8a99] font-medium block">Ajustar validade</label>
                 <input type="datetime-local" id="${validityInputId}" class="input-styled" value="${toDateTimeLocalValue(getAccessExpiryDate(row) || '')}">
               </div>
             </div>
             <div class="admin-access-actions">
-              <button class="admin-secondary-btn" onclick="updateManagedAccessValidity('${row.email}')">Salvar validade</button>
               <button class="admin-secondary-btn" onclick="renewManagedAccess('${row.email}', 30)">Renovar +30 dias</button>
+              <button class="admin-secondary-btn" onclick="updateManagedAccessValidity('${row.email}')">Salvar validade</button>
               <button class="admin-secondary-btn warn" onclick="toggleManagedAccessStatus('${row.email}')">${row.effectiveStatus === 'blocked' ? 'Reativar' : 'Bloquear'}</button>
               <button class="admin-secondary-btn" onclick="regenerateManagedPassword('${row.email}')">Gerar senha inicial</button>
               <button class="admin-secondary-btn danger" onclick="deleteManagedAccess('${row.email}')">Excluir acesso</button>
@@ -4185,7 +4292,6 @@
         const today = new Date();
         if (base < today) base.setTime(today.getTime());
         base.setDate(base.getDate() + days);
-        base.setSeconds(0, 0);
         const validUntilAt = base.toISOString();
         const validUntil = deriveValidUntilDate(validUntilAt);
         await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
@@ -4212,31 +4318,31 @@
         const client = await ensureSupabase();
         const current = adminAccessRows.find(row => normalizeEmail(row.email) === normalizeEmail(email));
         if (!current) return;
-        const inputId = getAccessValidityInputId(email);
-        const nextValue = document.getElementById(inputId)?.value || '';
-        const validUntilAt = toIsoFromDateTimeLocal(nextValue);
+        const input = document.getElementById(getAccessValidityInputId(email));
+        const validUntilAt = toIsoFromDateTimeLocal(input?.value || '');
         if (!validUntilAt) {
-          showToast('Defina uma validade com data e hora.', 'error');
+          showToast('Informe uma data e hora vÃ¡lidas.', 'error');
           return;
         }
         const validUntil = deriveValidUntilDate(validUntilAt);
-        const nextStatus = current.status === 'blocked' ? 'blocked' : 'active';
+        const status = current.status === 'blocked' ? 'blocked' : 'active';
+        const updatedAt = new Date().toISOString();
         await client.from(SUPABASE_ALLOWED_EMAILS_TABLE).update({
           valid_until: validUntil,
           valid_until_at: validUntilAt,
-          status: nextStatus,
-          updated_at: new Date().toISOString()
+          status,
+          updated_at: updatedAt
         }).eq('email', normalizeEmail(email));
         await client.from(SUPABASE_PROFILES_TABLE).update({
           valid_until: validUntil,
           valid_until_at: validUntilAt,
-          status: nextStatus,
-          updated_at: new Date().toISOString()
+          status,
+          updated_at: updatedAt
         }).eq('email', normalizeEmail(email));
         await loadAdminData(true);
-        showToast('Validade atualizada com sucesso!');
+        showToast('Validade atualizada com sucesso.');
       } catch (error) {
-        showToast(`Nao foi possivel salvar a validade: ${error.message}`, 'error');
+        showToast(`NÃ£o foi possÃ­vel atualizar a validade: ${error.message}`, 'error');
       }
     }
 
@@ -4380,6 +4486,7 @@
         document.getElementById('force-new-password').value = '';
         document.getElementById('force-confirm-password').value = '';
         setAccessNote(getAccessNoteText(currentAllowedAccess));
+        renderAccessSummary(currentAllowedAccess);
         if (statusId) safeSetText(statusId, 'Senha atualizada. VocÃª serÃ¡ desconectado para entrar novamente.');
         showToast('Senha atualizada com sucesso. Entre novamente com a nova senha.');
         if (submitBtn) submitBtn.textContent = 'Senha Atualizada';
@@ -4411,8 +4518,10 @@
       renderBudgetSettings();
       if (currentAllowedAccess) {
         setAccessNote(getAccessNoteText(currentAllowedAccess));
+        renderAccessSummary(currentAllowedAccess);
       } else {
         setAccessNote('');
+        renderAccessSummary(null);
       }
     }
 
@@ -4582,25 +4691,11 @@
 
     function clearAllData() {
       if(confirm('Tem certeza que deseja apagar todos os dados?')) {
-        State.transactions = [];
-        State.goals = [];
-        State.profile = { name: 'Daniel Neves', email: '', photo: null };
-        State.accounts = [
-          { id: 'checking', name: 'Conta Principal', type: 'Conta corrente', color: '#00b4a0' },
-          { id: 'cash_wallet', name: 'Carteira', type: 'Dinheiro', color: '#ffb300' },
-          { id: 'reserve', name: 'Reserva', type: 'Investimentos', color: '#9c7cfa' }
-        ];
-        State.budgets = {
-          credit_card: 1200,
-          home: 1800,
-          food: 900,
-          transport: 450,
-          health: 300,
-          education: 250,
-          leisure: 350,
-          other: 300
-        };
-        State.selectedAccountId = 'checking';
+        resetStateToDefaults({
+          email: currentSessionUser?.email || '',
+          name: currentAccessProfile?.full_name || currentSessionUser?.email?.split('@')[0] || 'Daniel Neves',
+          photo: null
+        });
         DB.save();
         updateDashboard();
         renderTransactions();
@@ -4617,6 +4712,7 @@
     // INIT
     document.addEventListener('DOMContentLoaded', () => {
       DB.load();
+      installEncodingRepairObserver();
       showAuthShell(true);
       
       // Sincroniza inputs de data com estado
